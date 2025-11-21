@@ -1,0 +1,22 @@
+configuration:
+  inverters:
+    - name:
+        name: Inverter name
+        description: Convenient name to give to the inverter
+      host:
+        name: Inverter modbus IP address
+        description: Modbus IP address for the inverter. Use 'test' to configure as dummy
+      port:
+        name: Inverter modbus TCP port
+        description: Modbus TCP port for the inverter.
+      battery_charge_limit:
+        name: Charging limit for the battery
+        description: Individual charging limit in Watt for the inverter (0 to disable limit)
+      battery_discharge_limit:
+        name: Discharging limit for the battery
+        description: Individual discharging limit in Watt for the inverter (0 to disable limit)
+  control_mode: Selected control mode (1 = off, 2 = continuous manual charging, 3 = continuous manual discharging, 4 = automatic operation according to a fixed charge/discharge schedule, 5 = automatic operation according to a dynamic charge/discharge schedule
+  mode_2:
+    total_charge_amount: Total battery charge amount (in Watts) for all battery inverters combined
+  mode_3:
+    total_discharge_amount: Total battery discharge amount (in Watts) for all battery inverters combined

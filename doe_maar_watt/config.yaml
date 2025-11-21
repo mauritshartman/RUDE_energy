@@ -1,0 +1,36 @@
+name: "Doe Maar Watt"
+version: "1.0.0"
+slug: "doe_maar_watt"
+description: "Home battery charge cycle manager based on dynamic prices"
+url: "https://github.com/mauritshartman/RUDE_energy"
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+init: false
+homeassistant_api: true
+map:
+  - share:rw
+options:
+  inverters: {}
+  timezone: 0
+  control_mode: none
+  mode_2:
+    total_charge_amount: 2000
+  mode_3:
+    total_discharge_amount: 2000
+schema:
+  inverters:
+    - name: str
+      host: str
+      port: "int(0,65535)"
+      battery_charge_limit: int
+      battery_discharge_limit: int
+  timezone: int
+  control_mode: "match(^none$|^charge$|^discharge$|^static_schedule$|^dynamic_schedule$)"
+  mode_2:
+    total_charge_amount: "int(0,12000)"
+  mode_3:
+    total_discharge_amount: "int(0,12000)"
