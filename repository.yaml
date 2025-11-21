@@ -1,4 +1,4 @@
 # https://developers.home-assistant.io/docs/add-ons/repository#repository-configuration
-name: Manage charge cycles for home batteries based on dynamic energy prices.
+name: RUDE Energy energy management solutions.
 url: "https://github.com/mauritshartman/RUDE_energy"
 maintainer: mauritshartman
