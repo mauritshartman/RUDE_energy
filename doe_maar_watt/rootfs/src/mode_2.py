@@ -13,7 +13,9 @@ async def mode_2_loop():
         charge_amount = config.get_charge_amount()
         print(f'manual charging: assume control and charge batteries at {charge_amount / 1e3:.1f} kW')
         await client.write_registers(40151, [0, 802])  # 802 = active
-        await client.write_registers(40149, [65535, 65535 - charge_amount])  # rendement (2s complement?)
+        # await client.write_registers(44427, [0, 802])  # 802 = active
+        # await client.write_registers(40149, [65535, 65535 - charge_amount])  # rendement (2s complement?)
+        await client.write_registers(44425, [65535, 65535 - charge_amount])  # rendement (2s complement?)
 
         client.close()
 
