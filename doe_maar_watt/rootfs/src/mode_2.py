@@ -3,7 +3,7 @@ from modbus import ModbusManager
 from config import config
 
 async def mode_2_loop():
-    print(f'Mode 2 (manual charge) initializing')
+    print(f'Mode 2 (manual charge) initializing (Saturday evening test 1)')
 
     while True:
         print(f'manual charge mode: connecting modbus client')
