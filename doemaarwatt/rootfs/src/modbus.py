@@ -90,7 +90,8 @@ class ModbusManager():
             return
 
         try:
-            ra = self._get_relative_address(address)
+            # ra = self._get_relative_address(address)
+            ra = address
             cnt = self._dtype_to_word_count(dtype)
             print(f'DEBUG: Modbus[{client_name}] trying to read register {address} (relative {ra}, count: {cnt})')
 
