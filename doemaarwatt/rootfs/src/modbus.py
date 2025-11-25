@@ -88,7 +88,7 @@ class ModbusManager():
         print(f'DEBUG: Modbus[{client_name}] trying to read register {address}')
         result_dict[client_name] = None  # ensure some value is present
         client = self._clients.get(client_name)
-        if client = None:
+        if client is None:
             return
 
         try:

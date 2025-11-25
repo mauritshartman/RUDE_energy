@@ -6,7 +6,7 @@ build_from:
   armv7: "ghcr.io/home-assistant/armv7-base-python:3.13-alpine3.20"
   i386: "ghcr.io/home-assistant/i386-base-python:3.13-alpine3.20"
 labels:
-  org.opencontainers.image.title: "Doe Maar Watt"
+  org.opencontainers.image.title: "DoeMaarWatt"
   org.opencontainers.image.description: "Manage your home battery charge cycle"
   org.opencontainers.image.source: "https://github.com/mauritshartman/RUDE_energy"
   org.opencontainers.image.licenses: "Apache License 2.0"
