@@ -1,0 +1,3825 @@
+<!DOCTYPE html>
+<html>
+<head><title>Parameters and Measured Values</title>
+    <script type="text/javascript" src="scripts\jquery-1.11.2.js"></script>
+    <script type="text/javascript" src="scripts\jquery.tablesorter.js"></script>
+    <script type="text/javascript" src="scripts\floatingheader.js"></script>
+    <link rel="stylesheet" href="images\parameterlist.css">
+    <link rel="shortcut icon" type="image/x-icon" href="images\favicon.ico">
+    <meta charset="UTF-8">
+    <script>
+        $(document).ready(function() {createFloatingTableHeader();$("#paraTable").tablesorter( {sortList:[[0,0]]} );});
+
+    </script>
+</head>
+<body>
+<header>
+    <nav></nav>
+    <div id="header"><img src="images\sma_logo.png" alt="SMA Solar Technology AG"/>
+        <div id="headercontent"><h1>Parameters and Measured Values</h1>
+            <h2>EDMM-10 / EDMM-20</h2>
+            <p>This list is valid from the following firmware version: 2.05.00.R</p></div>
+    </div>
+</header>
+<section>
+    <table class="tableWithFloatingHeader" id="paraTable">
+        <thead>
+        <tr>
+            <th><p>SMA Modbus registeradresse</p></th>
+            <th><p>Navn</p></th>
+            <th><p>SMA Modbus-adgang</p></th>
+            <th><p>Unit&nbsp;ID</p></th>
+            <th><p>SMA Modbus datatype</p></th>
+            <th><p>SMA Modbus dataformat</p></th>
+            <th><p>Trinvidde</p></th>
+            <th><p>Gruppe</p></th>
+            <th><p>Kanal</p></th>
+            <th><p></p></th>
+            <th><p>Default-værdi</p></th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><p><span>30001</span></p></td>
+                <td><p><span>SMA Modbus profile revision</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>1</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>RAW</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Typeskilt</span></p></td>
+                <td><p><span>SMA Modbus profile revision</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30003</span></p></td>
+                <td><p><span>SUSyID </span></p></td>
+                <td><p>RO</p></td>
+                <td><p>1</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>RAW</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Typeskilt</span></p></td>
+                <td><p><span>Parameter.Nameplate.SusyId</span> </p></td>
+                <td><p>356</p></td>
+                <td><p>356</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30005</span></p></td>
+                <td><p><span>Serial number</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>1</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>RAW</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Typeskilt</span></p></td>
+                <td><p><span>Parameter.Nameplate.SerNum</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30007</span></p></td>
+                <td><p><span>Modbus data change count</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>1</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>RAW</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Typeskilt</span></p></td>
+                <td><p><span>Modbus data change count</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30051</span></p></td>
+                <td><p><span>Enhedsklasse</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>1</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Typeskilt</span></p></td>
+                <td><p><span>Parameter.Nameplate.MainModel</span> </p></td>
+                <td><p>8128: Kommunikationsprodukter</p></td>
+                <td><p>8128: Kommunikationsprodukter</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30053</span></p></td>
+                <td><p><span>Apparattype</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>1</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Typeskilt</span></p></td>
+                <td><p><span>Parameter.Nameplate.Model</span> </p></td>
+                <td><p>9397: EDMM-10<br>19135: EDMM-20</p></td>
+                <td><p>19135: EDMM-20</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30193</span></p></td>
+                <td><p><span>UTC system time</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>1 / 2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>DATE_TIME</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Typeskilt</span></p></td>
+                <td><p><span>UTC system time</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30201</span></p></td>
+                <td><p><span>Tilstand</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Status</span></p></td>
+                <td><p><span>Measurement.Operation.Health</span> </p></td>
+                <td><p>35: Fejl<br>303: Fra<br>307: Ok<br>455: Advarsel</p></td>
+                <td><p>307: Ok</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30233</span></p></td>
+                <td><p><span>Nominel virkeeffekt WMaxOut</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Enhed</span></p></td>
+                <td><p><span>Parameter.Inverter.WMax</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>500000 W</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30513</span></p></td>
+                <td><p><span>Samlet udbytte</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U64</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.TotWhOut.Pv</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30517</span></p></td>
+                <td><p><span>Dagsudbytte</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U64</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.DyWhOut</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30581</span></p></td>
+                <td><p><span>Målerstatus forbrugsmåler</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWhIn</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30583</span></p></td>
+                <td><p><span>Målerstatus tilførselsmåler</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWhOut</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30775</span></p></td>
+                <td><p><span>Effekt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.GridMs.TotW.Pv</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30805</span></p></td>
+                <td><p><span>Blindeffekt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.GridMs.TotVAr</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30845</span></p></td>
+                <td><p><span>Aktuel batteriladetilstand</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Batteri</span></p></td>
+                <td><p><span>Measurement.Bat.ChaStt</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30865</span></p></td>
+                <td><p><span>Effekt forbrug</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWIn</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30867</span></p></td>
+                <td><p><span>Effekt tilførsel</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWOut</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31235</span></p></td>
+                <td><p><span>Specificeret virkeeffektbegrænsning via digital indgang</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.InOut.DigIn.CurWCtlNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31237</span></p></td>
+                <td><p><span>Specificeret virkeeffektbegrænsning via analog indgang</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.InOut.AnIn.CurWCtlNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31239</span></p></td>
+                <td><p><span>Normeret virkeeffektbegrænsning via anlægsstyring</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.WModCfg.WCtlComCfg.WNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31241</span></p></td>
+                <td><p><span>PV-effektbegrænsning via kommunikation for direkte distribution</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.Inverter.CurWCtlDrkNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31243</span></p></td>
+                <td><p><span>Maksimal virkeeffektspecifikation</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.Operation.WMaxLimNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31249</span></p></td>
+                <td><p><span>Anlæggets virkeeffekt på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntW</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31251</span></p></td>
+                <td><p><span>Anlæggets blindeffekt på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntVAr</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31253</span></p></td>
+                <td><p><span>Netspænding fase L1</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.PhV.phsA</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31255</span></p></td>
+                <td><p><span>Netspænding fase L2</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.PhV.phsB</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31257</span></p></td>
+                <td><p><span>Netspænding fase L3</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.PhV.phsC</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31259</span></p></td>
+                <td><p><span>Effekt nettilførsel L1</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.W.phsA</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31261</span></p></td>
+                <td><p><span>Effekt nettilførsel L2</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.W.phsB</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31263</span></p></td>
+                <td><p><span>Effekt nettilførsel L3</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.W.phsC</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31271</span></p></td>
+                <td><p><span>Blindeffekt nettilførsel fase L1</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.VAr.phsA</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31273</span></p></td>
+                <td><p><span>Blindeffekt nettilførsel fase L2</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.VAr.phsB</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31275</span></p></td>
+                <td><p><span>Blindeffekt nettilførsel fase L3</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.VAr.phsC</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31277</span></p></td>
+                <td><p><span>Blindeffekt nettilførsel</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotVAr</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31393</span></p></td>
+                <td><p><span>Aktuel batteriladning</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Batteri</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWIn.Bat</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31395</span></p></td>
+                <td><p><span>Aktuel batteriafladning</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Batteri</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWOut.Bat</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31397</span></p></td>
+                <td><p><span>Batteriladning</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U64</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Batteri</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWhIn.Bat</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31401</span></p></td>
+                <td><p><span>Batteriafladning</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U64</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Batteri</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWhOut.Bat</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31433</span></p></td>
+                <td><p><span>Forskydningsfaktor</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotPF</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31435</span></p></td>
+                <td><p><span>Udgangsstrøm nettilførsel fase L1</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.A.phsA</span> </p></td>
+                <td><p>A</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31437</span></p></td>
+                <td><p><span>Udgangsstrøm nettilførsel fase L2</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.A.phsB</span> </p></td>
+                <td><p>A</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31439</span></p></td>
+                <td><p><span>Udgangsstrøm nettilførsel fase L3</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.A.phsC</span> </p></td>
+                <td><p>A</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31441</span></p></td>
+                <td><p><span>Tilsyneladende effekt L1</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.VA.phsA</span> </p></td>
+                <td><p>VA</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31443</span></p></td>
+                <td><p><span>Tilsyneladende effekt L2</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.VA.phsB</span> </p></td>
+                <td><p>VA</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31445</span></p></td>
+                <td><p><span>Tilsyneladende effekt L3</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.VA.phsC</span> </p></td>
+                <td><p>VA</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31447</span></p></td>
+                <td><p><span>Netfrekvens</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.Hz</span> </p></td>
+                <td><p>Hz</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31455</span></p></td>
+                <td><p><span>Tilsyneladende effekt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotVA</span> </p></td>
+                <td><p>VA</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31501</span></p></td>
+                <td><p><span>Stimuleringstype for cos φ</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotPFExt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31503</span></p></td>
+                <td><p><span>Effekt nettilførsel fase L1 på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntW.phsA</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31505</span></p></td>
+                <td><p><span>Effekt nettilførsel fase L2 på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntW.phsB</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31507</span></p></td>
+                <td><p><span>Effekt nettilførsel fase L3 på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntW.phsC</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31509</span></p></td>
+                <td><p><span>Blindeffekt nettilførsel fase L1 på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntVAr.phsA</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31511</span></p></td>
+                <td><p><span>Blindeffekt nettilførsel fase L2 på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntVAr.phsB</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31513</span></p></td>
+                <td><p><span>Blindeffekt nettilførsel fase L3 på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntVAr.phsC</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31515</span></p></td>
+                <td><p><span>Netspænding fase L1 mod L2 på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.phsA2B</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31517</span></p></td>
+                <td><p><span>Netspænding fase L2 mod L3 på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.phsB2C</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31519</span></p></td>
+                <td><p><span>Netspænding fase L3 mod L1 på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.phsC2A</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31521</span></p></td>
+                <td><p><span>Middelværdi netspænding L-N på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.AvgLN</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31523</span></p></td>
+                <td><p><span>Middelværdi netspænding L-L på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.AvgLL</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31525</span></p></td>
+                <td><p><span>Forskydningsfaktor på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPF</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31527</span></p></td>
+                <td><p><span>Netfrekvens på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntHz</span> </p></td>
+                <td><p>Hz</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31529</span></p></td>
+                <td><p><span>Anlægsspænding fase L1</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.phsA</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31531</span></p></td>
+                <td><p><span>Anlægsspænding fase L2</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.phsB</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31533</span></p></td>
+                <td><p><span>Anlægsspænding fase L3</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.phsC</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31535</span></p></td>
+                <td><p><span>Udgangsstrøm nettilførsel fase L1 på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntA.phsA</span> </p></td>
+                <td><p>A</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31537</span></p></td>
+                <td><p><span>Udgangsstrøm nettilførsel fase L2 på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntA.phsB</span> </p></td>
+                <td><p>A</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31539</span></p></td>
+                <td><p><span>Udgangsstrøm nettilførsel fase L3 på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntA.phsC</span> </p></td>
+                <td><p>A</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31541</span></p></td>
+                <td><p><span>Middelværdi netspænding fase L-N</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.PhV.AvgLN</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31543</span></p></td>
+                <td><p><span>Middelværdi netspænding fase L-L</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.PhV.AvgLL</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31545</span></p></td>
+                <td><p><span>Tilgængelig anlægseffekt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.Operation.WAval</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31547</span></p></td>
+                <td><p><span>Tilgængelig omformereffekt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Enhed</span></p></td>
+                <td><p><span>Measurement.Inverter.WAval</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32185</span></p></td>
+                <td><p><span>Maksimal blindeffektspecifikation</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.Operation.VArMaxLimNom</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32187</span></p></td>
+                <td><p><span>Tilgængelig induktiv blindeffekt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Operation.CurAvailVArUnExt</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32189</span></p></td>
+                <td><p><span>Tilgængelig kapacitiv blindeffekt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Operation.CurAvailVArOvExt</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32191</span></p></td>
+                <td><p><span>Teoretisk tilgængelig anlægseffekt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.Operation.WAvalTheo</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32193</span></p></td>
+                <td><p><span>Produktionsanlæggets tilgængelighed</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.Operation.CurAvailPlnt</span> <img src="images\device.png" title="Compliant with parameter Pbinst/Pinst according to VDE-AR-N 4110:2018-11 (Table C.2)."></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32195</span></p></td>
+                <td><p><span>Virkeeffektreduktion ekstern</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.Operation.WRedEx</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32197</span></p></td>
+                <td><p><span>Tilgængelig induktiv blindeffekt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Operation.CurAvailVArUnExtNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32199</span></p></td>
+                <td><p><span>Tilgængelig kapacitiv blindeffekt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Measurement.Operation.CurAvailVArOvExtNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32281</span></p></td>
+                <td><p><span>Dugpunkttemperatur</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.DewPtTmp</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>°C</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32283</span></p></td>
+                <td><p><span>absolut lufttryk</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.AirPresAbs</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>hPa</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32285</span></p></td>
+                <td><p><span>relativt lufttryk</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.AirPresRel</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>hPa</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32287</span></p></td>
+                <td><p><span>Vindhastighed standardafvigelse</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.WdSpdDv</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>m/s</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32289</span></p></td>
+                <td><p><span>Vindretning standardafvigelse</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.WdDirDv</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>°</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32291</span></p></td>
+                <td><p><span>Vindmålingens kvalitet</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.WdMsQual</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32293</span></p></td>
+                <td><p><span>Nedbørsmængde absolut</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.PrecipRteAbs</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>mm</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32295</span></p></td>
+                <td><p><span>Nedbørsmængde differentiel</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.PrecipRteDif</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>mm</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32297</span></p></td>
+                <td><p><span>Nedbørsintensitet</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.PrecipInts</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>mm/h</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32299</span></p></td>
+                <td><p><span>Nedbørstype</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.PrecipTyp</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32303</span></p></td>
+                <td><p><span>Lynhændelser</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.LgtEvt</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32305</span></p></td>
+                <td><p><span>Lynhændelser (interval)</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.LgtEvtIntv</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32307</span></p></td>
+                <td><p><span>Ekstern temperatursensor</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.ExSnsTmp</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>°C</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32311</span></p></td>
+                <td><p><span>Vindretning</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.WndDir</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>°</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32315</span></p></td>
+                <td><p><span>Indstråling standardafvigelse</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.TotInSolDv</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>W/m²</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32345</span></p></td>
+                <td><p><span>Tilsmudsningsgrad sensor</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.SoilDeg[0]</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32347</span></p></td>
+                <td><p><span>Tilsmudsningsgrad sensor</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.SoilDeg[1]</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32365</span></p></td>
+                <td><p><span>Transmissionstab sensor</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.TxLos[0]</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32367</span></p></td>
+                <td><p><span>Transmissionstab sensor</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.TxLos[1]</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32391</span></p></td>
+                <td><p><span>Aktuelt simuleret frekvensmåleværdi</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ManOvr.Frq.PCCMs.PlntHz</span> </p></td>
+                <td><p>Hz</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32393</span></p></td>
+                <td><p><span>Aktuelt simuleret anlægsspænding fase L1</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ManOvr.Vol.PCCMs.PlntPhV.phsA</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32395</span></p></td>
+                <td><p><span>Aktuelt simuleret anlægsspænding fase L2</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ManOvr.Vol.PCCMs.PlntPhV.phsB</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32397</span></p></td>
+                <td><p><span>Aktuelt simuleret anlægsspænding fase L3</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ManOvr.Vol.PCCMs.PlntPhV.phsC</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32399</span></p></td>
+                <td><p><span>Aktuelt simuleret anlægsspænding fase L1-L2</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ManOvr.Vol.PCCMs.PlntPhV.phsA2B</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32401</span></p></td>
+                <td><p><span>Aktuelt simuleret anlægsspænding fase L2-L3</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ManOvr.Vol.PCCMs.PlntPhV.phsB2C</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32403</span></p></td>
+                <td><p><span>Aktuelt simuleret anlægsspænding fase L3-L1</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ManOvr.Vol.PCCMs.PlntPhV.phsC2A</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32503</span></p></td>
+                <td><p><span>Antal registrerede kommunikations-timeouts til overlejrede anlægsstyreenheder</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ExPlntCtlTmOutDetCnt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32505</span></p></td>
+                <td><p><span>Antal registrerede kommunikations-timeouts for energimålerværdier</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.PlntCtl.GridMsTmOutDetCnt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32507</span></p></td>
+                <td><p><span>Antal registrerede kommunikations-timeouts for enhedsmåleværdier</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.PlntCtl.DevMsTmOutDetCnt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34609</span></p></td>
+                <td><p><span>Udendørstemperatur</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.TmpVal</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>°C</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34613</span></p></td>
+                <td><p><span>Indstråling</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.TotInsol</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>W/m²</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34615</span></p></td>
+                <td><p><span>Vindhastighed</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.HorWSpd</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>m/s</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34617</span></p></td>
+                <td><p><span>Luftfugtighed</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.Hmdt</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34621</span></p></td>
+                <td><p><span>Modultemperatur</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Mdul.TmpVal</span> </p></td>
+                <td><p>°C</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34623</span></p></td>
+                <td><p><span>Indstråling på ekstern sensor</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.ExInsol</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>W/m²</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34625</span></p></td>
+                <td><p><span>Udendørstemperatur</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.TmpVal</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>°F</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34627</span></p></td>
+                <td><p><span>Udendørstemperatur</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.TmpVal</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>°K</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34629</span></p></td>
+                <td><p><span>Modultemperatur</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Mdul.TmpVal</span> </p></td>
+                <td><p>°F</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34631</span></p></td>
+                <td><p><span>Modultemperatur</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Mdul.TmpVal</span> </p></td>
+                <td><p>°K</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34633</span></p></td>
+                <td><p><span>Vindhastighed</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.HorWSpd</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>km/h</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34635</span></p></td>
+                <td><p><span>Vindhastighed</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Meteorologi</span></p></td>
+                <td><p><span>Measurement.Env.HorWSpd</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>mi/h</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34653</span></p></td>
+                <td><p><span>Digital indgangsgruppe 1 (DI1 .. DI4)</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Enhed</span></p></td>
+                <td><p><span>Measurement.InOut.DigInSttGrp1</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34655</span></p></td>
+                <td><p><span>Digital indgangsgruppe 2 (DI5 .. DI8)</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Enhed</span></p></td>
+                <td><p><span>Measurement.InOut.DigInSttGrp2</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34695</span></p></td>
+                <td><p><span>Maksimal blindeffektspecifikation</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Measurement.Operation.VArMaxLimNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35403</span></p></td>
+                <td><p><span>Normeret ændringshastighed for virkeeffekt på nettilslutningspunktet</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntWNomGraCalc</span> </p></td>
+                <td><p>%/s</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35405</span></p></td>
+                <td><p><span>Ændringshastighed for virkeeffekt på nettilslutningspunktet</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntWGraCalc</span> </p></td>
+                <td><p>MW/min</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35407</span></p></td>
+                <td><p><span>Antal omformere i status Run</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Status</span></p></td>
+                <td><p><span>Measurement.Operation.NbrRunStt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35409</span></p></td>
+                <td><p><span>Antal omformere i status Vent</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Status</span></p></td>
+                <td><p><span>Measurement.Operation.NbrWaitStt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35411</span></p></td>
+                <td><p><span>Antal omformere i status Stop</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Status</span></p></td>
+                <td><p><span>Measurement.Operation.NbrStopStt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35413</span></p></td>
+                <td><p><span>Antal omformere i status Q on Demand</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Status</span></p></td>
+                <td><p><span>Measurement.Operation.NbrQodStt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35415</span></p></td>
+                <td><p><span>Anlægsvirkeeffekt (forbrug) på nettilslutningspunktet</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntCsmpW</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35417</span></p></td>
+                <td><p><span>Energiforbrug på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U64</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntCsmpWh</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35421</span></p></td>
+                <td><p><span>Tilført energi på nettilslutningspunkt</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U64</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntWh</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35475</span></p></td>
+                <td><p><span>digital gruppeindgang</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Andre applikationer</span></p></td>
+                <td><p><span>Measurement.InOut.GI1</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40011</span></p></td>
+                <td><p><span>Kvitter for fejl</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Enhed</span></p></td>
+                <td><p><span>Parameter.Operation.Ackn</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>302: -------</p></td>
+                <td><p>302: -------</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40015</span></p></td>
+                <td><p><span>Normeret specificeret blindeffekt via anlægsstyring</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S16</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.VArModCfg.VArCtlComCfg.VArNom</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40016</span></p></td>
+                <td><p><span>Normeret virkeeffektbegrænsning via anlægsstyring</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S16</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.WModCfg.WCtlComCfg.WNom</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40018</span></p></td>
+                <td><p><span>Hurtigfrakobling</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.PlantControl.Inverter.FstStop</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>381: Stop<br>1467: Start<br>1749: Fuldt stop</p></td>
+                <td><p>381: Stop</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40022</span></p></td>
+                <td><p><span>Ekstern blindeffektspecifikation</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S16</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.VArModCfg.VArCtlComCfg.VArNomPrc</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40023</span></p></td>
+                <td><p><span>Normeret virkeeffektbegrænsning via anlægsstyring</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S16</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.WModCfg.WCtlComCfg.WNomPrc</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40024</span></p></td>
+                <td><p><span>Ekstern cos φ-specifikation, nominel cos φ-værdi ved virkeeffektafgivelse</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U16</span></p></td>
+                <td><p>FIX4</p></td>
+                <td><p><span>0,0001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.VArModCfg.PFCtlComCfg.PF</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40025</span></p></td>
+                <td><p><span>Ekstern cos-φ-specifikation, stimuleringstype ved virkeeffektafgivelse</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.VArModCfg.PFCtlComCfg.PFExt</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40029</span></p></td>
+                <td><p><span>Generel driftstilstand</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Status</span></p></td>
+                <td><p><span>Measurement.Operation.OpStt</span> </p></td>
+                <td><p>309: Drift</p></td>
+                <td><p>309: Drift</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40149</span></p></td>
+                <td><p><span>Virkeeffektspecifikation</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.PlantControl.Inverter.WModCfg.WCtlComCfg.WSpt</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40151</span></p></td>
+                <td><p><span>Virke- og blindeffektregulering via kommunikation</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.PlantControl.Inverter.WModCfg.WCtlComCfg.WCtlComAct</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40153</span></p></td>
+                <td><p><span>Blindeffektspecifikation</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.PlantControl.Inverter.VArModCfg.VArCtlComCfg.VArSpt</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40472</span></p></td>
+                <td><p><span>Nominel netspænding</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Parameter.Inverter.PlntCtl.VRef</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>V</p></td>
+                <td><p>230 V</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40492</span></p></td>
+                <td><p><span>Normeret specificeret blindeffekt via anlægsstyring via direkte distribution</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S16</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.DctMrk.VArModCfg.VArCtlComCfg.VArNomPrc</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41167</span></p></td>
+                <td><p><span>Virkeeffektbegrænsning i %</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCnstCfg.WNomPrc</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41315</span></p></td>
+                <td><p><span>Driftstype virkeeffektregulator</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Operation.PlntCtl.WCtlMod</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>3352: Styring<br>3353: Regulering</p></td>
+                <td><p>3353: Regulering</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41317</span></p></td>
+                <td><p><span>Driftstype blindeffektregulator</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Operation.PlntCtl.VArCtlMod</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>3352: Styring<br>3353: Regulering</p></td>
+                <td><p>3352: Styring</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41319</span></p></td>
+                <td><p><span>Blindeffektprocedure ved virkeeffektafgivelse</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArModOut</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>1069: Q(U)-karakteristik<br>1070: Q, manuel specifikation i %<br>1071: Q, manuel specifikation i var<br>1072: Q, ekstern specifikation<br>1073: Q(P)-karakteristik<br>1074: cos φ, manuel specifikation<br>1075: cos φ, ekstern specifikation<br>1076: cos φ(P)-karakteristik<br>4562: cos φ(U)-karakteristik</p></td>
+                <td><p>303: Fra</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41321</span></p></td>
+                <td><p><span>Blindeffektprocedure ved virkeeffektoptagelse</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArModIn</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>1069: Q(U)-karakteristik<br>1070: Q, manuel specifikation i %<br>1071: Q, manuel specifikation i var<br>1072: Q, ekstern specifikation<br>1073: Q(P)-karakteristik<br>1074: cos φ, manuel specifikation<br>1075: cos φ, ekstern specifikation<br>1076: cos φ(P)-karakteristik<br>4562: cos φ(U)-karakteristik</p></td>
+                <td><p>303: Fra</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41323</span></p></td>
+                <td><p><span>Blindeffektprocedure ved nulvirkeeffekt</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArModZerW</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>1069: Q(U)-karakteristik<br>1070: Q, manuel specifikation i %<br>1071: Q, manuel specifikation i var<br>1072: Q, ekstern specifikation<br>1073: Q(P)-karakteristik</p></td>
+                <td><p>303: Fra</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41325</span></p></td>
+                <td><p><span>Q(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[0]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41327</span></p></td>
+                <td><p><span>Q(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[1]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41329</span></p></td>
+                <td><p><span>Q(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[2]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41331</span></p></td>
+                <td><p><span>Q(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[3]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41333</span></p></td>
+                <td><p><span>Q(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[4]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41335</span></p></td>
+                <td><p><span>Q(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[5]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41337</span></p></td>
+                <td><p><span>Q(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[6]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41339</span></p></td>
+                <td><p><span>Q(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[7]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41341</span></p></td>
+                <td><p><span>Q(U), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[0]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41343</span></p></td>
+                <td><p><span>Q(U), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[1]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41345</span></p></td>
+                <td><p><span>Q(U), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[2]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41347</span></p></td>
+                <td><p><span>Q(U), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[3]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41349</span></p></td>
+                <td><p><span>Q(U), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[4]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41351</span></p></td>
+                <td><p><span>Q(U), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[5]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41353</span></p></td>
+                <td><p><span>Q(U), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[6]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41355</span></p></td>
+                <td><p><span>Q(U), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[7]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41443</span></p></td>
+                <td><p><span>Q(U), ekstern forbrugsspændingsspecifikation i V</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0,1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.VArModCfg.VArCtlVolCfg.VolRef.VolRef</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41455</span></p></td>
+                <td><p><span>Integral lokal frekvens (ILF), aktivering via Modbus</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzILFCfg.MbEna</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41463</span></p></td>
+                <td><p><span>Samlet anlægsstyring</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Nettilslutning</span></p></td>
+                <td><p><span>Parameter.Plnt.WRtg</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>W</p></td>
+                <td><p>0 W</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41465</span></p></td>
+                <td><p><span>Heartbeat-signal til kommunikationsovervågning til overlejrede anlægsstyreenheder</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.PlntCtl.LifSignRx</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41525</span></p></td>
+                <td><p><span>Ekstern virkeeffektspecifikation, timeout</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.CtlComCfg.WCtlCom.TmsOutPrc</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>s</p></td>
+                <td><p>600 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41527</span></p></td>
+                <td><p><span>Ekstern virkeeffektspecifikation 2, timeout</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.CtlComCfg.WCtlCom2.TmsOutPrc</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>s</p></td>
+                <td><p>600 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41529</span></p></td>
+                <td><p><span>Ekstern blindeffektspecifikation, timeout</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.CtlComCfg.VArCtlCom.TmsOutPrc</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>s</p></td>
+                <td><p>600 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41531</span></p></td>
+                <td><p><span>Ekstern cos φ-specifikation, timeout</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.CtlComCfg.PFCtlCom.TmsOutPrc</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>s</p></td>
+                <td><p>600 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41533</span></p></td>
+                <td><p><span>Q(U), timeout for udeblivende forbrugsspændingsspecifikation</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.CtlComCfg.VArCtlVolCom.TmsOutPrc</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>s</p></td>
+                <td><p>600 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44021</span></p></td>
+                <td><p><span>Nulstil driftsdata</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Enhed</span></p></td>
+                <td><p><span>Parameter.Operation.ValRsIstl</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>302: -------</p></td>
+                <td><p>302: -------</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44025</span></p></td>
+                <td><p><span>Ekstern virkeeffektspecifikation, nominel værdi-filter</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlComCfg.Dyn.WTmEna</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>308: Tændt</p></td>
+                <td><p>303: Fra</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44029</span></p></td>
+                <td><p><span>Ekstern virkeeffektspecifikation, begrænsning af ændringsraten</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlComCfg.Dyn.WGraEna</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>308: Tændt</p></td>
+                <td><p>308: Tændt</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44039</span></p></td>
+                <td><p><span>Maksimal virkeeffekt</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.WModCfg.WCtlComCfg.WSptMaxNom</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44041</span></p></td>
+                <td><p><span>Minimal virkeeffekt</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.WModCfg.WCtlComCfg.WSptMinNom</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44051</span></p></td>
+                <td><p><span>P(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[0]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44053</span></p></td>
+                <td><p><span>P(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[1]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44055</span></p></td>
+                <td><p><span>P(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[2]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44057</span></p></td>
+                <td><p><span>P(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[3]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44059</span></p></td>
+                <td><p><span>P(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[4]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44061</span></p></td>
+                <td><p><span>P(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[5]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44063</span></p></td>
+                <td><p><span>P(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[6]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44065</span></p></td>
+                <td><p><span>P(U), spændingsværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[7]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44067</span></p></td>
+                <td><p><span>P(U), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[0]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44069</span></p></td>
+                <td><p><span>P(U), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[1]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44071</span></p></td>
+                <td><p><span>P(U), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[2]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44073</span></p></td>
+                <td><p><span>P(U), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[3]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44075</span></p></td>
+                <td><p><span>P(U), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[4]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44077</span></p></td>
+                <td><p><span>P(U), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[5]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44079</span></p></td>
+                <td><p><span>P(U), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[6]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44081</span></p></td>
+                <td><p><span>P(U), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[7]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44095</span></p></td>
+                <td><p><span>Blindeffektprocedure, referenceværdi for blindeffektspecifikationer</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArNomRefMod</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>4405: Maksimal virkeeffekt WMax<br>4406: Maksimal blindeffekt VArMax<br>5335: Maksimal tilsyneladende effekt VAMax</p></td>
+                <td><p>4405: Maksimal virkeeffekt WMax</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44141</span></p></td>
+                <td><p><span>Ekstern cos φ-specifikation, nominel cos φ-værdi ved virkeeffektoptagelse</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX4</p></td>
+                <td><p><span>0,0001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.VArModCfg.PFCtlComCfg.PFIn</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44143</span></p></td>
+                <td><p><span>Ekstern cos φ-specifikation, stimuleringstype ved virkeeffektoptagelse</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.VArModCfg.PFCtlComCfg.PFExtIn</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44147</span></p></td>
+                <td><p><span>Q(P), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[0]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44149</span></p></td>
+                <td><p><span>Q(P), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[1]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44151</span></p></td>
+                <td><p><span>Q(P), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[2]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44153</span></p></td>
+                <td><p><span>Q(P), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[3]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44155</span></p></td>
+                <td><p><span>Q(P), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[4]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44157</span></p></td>
+                <td><p><span>Q(P), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[5]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44159</span></p></td>
+                <td><p><span>Q(P), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[6]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44161</span></p></td>
+                <td><p><span>Q(P), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[7]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44163</span></p></td>
+                <td><p><span>Q(P), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[0]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44165</span></p></td>
+                <td><p><span>Q(P), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[1]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44167</span></p></td>
+                <td><p><span>Q(P), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[2]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44169</span></p></td>
+                <td><p><span>Q(P), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[3]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44171</span></p></td>
+                <td><p><span>Q(P), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[4]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44173</span></p></td>
+                <td><p><span>Q(P), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[5]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44175</span></p></td>
+                <td><p><span>Q(P), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[6]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44177</span></p></td>
+                <td><p><span>Q(P), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[7]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44211</span></p></td>
+                <td><p><span>Q(U), ekstern forbrugsspændingsspecifikation i pu</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.PlantControl.Inverter.VArModCfg.VArCtlVolCfg.VolRef.VolRefPu</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44333</span></p></td>
+                <td><p><span>P(f)-karakteristik</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.Ena</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>308: Tændt</p></td>
+                <td><p>303: Fra</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44335</span></p></td>
+                <td><p><span>P(f), referenceværdi for virkeeffekt ved overfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.RefModOv</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>4354: Maksimal virkeeffektafgivelse<br>4443: Aktuel effekt<br>4444: Procentuel effekt<br>5249: Procentuel effekt med karakteristikknæk</p></td>
+                <td><p>4443: Aktuel effekt</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44337</span></p></td>
+                <td><p><span>P(f), referenceværdi for virkeeffekt ved underfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.RefModUn</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>4354: Maksimal virkeeffektafgivelse<br>4443: Aktuel effekt<br>4444: Procentuel effekt<br>5249: Procentuel effekt med karakteristikknæk</p></td>
+                <td><p>4443: Aktuel effekt</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44339</span></p></td>
+                <td><p><span>P(f), indstillingstid</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WTms</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>s</p></td>
+                <td><p>0.5 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44341</span></p></td>
+                <td><p><span>P(f), hysterese ved overfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HystEnaOv</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>308: Tændt</p></td>
+                <td><p>303: Fra</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44343</span></p></td>
+                <td><p><span>P(f), hysterese ved underfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HystEnaUn</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>308: Tændt</p></td>
+                <td><p>303: Fra</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44345</span></p></td>
+                <td><p><span>P(f), knækoverfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzOv[0]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50.2 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44347</span></p></td>
+                <td><p><span>P(f), knækoverfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzOv[1]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50.2 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44349</span></p></td>
+                <td><p><span>P(f), knækoverfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzOv[2]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50.2 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44351</span></p></td>
+                <td><p><span>P(f), virkeeffektændring pr. Hz ved overfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzOvGra[0]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>-40 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44353</span></p></td>
+                <td><p><span>P(f), virkeeffektændring pr. Hz ved overfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzOvGra[1]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>-40 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44355</span></p></td>
+                <td><p><span>P(f), virkeeffektændring pr. Hz ved overfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzOvGra[2]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>-40 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44357</span></p></td>
+                <td><p><span>P(f), tilbagestillingsoverfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzOvStop</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50.2 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44359</span></p></td>
+                <td><p><span>P(f), knækunderfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzUn[0]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>49.8 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44361</span></p></td>
+                <td><p><span>P(f), knækunderfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzUn[1]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>49.8 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44363</span></p></td>
+                <td><p><span>P(f), knækunderfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzUn[2]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>49.8 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44365</span></p></td>
+                <td><p><span>P(f), virkeeffektændring pr. Hz ved underfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzUnGra[0]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>-40 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44367</span></p></td>
+                <td><p><span>P(f), virkeeffektændring pr. Hz ved underfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzUnGra[1]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>-40 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44369</span></p></td>
+                <td><p><span>P(f), virkeeffektændring pr. Hz ved underfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzUnGra[2]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>-40 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44371</span></p></td>
+                <td><p><span>P(f), tilbagestillingsunderfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzUnStop</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>49.8 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44373</span></p></td>
+                <td><p><span>P(f), udløsningsforsinkelse</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.WCtlTmms</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>ms</p></td>
+                <td><p>0 ms</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44375</span></p></td>
+                <td><p><span>P(f), efterløbstid</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>DURATION</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzStopWGraTms</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>s</p></td>
+                <td><p>0 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44381</span></p></td>
+                <td><p><span>Nominel virkeeffekt WMaxOut</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Parameter.Inverter.WMaxOut</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>W</p></td>
+                <td><p>0 W</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44383</span></p></td>
+                <td><p><span>Nominel virkeeffekt WMaxIn</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Parameter.Inverter.WMaxIn</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>W</p></td>
+                <td><p>0 W</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44393</span></p></td>
+                <td><p><span>Nominel blindeffekt VArMaxQ1</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Parameter.Inverter.VArMaxQ1</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>var</p></td>
+                <td><p>0 var</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44395</span></p></td>
+                <td><p><span>Nominel blindeffekt VArMaxQ2</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Parameter.Inverter.VArMaxQ2</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>var</p></td>
+                <td><p>0 var</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44397</span></p></td>
+                <td><p><span>Nominel blindeffekt VArMaxQ3</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Parameter.Inverter.VArMaxQ3</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>var</p></td>
+                <td><p>0 var</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44399</span></p></td>
+                <td><p><span>Nominel blindeffekt VArMaxQ4</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC-side</span></p></td>
+                <td><p><span>Parameter.Inverter.VArMaxQ4</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>var</p></td>
+                <td><p>0 var</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44449</span></p></td>
+                <td><p><span>Maksimal virkeeffekt batteri</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.PlantControl.Bat.WCtlCom.WSptMaxNom</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44457</span></p></td>
+                <td><p><span>Virkeeffektspecifikation batterisystem</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Bat.WCtlCom.WSptNomPrc</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44461</span></p></td>
+                <td><p><span>Ekstern virkeeffektspecifikation 2, nominel værdi-filter</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlComCfg2.Dyn.WTmEna</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>308: Tændt</p></td>
+                <td><p>303: Fra</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44463</span></p></td>
+                <td><p><span>Ekstern virkeeffektspecifikation 2, begrænsning af ændringsraten</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlComCfg2.Dyn.WGraEna</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>308: Tændt</p></td>
+                <td><p>308: Tændt</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44465</span></p></td>
+                <td><p><span>Ekstern virkeeffektspecifikation 2, stigningsrate</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlComCfg2.Dyn.WGraPos</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%/s</p></td>
+                <td><p>0.5 %/s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44467</span></p></td>
+                <td><p><span>Ekstern virkeeffektspecifikation 2, faldrate</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlComCfg2.Dyn.WGraNeg</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%/s</p></td>
+                <td><p>0.5 %/s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44469</span></p></td>
+                <td><p><span>Q(P), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[8]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44471</span></p></td>
+                <td><p><span>Q(P), virkeeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[9]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44473</span></p></td>
+                <td><p><span>Q(P), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[8]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44475</span></p></td>
+                <td><p><span>Q(P), blindeffektværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[9]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44479</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM)</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Ena</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>308: Tændt</p></td>
+                <td><p>303: Fra</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44493</span></p></td>
+                <td><p><span>Virkeeffektbegrænsning via anlægsstyring</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.WModCfg.WCtlComCfg.W</span> <img src="images\aso.png" title="Device Control Object"></p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44511</span></p></td>
+                <td><p><span>Forindstilling af Q(U)-karakteristik</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.PreSet</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>4306: Lineær karakteristik<br>4307: Karakteristik med 4 støttepunkter og hysterese<br>4308: Karakteristik med 6 støttepunkter<br>4309: Karakteristik med 8 støttepunkter<br>4310: Karakteristik med 10 støttepunkter<br>4311: Karakteristik med 12 støttepunkter<br>4312: Karakteristik med 14 støttepunkter</p></td>
+                <td><p>4306: Lineær karakteristik</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44519</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), forbrugsvirkeeffekt for virkeeffektforskydning</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.WDifRefMod</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>4354: Maksimal virkeeffektafgivelse<br>4443: Aktuel effekt<br>4444: Procentuel effekt</p></td>
+                <td><p>4354: Maksimal virkeeffektafgivelse</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44521</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), knækoverfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzOv[0]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44523</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), knækoverfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzOv[1]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44525</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), knækoverfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzOv[2]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44527</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), virkeeffektforskydning pr. Hz ved overfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzOvGra[0]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>-50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44529</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), virkeeffektforskydning pr. Hz ved overfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzOvGra[1]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>-50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44531</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), virkeeffektforskydning pr. Hz ved overfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzOvGra[2]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>-50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44533</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), tærskel for aktivering ved overfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.DbHzOv</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50.1 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44535</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), knækunderfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzUn[0]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44537</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), knækunderfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzUn[1]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44539</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), knækunderfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzUn[2]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44541</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), virkeeffektforskydning pr. Hz ved underfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzUnGra[0]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>-50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44543</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), virkeeffektforskydning pr. Hz ved underfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzUnGra[1]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>-50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44545</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), virkeeffektforskydning pr. Hz ved underfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzUnGra[2]</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>-50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44547</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), tærskel for aktivering ved underfrekvens</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0,001</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.DbHzUn</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>49.9 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44549</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), faktisk værdi-filter for frekvensmåleværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.HzFilTmEna</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>308: Tændt</p></td>
+                <td><p>308: Tændt</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44551</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), indstillingstid faktisk værdi-filter for frekvensmåleværdi</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.HzFilTms</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>s</p></td>
+                <td><p>1 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44553</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), reserveeffekt relateret til den tilgængelige virkeeffekt</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.WResNom</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%</p></td>
+                <td><p>10 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44555</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), filter for den tilgængelige virkeeffekt</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WAvalFilTmEna</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>308: Tændt</p></td>
+                <td><p>303: Fra</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44557</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), filterets indstillingstid for den tilgængelige virkeeffekt</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WAvalTms</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>s</p></td>
+                <td><p>1 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44559</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), begrænsning af ændringsraten for den tilgængelige virkeeffekt</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WAvalGraEna</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>308: Tændt</p></td>
+                <td><p>308: Tændt</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44561</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), stigningsrate for den tilgængelige virkeeffekt</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WAvalGraPos</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%/s</p></td>
+                <td><p>20 %/s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44563</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), faldrate for den tilgængelige virkeeffekt</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WAvalGraNeg</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%/s</p></td>
+                <td><p>20 %/s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44565</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), nominel værdi-filter for virkeeffektforskydningen</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WDifFilTmEna</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>308: Tændt</p></td>
+                <td><p>308: Tændt</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44567</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), indstillingstid for nominel værdi-filter for virkeeffektforskydning</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WDifFilTms</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>s</p></td>
+                <td><p>1 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44569</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), begrænsning af ændringsraten for virkeeffektforskydningen</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WDifGraEna</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>303: Fra<br>308: Tændt</p></td>
+                <td><p>303: Fra</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44571</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), stigningsrate for virkeeffektforskydningen</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WDifGraPos</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%/s</p></td>
+                <td><p>20 %/s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44573</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), faldrate for virkeeffektforskydningen</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0,01</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WDifGraNeg</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>%/s</p></td>
+                <td><p>20 %/s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44575</span></p></td>
+                <td><p><span>Primær reguleringseffekt (FSM), basisvirkeeffekt</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>Anlægs- og enhedsstyring</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.WBaseMod</span> <img src="images\statuswarning.png" title="Warning against cyclical writing"></p></td>
+                <td><p>5014: Aktuel maksimal virkeeffektspecifikation<br>5015: Minimum af virkeeffektspecifikation og tilgængelig effekt</p></td>
+                <td><p>5014: Aktuel maksimal virkeeffektspecifikation</p></td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+<footer>
+    <div id="legend"><h2>Legend</h2>
+        <p><img src="images\aso.png" alt="Device Control Object" title="Device Control Object"></img> - Device Control Object</p>
+        <p><img src="images\statuswarning.png" alt="Warning against cyclical writing" title="Warning against cyclical writing"></img>
+            - Cyclic modification of these parameters may destroy the flash memory of the product</p>
+        <p><img src="images\installer.png" alt="Additional Sensors for module temperature, ambient temperature and irradiation needed." title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></img> - Sensors for module temperature, ambient temperature and irradiation must be included in the system, configured in the SMA Data Manager and activated in the Modbus interface.</p>
+        <p><img src="images\device.png" alt="Compliant with parameter Pbinst/Pinst according to VDE-AR-N 4110:2018-11 (Table C.2)." title="Compliant with parameter Pbinst/Pinst according to VDE-AR-N 4110:2018-11 (Table C.2)."></img> - Compliant with parameter Pbinst/Pinst according to VDE-AR-N 4110:2018-11 (Table C.2). <b>Pbinst:</b> Sum of the rated active power of all generating units in operation. Pinst: Sum of the rated active powers of all generating units within a generating system. Determined only for inverters with the status "In operation" (OPERATION_OPSTT).</p></div>
+    <div id="footer"><p>&copy; Copyright 2025 - SMA Solar Technology AG</p></div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,3825 @@
+<!DOCTYPE html>
+<html>
+<head><title>パラメータと測定値</title>
+    <script type="text/javascript" src="scripts\jquery-1.11.2.js"></script>
+    <script type="text/javascript" src="scripts\jquery.tablesorter.js"></script>
+    <script type="text/javascript" src="scripts\floatingheader.js"></script>
+    <link rel="stylesheet" href="images\parameterlist.css">
+    <link rel="shortcut icon" type="image/x-icon" href="images\favicon.ico">
+    <meta charset="UTF-8">
+    <script>
+        $(document).ready(function() {createFloatingTableHeader();$("#paraTable").tablesorter( {sortList:[[0,0]]} );});
+
+    </script>
+</head>
+<body>
+<header>
+    <nav></nav>
+    <div id="header"><img src="images\sma_logo.png" alt="SMA Solar Technology AG"/>
+        <div id="headercontent"><h1>パラメータと測定値</h1>
+            <h2>EDMM-10 / EDMM-20</h2>
+            <p>このリストは、次のファームウェア バージョンから有効です: 2.05.00.R</p></div>
+    </div>
+</header>
+<section>
+    <table class="tableWithFloatingHeader" id="paraTable">
+        <thead>
+        <tr>
+            <th><p>SMA Modbusレジスタのアドレス</p></th>
+            <th><p>名前</p></th>
+            <th><p>SMA Modbusアクセス権</p></th>
+            <th><p>Unit&nbsp;ID</p></th>
+            <th><p>SMA Modbusデータタイプ</p></th>
+            <th><p>SMA Modbusデータ形式</p></th>
+            <th><p>刻み幅</p></th>
+            <th><p>グループ</p></th>
+            <th><p>チャネル</p></th>
+            <th><p></p></th>
+            <th><p>デフォルト値</p></th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><p><span>30001</span></p></td>
+                <td><p><span>SMA Modbus profile revision</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>1</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>RAW</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>銘板</span></p></td>
+                <td><p><span>SMA Modbus profile revision</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30003</span></p></td>
+                <td><p><span>SUSyID </span></p></td>
+                <td><p>RO</p></td>
+                <td><p>1</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>RAW</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>銘板</span></p></td>
+                <td><p><span>Parameter.Nameplate.SusyId</span> </p></td>
+                <td><p>356</p></td>
+                <td><p>356</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30005</span></p></td>
+                <td><p><span>Serial number</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>1</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>RAW</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>銘板</span></p></td>
+                <td><p><span>Parameter.Nameplate.SerNum</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30007</span></p></td>
+                <td><p><span>Modbus data change count</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>1</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>RAW</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>銘板</span></p></td>
+                <td><p><span>Modbus data change count</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30051</span></p></td>
+                <td><p><span>装置クラス</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>1</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>銘板</span></p></td>
+                <td><p><span>Parameter.Nameplate.MainModel</span> </p></td>
+                <td><p>8128: 通信用製品</p></td>
+                <td><p>8128: 通信用製品</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30053</span></p></td>
+                <td><p><span>装置型式</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>1</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>銘板</span></p></td>
+                <td><p><span>Parameter.Nameplate.Model</span> </p></td>
+                <td><p>9397: EDMM-10<br>19135: EDMM-20</p></td>
+                <td><p>19135: EDMM-20</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30193</span></p></td>
+                <td><p><span>UTC system time</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>1 / 2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>DATE_TIME</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>銘板</span></p></td>
+                <td><p><span>UTC system time</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30201</span></p></td>
+                <td><p><span>状態</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>ステータス</span></p></td>
+                <td><p><span>Measurement.Operation.Health</span> </p></td>
+                <td><p>35: エラー<br>303: オフ<br>307: OK<br>455: 警告</p></td>
+                <td><p>307: OK</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30233</span></p></td>
+                <td><p><span>設定した有効電力限界</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>装置</span></p></td>
+                <td><p><span>Parameter.Inverter.WMax</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>500000 W</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30513</span></p></td>
+                <td><p><span>総生産高</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U64</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.TotWhOut.Pv</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30517</span></p></td>
+                <td><p><span>一日の生産高</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U64</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.DyWhOut</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30581</span></p></td>
+                <td><p><span>購入電力量計のメーター値</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWhIn</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30583</span></p></td>
+                <td><p><span>系統給電計のメーター値</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWhOut</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30775</span></p></td>
+                <td><p><span>電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.GridMs.TotW.Pv</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30805</span></p></td>
+                <td><p><span>無効電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.GridMs.TotVAr</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30845</span></p></td>
+                <td><p><span>現在のバッテリー充電状態</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>蓄電池</span></p></td>
+                <td><p><span>Measurement.Bat.ChaStt</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30865</span></p></td>
+                <td><p><span>電力 購入</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWIn</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>30867</span></p></td>
+                <td><p><span>系統給電の電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWOut</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31235</span></p></td>
+                <td><p><span>入力ダイアログを介した有効電力制限の制御値</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.InOut.DigIn.CurWCtlNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31237</span></p></td>
+                <td><p><span>アナログ入力経由の有効電力制限の既定値</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.InOut.AnIn.CurWCtlNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31239</span></p></td>
+                <td><p><span>プラント制御による正規化有効電力制限</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.WModCfg.WCtlComCfg.WNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31241</span></p></td>
+                <td><p><span>直接売電向けの通信経由のPV電力制限</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.Inverter.CurWCtlDrkNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31243</span></p></td>
+                <td><p><span>最大有効電力設定値</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.Operation.WMaxLimNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31249</span></p></td>
+                <td><p><span>系統連系点のプラント有効電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntW</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31251</span></p></td>
+                <td><p><span>系統連系点のプラント無効電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntVAr</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31253</span></p></td>
+                <td><p><span>位相L1の系統電圧</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.PhV.phsA</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31255</span></p></td>
+                <td><p><span>位相L2の系統電圧</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.PhV.phsB</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31257</span></p></td>
+                <td><p><span>位相L3の系統電圧</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.PhV.phsC</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31259</span></p></td>
+                <td><p><span>系統給電L1の電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.W.phsA</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31261</span></p></td>
+                <td><p><span>系統給電L2の電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.W.phsB</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31263</span></p></td>
+                <td><p><span>系統給電L3の電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.W.phsC</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31271</span></p></td>
+                <td><p><span>系統給電の位相L1の無効電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.VAr.phsA</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31273</span></p></td>
+                <td><p><span>系統給電の位相L2の無効電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.VAr.phsB</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31275</span></p></td>
+                <td><p><span>系統給電の位相L3の無効電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.VAr.phsC</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31277</span></p></td>
+                <td><p><span>系統給電の無効電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotVAr</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31393</span></p></td>
+                <td><p><span>瞬間的な蓄電池充電</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>蓄電池</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWIn.Bat</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31395</span></p></td>
+                <td><p><span>瞬間的な蓄電池放電</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>蓄電池</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWOut.Bat</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31397</span></p></td>
+                <td><p><span>蓄電池充電</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U64</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>蓄電池</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWhIn.Bat</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31401</span></p></td>
+                <td><p><span>蓄電池放電</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U64</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>蓄電池</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotWhOut.Bat</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31433</span></p></td>
+                <td><p><span>変位力率</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotPF</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31435</span></p></td>
+                <td><p><span>位相L1の系統電流</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.A.phsA</span> </p></td>
+                <td><p>A</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31437</span></p></td>
+                <td><p><span>位相L2の系統電流</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.A.phsB</span> </p></td>
+                <td><p>A</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31439</span></p></td>
+                <td><p><span>位相L3の系統電流</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.A.phsC</span> </p></td>
+                <td><p>A</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31441</span></p></td>
+                <td><p><span>皮相電力L1</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.VA.phsA</span> </p></td>
+                <td><p>VA</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31443</span></p></td>
+                <td><p><span>皮相電力L2</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.VA.phsB</span> </p></td>
+                <td><p>VA</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31445</span></p></td>
+                <td><p><span>皮相電力L3</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.VA.phsC</span> </p></td>
+                <td><p>VA</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31447</span></p></td>
+                <td><p><span>系統周波数</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.Hz</span> </p></td>
+                <td><p>Hz</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31455</span></p></td>
+                <td><p><span>皮相電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotVA</span> </p></td>
+                <td><p>VA</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31501</span></p></td>
+                <td><p><span>cos φの励起方式</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.TotPFExt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31503</span></p></td>
+                <td><p><span>系統連系点におけるL1売電電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntW.phsA</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31505</span></p></td>
+                <td><p><span>系統連系点におけるL2売電電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntW.phsB</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31507</span></p></td>
+                <td><p><span>系統連系点におけるL3売電電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntW.phsC</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31509</span></p></td>
+                <td><p><span>系統連系点におけるL1売電無効電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntVAr.phsA</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31511</span></p></td>
+                <td><p><span>系統連系点におけるL2売電無効電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntVAr.phsB</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31513</span></p></td>
+                <td><p><span>系統連系点におけるL3売電無効電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntVAr.phsC</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31515</span></p></td>
+                <td><p><span>系統連系点におけるL1のL2に対する系統電圧</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.phsA2B</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31517</span></p></td>
+                <td><p><span>系統連系点におけるL2のL3に対する系統電圧</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.phsB2C</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31519</span></p></td>
+                <td><p><span>系統連系点におけるL3のL1に対する系統電圧</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.phsC2A</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31521</span></p></td>
+                <td><p><span>系統連系点における系統相電圧の平均値</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.AvgLN</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31523</span></p></td>
+                <td><p><span>系統連系点における系統線間電圧の平均値</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.AvgLL</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31525</span></p></td>
+                <td><p><span>系統連系点における変位力率</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPF</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31527</span></p></td>
+                <td><p><span>系統連系点における系統周波数</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntHz</span> </p></td>
+                <td><p>Hz</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31529</span></p></td>
+                <td><p><span>プラント電圧 位相L1</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.phsA</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31531</span></p></td>
+                <td><p><span>プラント電圧 位相L2</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.phsB</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31533</span></p></td>
+                <td><p><span>プラント電圧 位相L3</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntPhV.phsC</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31535</span></p></td>
+                <td><p><span>系統連系点におけるL1売電の出力電流</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntA.phsA</span> </p></td>
+                <td><p>A</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31537</span></p></td>
+                <td><p><span>系統連系点におけるL2売電の出力電流</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntA.phsB</span> </p></td>
+                <td><p>A</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31539</span></p></td>
+                <td><p><span>系統連系点におけるL3売電の出力電流</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntA.phsC</span> </p></td>
+                <td><p>A</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31541</span></p></td>
+                <td><p><span>系統相電圧の平均値</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.PhV.AvgLN</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31543</span></p></td>
+                <td><p><span>系統線間電圧の平均値</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Metering.GridMs.PhV.AvgLL</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31545</span></p></td>
+                <td><p><span>利用可能なシステム電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.Operation.WAval</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>31547</span></p></td>
+                <td><p><span>利用可能なパワーコンディショナの電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>装置</span></p></td>
+                <td><p><span>Measurement.Inverter.WAval</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32185</span></p></td>
+                <td><p><span>最大無効電力設定値</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.Operation.VArMaxLimNom</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32187</span></p></td>
+                <td><p><span>利用可能な過小無効電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Operation.CurAvailVArUnExt</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32189</span></p></td>
+                <td><p><span>利用可能な過剰無効電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Operation.CurAvailVArOvExt</span> </p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32191</span></p></td>
+                <td><p><span>理論的に利用可能なシステム電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.Operation.WAvalTheo</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32193</span></p></td>
+                <td><p><span>利用可能な発電システム</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.Operation.CurAvailPlnt</span> <img src="images\device.png" title="Compliant with parameter Pbinst/Pinst according to VDE-AR-N 4110:2018-11 (Table C.2)."></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32195</span></p></td>
+                <td><p><span>外部有効電力低減</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.Operation.WRedEx</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32197</span></p></td>
+                <td><p><span>利用可能な進み無効電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Operation.CurAvailVArUnExtNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32199</span></p></td>
+                <td><p><span>利用可能な遅れ無効電力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Measurement.Operation.CurAvailVArOvExtNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32281</span></p></td>
+                <td><p><span>露点温度</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.DewPtTmp</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>°C</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32283</span></p></td>
+                <td><p><span>絶対圧力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.AirPresAbs</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>hPa</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32285</span></p></td>
+                <td><p><span>相対圧力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.AirPresRel</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>hPa</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32287</span></p></td>
+                <td><p><span>風速の標準偏差</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.WdSpdDv</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>m/s</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32289</span></p></td>
+                <td><p><span>風向の標準偏差</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.WdDirDv</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>°</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32291</span></p></td>
+                <td><p><span>風速測定品質</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.WdMsQual</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32293</span></p></td>
+                <td><p><span>降水量の絶対値</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.PrecipRteAbs</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>mm</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32295</span></p></td>
+                <td><p><span>示差降水量</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.PrecipRteDif</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>mm</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32297</span></p></td>
+                <td><p><span>降水強度</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.PrecipInts</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>mm/h</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32299</span></p></td>
+                <td><p><span>降水種別</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.PrecipTyp</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32303</span></p></td>
+                <td><p><span>落雷事象</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.LgtEvt</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32305</span></p></td>
+                <td><p><span>落雷事象（間隔）</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.LgtEvtIntv</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32307</span></p></td>
+                <td><p><span>外部温度センサー</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.ExSnsTmp</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>°C</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32311</span></p></td>
+                <td><p><span>風向き</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.WndDir</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>°</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32315</span></p></td>
+                <td><p><span>日射量の標準偏差</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.TotInSolDv</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>W/m²</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32345</span></p></td>
+                <td><p><span>汚染度 センサ</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.SoilDeg[0]</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32347</span></p></td>
+                <td><p><span>汚染度 センサ</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.SoilDeg[1]</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32365</span></p></td>
+                <td><p><span>伝送損失 センサ</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.TxLos[0]</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32367</span></p></td>
+                <td><p><span>伝送損失 センサ</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.TxLos[1]</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32391</span></p></td>
+                <td><p><span>系統連系点における周波数測定値の手動入力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ManOvr.Frq.PCCMs.PlntHz</span> </p></td>
+                <td><p>Hz</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32393</span></p></td>
+                <td><p><span>電線L1のシステム電圧手動入力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ManOvr.Vol.PCCMs.PlntPhV.phsA</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32395</span></p></td>
+                <td><p><span>電線L2のシステム電圧手動入力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ManOvr.Vol.PCCMs.PlntPhV.phsB</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32397</span></p></td>
+                <td><p><span>電線L3のシステム電圧手動入力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ManOvr.Vol.PCCMs.PlntPhV.phsC</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32399</span></p></td>
+                <td><p><span>系統連系点における電線L1-L2のシステム電圧手動入力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ManOvr.Vol.PCCMs.PlntPhV.phsA2B</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32401</span></p></td>
+                <td><p><span>系統連系点における電線L2-L3のシステム電圧手動入力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ManOvr.Vol.PCCMs.PlntPhV.phsB2C</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32403</span></p></td>
+                <td><p><span>系統連系点における電線L2-L3のシステム電圧手動入力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ManOvr.Vol.PCCMs.PlntPhV.phsC2A</span> </p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32503</span></p></td>
+                <td><p><span>外部発電システムコントローラとの検出された通信タイムアウト数</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.PlntCtl.ExPlntCtlTmOutDetCnt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32505</span></p></td>
+                <td><p><span>カウンター測定値の検出された通信タイムアウト回数</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.PlntCtl.GridMsTmOutDetCnt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>32507</span></p></td>
+                <td><p><span>装置測定値の検出された通信タイムアウト回数</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.PlntCtl.DevMsTmOutDetCnt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34609</span></p></td>
+                <td><p><span>周囲温度</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.TmpVal</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>°C</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34613</span></p></td>
+                <td><p><span>放射照度</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.TotInsol</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>W/m²</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34615</span></p></td>
+                <td><p><span>風速</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.HorWSpd</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>m/s</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34617</span></p></td>
+                <td><p><span>大気湿度</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.Hmdt</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34621</span></p></td>
+                <td><p><span>モジュール温度</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Mdul.TmpVal</span> </p></td>
+                <td><p>°C</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34623</span></p></td>
+                <td><p><span>外部センサー上の放射照度</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.ExInsol</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>W/m²</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34625</span></p></td>
+                <td><p><span>周囲温度</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.TmpVal</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>°F</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34627</span></p></td>
+                <td><p><span>周囲温度</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.TmpVal</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>°K</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34629</span></p></td>
+                <td><p><span>モジュール温度</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Mdul.TmpVal</span> </p></td>
+                <td><p>°F</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34631</span></p></td>
+                <td><p><span>モジュール温度</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>TEMPERATURE</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Mdul.TmpVal</span> </p></td>
+                <td><p>°K</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34633</span></p></td>
+                <td><p><span>風速</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.HorWSpd</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>km/h</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34635</span></p></td>
+                <td><p><span>風速</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>気象学</span></p></td>
+                <td><p><span>Measurement.Env.HorWSpd</span> <img src="images\installer.png" title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></p></td>
+                <td><p>mi/h</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34653</span></p></td>
+                <td><p><span>デジタル入力グループ1 (DI1～DI4)</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>装置</span></p></td>
+                <td><p><span>Measurement.InOut.DigInSttGrp1</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34655</span></p></td>
+                <td><p><span>デジタル入力グループ2 (DI5～DI8)</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>装置</span></p></td>
+                <td><p><span>Measurement.InOut.DigInSttGrp2</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>34695</span></p></td>
+                <td><p><span>最大無効電力設定値</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Measurement.Operation.VArMaxLimNom</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35403</span></p></td>
+                <td><p><span>系統連系点における有効電力の定格変更レート</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntWNomGraCalc</span> </p></td>
+                <td><p>%/s</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35405</span></p></td>
+                <td><p><span>系統連系点における有効電力の変更レート</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntWGraCalc</span> </p></td>
+                <td><p>MW/min</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35407</span></p></td>
+                <td><p><span>RUNステータスにあるパワーコンディショナの数</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>ステータス</span></p></td>
+                <td><p><span>Measurement.Operation.NbrRunStt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35409</span></p></td>
+                <td><p><span>Waitステータスにあるパワーコンディショナの数</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>ステータス</span></p></td>
+                <td><p><span>Measurement.Operation.NbrWaitStt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35411</span></p></td>
+                <td><p><span>STOPステータスにあるパワーコンディショナの数</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>ステータス</span></p></td>
+                <td><p><span>Measurement.Operation.NbrStopStt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35413</span></p></td>
+                <td><p><span>Q on Demandステータスにあるパワーコンディショナの数</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>ステータス</span></p></td>
+                <td><p><span>Measurement.Operation.NbrQodStt</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35415</span></p></td>
+                <td><p><span>系統連系点のプラント有効電力 (購入)</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntCsmpW</span> </p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35417</span></p></td>
+                <td><p><span>系統連携点におけるエネルギー購入</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U64</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntCsmpWh</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35421</span></p></td>
+                <td><p><span>系統連系点における給電エネルギー</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U64</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Measurement.Metering.PCCMs.PlntWh</span> </p></td>
+                <td><p>Wh</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>35475</span></p></td>
+                <td><p><span>グループのデジタル入力</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>その他の活用</span></p></td>
+                <td><p><span>Measurement.InOut.GI1</span> </p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40011</span></p></td>
+                <td><p><span>エラーを確定する</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>装置</span></p></td>
+                <td><p><span>Parameter.Operation.Ackn</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>302: -------</p></td>
+                <td><p>302: -------</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40015</span></p></td>
+                <td><p><span>プラント制御による正規化無効電力制限</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S16</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.VArModCfg.VArCtlComCfg.VArNom</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40016</span></p></td>
+                <td><p><span>プラント制御による正規化有効電力制限</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S16</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.WModCfg.WCtlComCfg.WNom</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40018</span></p></td>
+                <td><p><span>緊急停止</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.PlantControl.Inverter.FstStop</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>381: 停止<br>1467: 起動<br>1749: 完全停止</p></td>
+                <td><p>381: 停止</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40022</span></p></td>
+                <td><p><span>外部無効電力設定値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S16</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.VArModCfg.VArCtlComCfg.VArNomPrc</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40023</span></p></td>
+                <td><p><span>プラント制御による正規化有効電力制限</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S16</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.WModCfg.WCtlComCfg.WNomPrc</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40024</span></p></td>
+                <td><p><span>外部cos φ設定値、有効電力出力時のcos φ規定値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U16</span></p></td>
+                <td><p>FIX4</p></td>
+                <td><p><span>0.0001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.VArModCfg.PFCtlComCfg.PF</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40025</span></p></td>
+                <td><p><span>外部cos φ設定値、有効電力出力時の励起方式</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.VArModCfg.PFCtlComCfg.PFExt</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40029</span></p></td>
+                <td><p><span>"動作状態"</span></p></td>
+                <td><p>RO</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>ステータス</span></p></td>
+                <td><p><span>Measurement.Operation.OpStt</span> </p></td>
+                <td><p>309: 運転</p></td>
+                <td><p>309: 運転</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40149</span></p></td>
+                <td><p><span>有効電力既定値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.PlantControl.Inverter.WModCfg.WCtlComCfg.WSpt</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40151</span></p></td>
+                <td><p><span>通信経由での有効／無効電力制御</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.PlantControl.Inverter.WModCfg.WCtlComCfg.WCtlComAct</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40153</span></p></td>
+                <td><p><span>無効電力既定値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.PlantControl.Inverter.VArModCfg.VArCtlComCfg.VArSpt</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>var</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40472</span></p></td>
+                <td><p><span>系統公称電圧</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Parameter.Inverter.PlntCtl.VRef</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>V</p></td>
+                <td><p>230 V</p></td>
+            </tr>
+            <tr>
+                <td><p><span>40492</span></p></td>
+                <td><p><span>直接販売業者を介したプラント制御による規格化された無効電力設定値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S16</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.DctMrk.VArModCfg.VArCtlComCfg.VArNomPrc</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41167</span></p></td>
+                <td><p><span>有効電力の制限（単位：%）</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCnstCfg.WNomPrc</span> </p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41315</span></p></td>
+                <td><p><span>運転モード 有効電力コントローラ</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Operation.PlntCtl.WCtlMod</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>3352: 制御<br>3353: コントロール</p></td>
+                <td><p>3353: コントロール</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41317</span></p></td>
+                <td><p><span>運転モード 無効電力コントローラ</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Operation.PlntCtl.VArCtlMod</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>3352: 制御<br>3353: コントロール</p></td>
+                <td><p>3352: 制御</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41319</span></p></td>
+                <td><p><span>有効電力出力時の無効電力方式</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArModOut</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>1069: Q(V) 特性曲線<br>1070: Q、手動設定値 (%)<br>1071: Q、手動設定値 (var)<br>1072: Q、外部設定値<br>1073: Q(P) 特性曲線<br>1074: cos φ、手動既定値<br>1075: cos φ、外部設定値<br>1076: cos φ(P) 特性曲線<br>4562: cos φ(V) 特性曲線</p></td>
+                <td><p>303: オフ</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41321</span></p></td>
+                <td><p><span>有効電力消費時の無効電力方式</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArModIn</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>1069: Q(V) 特性曲線<br>1070: Q、手動設定値 (%)<br>1071: Q、手動設定値 (var)<br>1072: Q、外部設定値<br>1073: Q(P) 特性曲線<br>1074: cos φ、手動既定値<br>1075: cos φ、外部設定値<br>1076: cos φ(P) 特性曲線<br>4562: cos φ(V) 特性曲線</p></td>
+                <td><p>303: オフ</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41323</span></p></td>
+                <td><p><span>ゼロ有効電力時の無効電力方式</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArModZerW</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>1069: Q(V) 特性曲線<br>1070: Q、手動設定値 (%)<br>1071: Q、手動設定値 (var)<br>1072: Q、外部設定値<br>1073: Q(P) 特性曲線</p></td>
+                <td><p>303: オフ</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41325</span></p></td>
+                <td><p><span>Q(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[0]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41327</span></p></td>
+                <td><p><span>Q(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[1]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41329</span></p></td>
+                <td><p><span>Q(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[2]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41331</span></p></td>
+                <td><p><span>Q(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[3]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41333</span></p></td>
+                <td><p><span>Q(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[4]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41335</span></p></td>
+                <td><p><span>Q(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[5]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41337</span></p></td>
+                <td><p><span>Q(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[6]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41339</span></p></td>
+                <td><p><span>Q(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.XVal[7]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>0.96 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41341</span></p></td>
+                <td><p><span>Q(V)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[0]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41343</span></p></td>
+                <td><p><span>Q(V)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[1]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41345</span></p></td>
+                <td><p><span>Q(V)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[2]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41347</span></p></td>
+                <td><p><span>Q(V)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[3]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41349</span></p></td>
+                <td><p><span>Q(V)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[4]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41351</span></p></td>
+                <td><p><span>Q(V)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[5]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41353</span></p></td>
+                <td><p><span>Q(V)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[6]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41355</span></p></td>
+                <td><p><span>Q(V)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.YVal[7]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>33 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41443</span></p></td>
+                <td><p><span>Q(U), 外部基準電圧値 (V)</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX1</p></td>
+                <td><p><span>0.1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.VArModCfg.VArCtlVolCfg.VolRef.VolRef</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>V</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41455</span></p></td>
+                <td><p><span>インテグラルローカル周波数 (ILF)、Modbus 経由の有効化</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzILFCfg.MbEna</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41463</span></p></td>
+                <td><p><span>プラント総電力</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>系統連系</span></p></td>
+                <td><p><span>Parameter.Plnt.WRtg</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>W</p></td>
+                <td><p>0 W</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41465</span></p></td>
+                <td><p><span>外部発電システムコントローラに接続されている通信監視装置用のハートビート信号</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.PlntCtl.LifSignRx</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41525</span></p></td>
+                <td><p><span>外部有効電力の目標値、タイムアウト</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.CtlComCfg.WCtlCom.TmsOutPrc</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>s</p></td>
+                <td><p>600 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41527</span></p></td>
+                <td><p><span>外部有効電力の目標値2、タイムアウト</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.CtlComCfg.WCtlCom2.TmsOutPrc</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>s</p></td>
+                <td><p>600 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41529</span></p></td>
+                <td><p><span>外部無効電力の目標値、タイムアウト</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.CtlComCfg.VArCtlCom.TmsOutPrc</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>s</p></td>
+                <td><p>600 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41531</span></p></td>
+                <td><p><span>外部cos φの目標値、タイムアウト</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.CtlComCfg.PFCtlCom.TmsOutPrc</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>s</p></td>
+                <td><p>600 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>41533</span></p></td>
+                <td><p><span>Q(V)、不在基準電圧の目標値用のタイムアウト</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.CtlComCfg.VArCtlVolCom.TmsOutPrc</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>s</p></td>
+                <td><p>600 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44021</span></p></td>
+                <td><p><span>運転データをリセットする</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>装置</span></p></td>
+                <td><p><span>Parameter.Operation.ValRsIstl</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>302: -------</p></td>
+                <td><p>302: -------</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44025</span></p></td>
+                <td><p><span>外部有効電力設定値、規定値フィルター</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlComCfg.Dyn.WTmEna</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>308: オン</p></td>
+                <td><p>303: オフ</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44029</span></p></td>
+                <td><p><span>外部有効電力設定値、変化率の制限</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlComCfg.Dyn.WGraEna</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>308: オン</p></td>
+                <td><p>308: オン</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44039</span></p></td>
+                <td><p><span>最大有効電力</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.WModCfg.WCtlComCfg.WSptMaxNom</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44041</span></p></td>
+                <td><p><span>最小有効電力</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.WModCfg.WCtlComCfg.WSptMinNom</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44051</span></p></td>
+                <td><p><span>P(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[0]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44053</span></p></td>
+                <td><p><span>P(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[1]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44055</span></p></td>
+                <td><p><span>P(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[2]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44057</span></p></td>
+                <td><p><span>P(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[3]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44059</span></p></td>
+                <td><p><span>P(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[4]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44061</span></p></td>
+                <td><p><span>P(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[5]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44063</span></p></td>
+                <td><p><span>P(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[6]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44065</span></p></td>
+                <td><p><span>P(V)、電圧値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.XVal[7]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>1.1 p.u.</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44067</span></p></td>
+                <td><p><span>P(V)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[0]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44069</span></p></td>
+                <td><p><span>P(V)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[1]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44071</span></p></td>
+                <td><p><span>P(V)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[2]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44073</span></p></td>
+                <td><p><span>P(V)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[3]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44075</span></p></td>
+                <td><p><span>P(V)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[4]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44077</span></p></td>
+                <td><p><span>P(V)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[5]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44079</span></p></td>
+                <td><p><span>P(V)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[6]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44081</span></p></td>
+                <td><p><span>P(V)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlVolCfg.Crv.YVal[7]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>100 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44095</span></p></td>
+                <td><p><span>無効電力方式、無効電力方式無効電力設定値の基準値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArNomRefMod</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>4405: 最大有効電力 WMax<br>4406: 最大無効電力 VArMax<br>5335: 最大皮相電力 VAMax</p></td>
+                <td><p>4405: 最大有効電力 WMax</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44141</span></p></td>
+                <td><p><span>外部 cos φ 設定値、有効電力消費時の cos φ 設定値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX4</p></td>
+                <td><p><span>0.0001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.VArModCfg.PFCtlComCfg.PFIn</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44143</span></p></td>
+                <td><p><span>外部 cos φ 設定値、有効電力消費時の励起方式</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.VArModCfg.PFCtlComCfg.PFExtIn</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>-</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44147</span></p></td>
+                <td><p><span>Q(P)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[0]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44149</span></p></td>
+                <td><p><span>Q(P)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[1]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44151</span></p></td>
+                <td><p><span>Q(P)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[2]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44153</span></p></td>
+                <td><p><span>Q(P)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[3]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44155</span></p></td>
+                <td><p><span>Q(P)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[4]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44157</span></p></td>
+                <td><p><span>Q(P)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[5]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44159</span></p></td>
+                <td><p><span>Q(P)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[6]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44161</span></p></td>
+                <td><p><span>Q(P)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[7]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44163</span></p></td>
+                <td><p><span>Q(P)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[0]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44165</span></p></td>
+                <td><p><span>Q(P)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[1]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44167</span></p></td>
+                <td><p><span>Q(P)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[2]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44169</span></p></td>
+                <td><p><span>Q(P)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[3]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44171</span></p></td>
+                <td><p><span>Q(P)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[4]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44173</span></p></td>
+                <td><p><span>Q(P)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[5]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44175</span></p></td>
+                <td><p><span>Q(P)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[6]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44177</span></p></td>
+                <td><p><span>Q(P)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[7]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44211</span></p></td>
+                <td><p><span>Q(U), 外部基準電圧値 (p.u.)</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.PlantControl.Inverter.VArModCfg.VArCtlVolCfg.VolRef.VolRefPu</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>p.u.</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44333</span></p></td>
+                <td><p><span>P(f) 特性曲線</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.Ena</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>308: オン</p></td>
+                <td><p>303: オフ</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44335</span></p></td>
+                <td><p><span>P(f)、超過周波数時の有効電力の基準値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.RefModOv</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>4354: 最大有効電力出力<br>4443: 瞬時電力<br>4444: 潜在電力<br>5249: 潜在出力電力、特性曲線にキンクあり</p></td>
+                <td><p>4443: 瞬時電力</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44337</span></p></td>
+                <td><p><span>P(f)、不足周波数時の有効電力の基準値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.RefModUn</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>4354: 最大有効電力出力<br>4443: 瞬時電力<br>4444: 潜在電力<br>5249: 潜在出力電力、特性曲線にキンクあり</p></td>
+                <td><p>4443: 瞬時電力</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44339</span></p></td>
+                <td><p><span>P(f)、調整時間</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WTms</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>s</p></td>
+                <td><p>0.5 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44341</span></p></td>
+                <td><p><span>P(f)、超過周波数時のヒステリシス</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HystEnaOv</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>308: オン</p></td>
+                <td><p>303: オフ</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44343</span></p></td>
+                <td><p><span>P(f)、不足周波数時のヒステリシス</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HystEnaUn</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>308: オン</p></td>
+                <td><p>303: オフ</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44345</span></p></td>
+                <td><p><span>P(f)、キンク超過周波数</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzOv[0]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50.2 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44347</span></p></td>
+                <td><p><span>P(f)、キンク超過周波数</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzOv[1]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50.2 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44349</span></p></td>
+                <td><p><span>P(f)、キンク超過周波数</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzOv[2]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50.2 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44351</span></p></td>
+                <td><p><span>P(f)、超過周波数における Hz ごとの有効電力変化</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzOvGra[0]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>-40 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44353</span></p></td>
+                <td><p><span>P(f)、超過周波数における Hz ごとの有効電力変化</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzOvGra[1]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>-40 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44355</span></p></td>
+                <td><p><span>P(f)、超過周波数における Hz ごとの有効電力変化</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzOvGra[2]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>-40 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44357</span></p></td>
+                <td><p><span>P(f)、リセット超過周波数</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzOvStop</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50.2 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44359</span></p></td>
+                <td><p><span>P(f)、キンク不足周波数</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzUn[0]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>49.8 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44361</span></p></td>
+                <td><p><span>P(f)、キンク不足周波数</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzUn[1]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>49.8 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44363</span></p></td>
+                <td><p><span>P(f)、キンク不足周波数</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzUn[2]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>49.8 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44365</span></p></td>
+                <td><p><span>P(f)、不足周波数における Hz ごとの有効電力変化</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzUnGra[0]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>-40 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44367</span></p></td>
+                <td><p><span>P(f)、不足周波数における Hz ごとの有効電力変化</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzUnGra[1]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>-40 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44369</span></p></td>
+                <td><p><span>P(f)、不足周波数における Hz ごとの有効電力変化</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzUnGra[2]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>-40 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44371</span></p></td>
+                <td><p><span>P(f)、リセット不足周波数</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzUnStop</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>49.8 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44373</span></p></td>
+                <td><p><span>P(f)、トリガー遅延</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.WCtlTmms</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>ms</p></td>
+                <td><p>0 ms</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44375</span></p></td>
+                <td><p><span>P(f)、追従時間</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>DURATION</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WCtlHzModCfg.WCtlHzCfg.HzStopWGraTms</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>s</p></td>
+                <td><p>0 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44381</span></p></td>
+                <td><p><span>公称有効電力 WMaxOut</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Parameter.Inverter.WMaxOut</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>W</p></td>
+                <td><p>0 W</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44383</span></p></td>
+                <td><p><span>公称有効電力 WMaxIn</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Parameter.Inverter.WMaxIn</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>W</p></td>
+                <td><p>0 W</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44393</span></p></td>
+                <td><p><span>公称無効電力 VArMaxQ1</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Parameter.Inverter.VArMaxQ1</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>var</p></td>
+                <td><p>0 var</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44395</span></p></td>
+                <td><p><span>公称無効電力 VArMaxQ2</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Parameter.Inverter.VArMaxQ2</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>var</p></td>
+                <td><p>0 var</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44397</span></p></td>
+                <td><p><span>公称無効電力 VArMaxQ3</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Parameter.Inverter.VArMaxQ3</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>var</p></td>
+                <td><p>0 var</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44399</span></p></td>
+                <td><p><span>公称無効電力 VArMaxQ4</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>AC側</span></p></td>
+                <td><p><span>Parameter.Inverter.VArMaxQ4</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>var</p></td>
+                <td><p>0 var</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44449</span></p></td>
+                <td><p><span>バッテリー最大有効電力</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.PlantControl.Bat.WCtlCom.WSptMaxNom</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44457</span></p></td>
+                <td><p><span>バッテリ システムの有効電力条件</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Bat.WCtlCom.WSptNomPrc</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>%</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44461</span></p></td>
+                <td><p><span>外部有効電力設定値 2、規定値フィルター</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlComCfg2.Dyn.WTmEna</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>308: オン</p></td>
+                <td><p>303: オフ</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44463</span></p></td>
+                <td><p><span>外部有効電力設定値 2、変化率の制限</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlComCfg2.Dyn.WGraEna</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>308: オン</p></td>
+                <td><p>308: オン</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44465</span></p></td>
+                <td><p><span>外部有効電力設定値 2、上昇率</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlComCfg2.Dyn.WGraPos</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%/s</p></td>
+                <td><p>0.5 %/s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44467</span></p></td>
+                <td><p><span>外部有効電力設定値 2、下降率</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlComCfg2.Dyn.WGraNeg</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%/s</p></td>
+                <td><p>0.5 %/s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44469</span></p></td>
+                <td><p><span>Q(P)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[8]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44471</span></p></td>
+                <td><p><span>Q(P)、有効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.XVal[9]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44473</span></p></td>
+                <td><p><span>Q(P)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[8]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44475</span></p></td>
+                <td><p><span>Q(P)、無効電力値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlWCfg.Crv.YVal[9]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>0 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44479</span></p></td>
+                <td><p><span>周波数検知モード (FSM)</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Ena</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>308: オン</p></td>
+                <td><p>303: オフ</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44493</span></p></td>
+                <td><p><span>プラント制御による有効電力制限</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX0</p></td>
+                <td><p><span>1</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Setpoint.ExternalPlantControl.Inverter.WModCfg.WCtlComCfg.W</span> <img src="images\aso.png" title="デバイス管理対象"></p></td>
+                <td><p>W</p></td>
+                <td><p>-</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44511</span></p></td>
+                <td><p><span>Q(V) 特性曲線のプリセット</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.VArModCfg.VArCtlVolCfg.Crv.PreSet</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>4306: 線形特性曲線<br>4307: 特性曲線、支点4つおよびヒステリシス<br>4308: 特性曲線、支点6つ<br>4309: 特性曲線、支点8つ<br>4310: 特性曲線、支点10つ<br>4311: 特性曲線、支点12つ<br>4312: 特性曲線、支点14つ</p></td>
+                <td><p>4306: 線形特性曲線</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44519</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、有効電力オフセットの基準有効電力</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.WDifRefMod</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>4354: 最大有効電力出力<br>4443: 瞬時電力<br>4444: 潜在電力</p></td>
+                <td><p>4354: 最大有効電力出力</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44521</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、過周波数でのカットオフポイント</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzOv[0]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44523</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、過周波数でのカットオフポイント</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzOv[1]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44525</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、過周波数でのカットオフポイント</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzOv[2]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44527</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、過周波数での有効電力オフセット (Hz)</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzOvGra[0]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>-50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44529</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、過周波数での有効電力オフセット (Hz)</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzOvGra[1]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>-50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44531</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、過周波数での有効電力オフセット (Hz)</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzOvGra[2]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>-50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44533</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、過周波数での有効化しきい値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.DbHzOv</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50.1 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44535</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、不足周波数でのカットオフポイント</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzUn[0]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44537</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、不足周波数でのカットオフポイント</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzUn[1]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44539</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、不足周波数でのカットオフポイント</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzUn[2]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>50 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44541</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、不足周波数での有効電力オフセット (Hz)</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzUnGra[0]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>-50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44543</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、不足周波数での有効電力オフセット (Hz)</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzUnGra[1]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>-50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44545</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、不足周波数での有効電力オフセット (Hz)</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.HzUnGra[2]</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>-50 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44547</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、不足周波数での有効化しきい値</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX3</p></td>
+                <td><p><span>0.001</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Crv.DbHzUn</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>Hz</p></td>
+                <td><p>49.9 Hz</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44549</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、周波数測定値の現在値フィルター</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.HzFilTmEna</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>308: オン</p></td>
+                <td><p>308: オン</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44551</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、周波数測定値の現在値フィルターの応答時間</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.HzFilTms</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>s</p></td>
+                <td><p>1 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44553</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、利用可能な有効電力に関連する運転モード</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>S32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.WResNom</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%</p></td>
+                <td><p>10 %</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44555</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、利用可能な有効電力のフィルター</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WAvalFilTmEna</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>308: オン</p></td>
+                <td><p>303: オフ</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44557</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、利用可能な有効電力のフィルターの応答時間</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WAvalTms</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>s</p></td>
+                <td><p>1 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44559</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、利用可能な有効電力の変化率制限</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WAvalGraEna</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>308: オン</p></td>
+                <td><p>308: オン</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44561</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、利用可能な有効電力の変化増加率</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WAvalGraPos</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%/s</p></td>
+                <td><p>20 %/s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44563</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、利用可能な有効電力の変化減少率</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WAvalGraNeg</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%/s</p></td>
+                <td><p>20 %/s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44565</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、有効電力オフセットの目標値フィルター</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WDifFilTmEna</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>308: オン</p></td>
+                <td><p>308: オン</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44567</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、有効電力オフセットの目標値フィルター応答時間</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WDifFilTms</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>s</p></td>
+                <td><p>1 s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44569</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、有効電力オフセットの変化率制限</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WDifGraEna</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>303: オフ<br>308: オン</p></td>
+                <td><p>303: オフ</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44571</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、有効電力オフセットの変化増加率</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WDifGraPos</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%/s</p></td>
+                <td><p>20 %/s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44573</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、有効電力オフセットの変化減少率</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>FIX2</p></td>
+                <td><p><span>0.01</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.Dyn.WDifGraNeg</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>%/s</p></td>
+                <td><p>20 %/s</p></td>
+            </tr>
+            <tr>
+                <td><p><span>44575</span></p></td>
+                <td><p><span>周波数検知モード (FSM)、基準有効電力</span></p></td>
+                <td><p>RW</p></td>
+                <td><p>2</p></td>
+                <td><p><span>U32</span></p></td>
+                <td><p>TAGLIST</p></td>
+                <td><p><span>-</span></p></td>
+                <td><p><span>プラントと装置の制御</span></p></td>
+                <td><p><span>Parameter.Inverter.WModCfg.WCtlHzFsmCfg.WBaseMod</span> <img src="images\statuswarning.png" title="読み取り/書き込み 周期的書き込みに対する警告"></p></td>
+                <td><p>5014: 現在の最大有効電力目標値<br>5015: 有効電力目標値と利用可能な電力の最小値</p></td>
+                <td><p>5014: 現在の最大有効電力目標値</p></td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+<footer>
+    <div id="legend"><h2>凡例</h2>
+        <p><img src="images\aso.png" alt="デバイス管理対象" title="デバイス管理対象"></img> - デバイス管理対象</p>
+        <p><img src="images\statuswarning.png" alt="読み取り/書き込み 周期的書き込みに対する警告" title="読み取り/書き込み 周期的書き込みに対する警告"></img>
+            - タの周期的変更により製品のフラッシュメモリが破損するおそれがあります。</p>
+        <p><img src="images\installer.png" alt="Additional Sensors for module temperature, ambient temperature and irradiation needed." title="Additional Sensors for module temperature, ambient temperature and irradiation needed."></img> - Sensors for module temperature, ambient temperature and irradiation must be included in the system, configured in the SMA Data Manager and activated in the Modbus interface.</p>
+        <p><img src="images\device.png" alt="Compliant with parameter Pbinst/Pinst according to VDE-AR-N 4110:2018-11 (Table C.2)." title="Compliant with parameter Pbinst/Pinst according to VDE-AR-N 4110:2018-11 (Table C.2)."></img> - Compliant with parameter Pbinst/Pinst according to VDE-AR-N 4110:2018-11 (Table C.2). <b>Pbinst:</b> Sum of the rated active power of all generating units in operation. Pinst: Sum of the rated active powers of all generating units within a generating system. Determined only for inverters with the status "In operation" (OPERATION_OPSTT).</p></div>
+    <div id="footer"><p>&copy; Copyright 2025 - SMA Solar Technology AG</p></div>
+</footer>
+</body>
+</html>

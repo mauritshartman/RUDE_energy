@@ -1,5 +1,5 @@
 name: "Doe Maar Watt"
-version: "1.0.1b"
+version: "1.0.2"
 slug: "doe_maar_watt"
 description: "Manage charge cycles for home batteries based on dynamic energy prices"
 url: "https://github.com/mauritshartman/RUDE_energy"
