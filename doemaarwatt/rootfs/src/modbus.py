@@ -84,7 +84,6 @@ class ModbusManager():
         3x = Input Register = 30001-39999
         4x = Holding Register = 40001-49999
         '''
-        print(f'DEBUG: Modbus[{client_name}] trying to read register {address}')
         result_dict[client_name] = None  # ensure some value is present
         client = self._clients.get(client_name)
         if client is None:
@@ -93,6 +92,7 @@ class ModbusManager():
         try:
             ra = self._get_relative_address(address)
             cnt = self._dtype_to_word_count(dtype)
+            print(f'DEBUG: Modbus[{client_name}] trying to read register {address} (relative {ra}, count: {cnt})')
 
             if str(address)[0] == '4':
                 resp = await client.read_holding_registers(ra, count=cnt, device_id=device_id)
