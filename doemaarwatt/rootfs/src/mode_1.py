@@ -16,11 +16,10 @@ async def battery_stats(inverters: ModbusManager):
     for inv_name in temps_high.keys() & temps_low.keys() & charges.keys() & voltages.keys() & currents.keys():
         temp_h = temps_high[inv_name]
         temp_l = temps_low[inv_name]
-        temp_a = (temp_l + temp_h) / 2
         charge = charges[inv_name] * 10  # fix for now
         voltage = voltages[inv_name]
         current = currents[inv_name]
-        print(f'\t\t{inv_name}:\t{charge:.1f} %\t{voltage:.2f} V\t{current:.3f} A\t{temp_l} {chr(176)}C\t{temp_a} {chr(176)}C\t{temp_h} {chr(176)}C')
+        print(f'\t\t{inv_name}:\t{charge:.1f} %\t{voltage:.2f} V\t{current:.3f} A\t{temp_l} - {chr(176)}C\t{temp_h} {chr(176)}C')
 
 
 async def data_manager_stats(dm: ModbusManager):
@@ -31,9 +30,9 @@ async def data_manager_stats(dm: ModbusManager):
     l1_current = await dm.read_register_client(DM, 31535, 'S32', device_id=2, sma_data_format='FIX3')
     l2_current = await dm.read_register_client(DM, 31537, 'S32', device_id=2, sma_data_format='FIX3')
     l3_current = await dm.read_register_client(DM, 31539, 'S32', device_id=2, sma_data_format='FIX3')
-    l1_power =   await dm.read_register_client(DM, 31505, 'S32', device_id=2, sma_data_format='FIX0')
-    l2_power =   await dm.read_register_client(DM, 31507, 'S32', device_id=2, sma_data_format='FIX0')
-    l3_power =   await dm.read_register_client(DM, 31509, 'S32', device_id=2, sma_data_format='FIX0')
+    l1_power =   await dm.read_register_client(DM, 31503, 'S32', device_id=2, sma_data_format='FIX0')
+    l2_power =   await dm.read_register_client(DM, 31505, 'S32', device_id=2, sma_data_format='FIX0')
+    l3_power =   await dm.read_register_client(DM, 31507, 'S32', device_id=2, sma_data_format='FIX0')
     print(f'\tL1:\t{l1_current:.3f} A\t{l1_voltage:.2f} V\t{l1_power:.0f} W')
     print(f'\tL2:\t{l2_current:.3f} A\t{l2_voltage:.2f} V\t{l2_power:.0f} W')
     print(f'\tL3:\t{l3_current:.3f} A\t{l1_voltage:.2f} V\t{l3_power:.0f} W')
