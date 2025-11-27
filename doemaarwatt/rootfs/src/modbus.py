@@ -20,27 +20,52 @@ _modbus_exception_codes = {
 
 class ModbusManager():
 
-    def __init__(self):
+    def __init__(self,
+        client_configs: list[dict[str, Any]] | None = None,
+    ):
+        self._debug: bool = config.get_debug()
+
         self._clients: dict[str, MBClient] = {}
 
-        for inv_name in config.get_inverter_names():
-            inv_config = config.inverter_config(inv_name)
-            if inv_config['host'].lower() in ['test', 'debug']:
-                print(f'DEBUG: creating dummy client for {inv_name}')
-                self._clients[inv_name] = None
-            else:
-                print(f'DEBUG: creating modbus client for {inv_name}')
-                self._clients[inv_name] = MBClient(
-                    inv_config['host'],
-                    port=int(inv_config['port']),
-                    name=f'Modbus[{inv_name}]',
-                    reconnect_delay=f'10.0',  # TODO: make config setting
-                    timeout=5,
-                )
+        if client_configs is None:
+            for inv_name in config.get_inverter_names():
+                inv_config = config.inverter_config(inv_name)
+
+                if inv_config['host'].lower() in ['test', 'debug', 'none']:
+                    self.debug(f'DEBUG: creating dummy client for {inv_name}')
+                    self._clients[inv_name] = None
+                else:
+                    self.debug(f'DEBUG: creating modbus client for {inv_name}')
+                    self._clients[inv_name] = MBClient(
+                        inv_config['host'],
+                        port=int(inv_config['port']),
+                        name=f'Modbus[{inv_name}]',
+                        reconnect_delay=f'10.0',  # TODO: make config setting
+                        timeout=5,
+                    )
+        else:
+            for cfg in client_configs:
+                name = cfg['name']
+                if cfg['host'].lower() in ['test', 'debug', 'none']:
+                    self.debug(f'DEBUG: creating dummy client for {name}')
+                    self._clients[name] = None
+                else:
+                    self.debug(f'DEBUG: creating modbus client for {name}')
+                    self._clients[name] = MBClient(
+                        cfg['host'],
+                        port=int(cfg.get('port', 502)),
+                        name=f'Modbus[{name}]',
+                        reconnect_delay=f'10.0',  # TODO: make config setting
+                        timeout=5,
+                    )
+
+    def debug(self, msg: str):
+        if self._debug:
+            print(msg)
 
     async def connect(self):
         for name, client in self._clients.items():
-            print(f'DEBUG: connecting to inverter {name}')
+            self.debug(f'DEBUG: connecting to inverter {name}')
             if client is None:
                 continue
             await client.connect()
@@ -59,7 +84,7 @@ class ModbusManager():
         no_response_expected: bool = False,
     ):
         for name, client in self._clients.items():
-            print(f'DEBUG: Modbus[{name}] write registers {address} -> {values}')
+            self.debug(f'DEBUG: Modbus[{name}] write registers {address} -> {values}')
             if client is None:
                 continue
             await client.write_registers(
@@ -68,6 +93,46 @@ class ModbusManager():
                 device_id=3,  # battery-management also uses slave=3. Perhaps related to Unit ID in datasheet?
                 no_response_expected=no_response_expected,
             )
+
+    async def read_register_client(self,
+        client_name: str,
+        address: int,
+        dtype: str,
+        device_id: int = 3,
+        sma_data_format: str | dict[int, str] | None = None,
+    ) -> Any:
+        '''
+        Read a holding or input register using the named client connected to client_name
+        The following logic is used to determine whether the register is a holding or input register:
+
+        3x = Input Register = 30001-39999
+        4x = Holding Register = 40001-49999
+        '''
+        client = self._clients.get(client_name)
+        if client is None:
+            return 12345  # dummy value
+
+        try:
+            cnt = self._dtype_to_word_count(dtype)
+            self.debug(f'DEBUG: Modbus[{client_name}] trying to read register {address} (count: {cnt})')
+
+            if str(address)[0] == '4':
+                resp = await client.read_holding_registers(address, count=cnt, device_id=device_id)
+            elif str(address)[0] == '3':
+                resp = await client.read_input_registers(address, count=cnt, device_id=device_id)
+
+            if resp.isError():
+                code = getattr(resp, 'exception_code', None)
+                if code:
+                    exc_descr = _modbus_exception_codes.get(resp.exception_code, '<unknown exception>')
+                    raise Exception(f'modbus error while reading from {client_name}: ({code}) {exc_descr}')
+
+            value = self._decode_response(dtype, resp, sma_data_format=sma_data_format)
+            self.debug(f'DEBUG: Modbus[{client_name}] read register {address} -> {value}')
+            return value
+
+        except ModbusException as e:
+            raise Exception(f'internal exception in Pymodbus library while reading from {client_name}: {e}')
 
     async def _read_registers(self,
         client_name: str,
@@ -90,15 +155,13 @@ class ModbusManager():
             return
 
         try:
-            # ra = self._get_relative_address(address)
-            ra = address
             cnt = self._dtype_to_word_count(dtype)
-            print(f'DEBUG: Modbus[{client_name}] trying to read register {address} (relative {ra}, count: {cnt})')
+            self.debug(f'DEBUG: Modbus[{client_name}] trying to read register {address} (count: {cnt})')
 
             if str(address)[0] == '4':
-                resp = await client.read_holding_registers(ra, count=cnt, device_id=device_id)
+                resp = await client.read_holding_registers(address, count=cnt, device_id=device_id)
             elif str(address)[0] == '3':
-                resp = await client.read_input_registers(ra, count=cnt, device_id=device_id)
+                resp = await client.read_input_registers(address, count=cnt, device_id=device_id)
 
             if resp.isError():
                 code = getattr(resp, 'exception_code', None)
@@ -108,7 +171,7 @@ class ModbusManager():
 
             value = self._decode_response(dtype, resp, sma_data_format=sma_data_format)
             result_dict[client_name] = value
-            print(f'DEBUG: Modbus[{client_name}] read register {address} -> {value}')
+            self.debug(f'DEBUG: Modbus[{client_name}] read register {address} -> {value}')
 
         except ModbusException as e:
             raise Exception(f'internal exception in Pymodbus library while reading from {client_name}: {e}')
@@ -125,13 +188,14 @@ class ModbusManager():
         tasks = []
         for name, client in self._clients.items():
             if client is None:
+                ret[name] = 12435  # dummy value
                 continue
             tasks.append(self._read_registers(name, address, dtype, ret, device_id=device_id, sma_data_format=sma_data_format))
 
         try:
             await asyncio.gather(*tasks)  # exceptions raised within a task will propagate
         except Exception as e:
-            print(f'DEBUG: Modbus parallel read failed: {e}')
+            self.debug(f'DEBUG: Modbus parallel read failed: {e}')
             self.close()
             raise
 
@@ -194,26 +258,5 @@ class ModbusManager():
                 except KeyError:
                     raise Exception(f'no taglist mapping for value {value}')
 
-        print(f"DEBUG: decoded response '{resp}' into {value}")
+        self.debug(f"DEBUG: decoded response '{resp}' into {value}")
         return value
-
-    def _get_relative_address(self, address: int) -> int:
-        '''
-        Interpret addresses using the following scheme:
-
-        3x = Input Register = 30001-39999
-        4x = Holding Register = 40001-49999
-        '''
-        addr_str = str(address)
-        addr_digits = len(addr_str)  # eg. 5 for address '40141'
-        base_mult = 10 ** (addr_digits - 1)
-
-        if addr_str[0] == '4':
-            base = 4 * base_mult + 1
-            return address - base
-
-        if addr_str[0] == '3':
-            base = 3 * base_mult + 1
-            return address - base
-
-        raise Exception(f'unable to determine relative address for {address}')

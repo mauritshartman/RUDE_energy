@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Modbus connection to SMA Data Manager
 
+## [1.0.5] - 2025-11-25
+
+### Added
+
+- Added option to turn on additional debug messages in the log
+
 ## [1.0.4] - 2025-11-25
 
 ### Added

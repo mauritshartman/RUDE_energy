@@ -20,21 +20,27 @@ class Config:
 
     def inverter_config(self, name) -> dict:
         for inv_setting in self._settings['inverters']:
-            if inv_setting['name'] == name:
+            if inv_setting['name'] == name and inv_setting['enable']:
                 return inv_setting
         raise Exception(f'cannot find inverter {name} in config')
 
     def get_inverter_names(self) -> list:
-        return [inv['name'] for inv in self._settings['inverters']]
+        return [inv['name'] for inv in self._settings['inverters'] if inv['enable']]
+
+    def get_energy_meter_config(self) -> dict:
+        return self._settings['energy_meter']
 
     def get_control_mode(self) -> ControlMode:
         cm = str(self._settings['control_mode']).upper()
         return ControlMode[cm]
 
+    def get_debug(self) -> bool:
+        return self._settings['debug']
+
     def get_charge_amount(self) -> int:
-        return int(self._settings['mode_2']['total_charge_amount'])
+        return int(self._settings['mode_2']['charge_amount'])
 
     def get_discharge_amount(self) -> int:
-        return int(self._settings['mode_3']['total_discharge_amount'])
+        return int(self._settings['mode_3']['discharge_amount'])
 
 config = Config()

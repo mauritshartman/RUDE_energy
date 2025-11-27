@@ -3,6 +3,9 @@ configuration:
     - name:
         name: Inverter name
         description: Convenient name to give to the inverter
+      enable:
+        name: enable
+        description: Enable this inverter into DoeMaarWatt control
       host:
         name: Inverter modbus IP address
         description: Modbus IP address for the inverter. Use 'test' to configure as dummy
@@ -15,8 +18,32 @@ configuration:
       battery_discharge_limit:
         name: Discharging limit for the battery
         description: Individual discharging limit in Watt for the inverter (0 to disable limit)
-  control_mode: Selected control mode (1 = off, 2 = continuous manual charging, 3 = continuous manual discharging, 4 = automatic operation according to a fixed charge/discharge schedule, 5 = automatic operation according to a dynamic charge/discharge schedule
+
+  energy_meter:
+    name: Energy Meter options
+    description: Modbus configuration to read out the SMA energy meter
+    fields:
+      host:
+        name: Host
+        description: Modbus IP address of the SMA energy meter
+      port:
+        name: Port
+        description: Modbus TCP port of the SMA energy meter
+
+  control_mode: Initial control mode (1 = off, 2 = continuous manual charging, 3 = continuous manual discharging, 4 = automatic operation according to a fixed charge/discharge schedule, 5 = automatic operation according to a dynamic charge/discharge schedule
+
   mode_2:
-    total_charge_amount: Total battery charge amount (in Watts) for all battery inverters combined
+    name: Mode 2 options
+    description: Configuration settings specific to Mode 2 operation (manual charge)
+    fields:
+      charge_amount:
+        name: Total charge amount
+        description: Battery charge amount (in Watts) for each battery inverters individually
+
   mode_3:
-    total_discharge_amount: Total battery discharge amount (in Watts) for all battery inverters combined
+    name: Mode 3 options
+    description: Configuration settings specific to Mode 3 operation (manual discharge)
+    fields:
+      discharge_amount:
+        name: Battery discharge amount
+        description: Battery discharge amount (in Watts) for each battery inverters individually
