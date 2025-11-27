@@ -2,7 +2,7 @@ import asyncio
 from modbus import ModbusManager
 from config import config
 
-EM = 'Energy Meter'
+DM = 'Data Manager'
 
 async def battery_stats(inverters: ModbusManager):
     print(f'idle: reading selected inverter properties:')
@@ -32,52 +32,49 @@ async def battery_stats(inverters: ModbusManager):
         print(f'\t\t{inv_name}:\t{current:.3f} A')
 
 
-async def energy_meter_stats(em: ModbusManager):
-    print(f'idle: reading energy meter properties:')
-
-    freq = await em.read_register_client(EM, 31527, 'U32', device_id=2, sma_data_format='FIX2')
-    print(f'\tgrid frequency: {freq:.2f} Hz')
-    l1_voltage = await em.read_register_client(EM, 31529, 'U32', device_id=2, sma_data_format='FIX2')
-    print(f'\tL1 voltage: {l1_voltage:.2f} V')
-    l2_voltage = await em.read_register_client(EM, 31531, 'U32', device_id=2, sma_data_format='FIX2')
-    print(f'\tL2 voltage: {l2_voltage:.2f} V')
-    l3_voltage = await em.read_register_client(EM, 31533, 'U32', device_id=2, sma_data_format='FIX2')
-    print(f'\tL3 voltage: {l3_voltage:.2f} V')
-    l1_current = await em.read_register_client(EM, 31535, 'S32', device_id=2, sma_data_format='FIX3')
-    print(f'\tL1 current: {l1_current:.3f} A')
-    l2_current = await em.read_register_client(EM, 31537, 'S32', device_id=2, sma_data_format='FIX3')
-    print(f'\tL2 current: {l1_current:.3f} A')
-    l3_current = await em.read_register_client(EM, 31539, 'S32', device_id=2, sma_data_format='FIX3')
-    print(f'\tL3 current: {l1_current:.3f} A')
+async def data_manager_stats(dm: ModbusManager):
+    print(f'idle: reading data manager properties:')
+    l1_voltage = await dm.read_register_client(DM, 31529, 'U32', device_id=2, sma_data_format='FIX2')
+    l2_voltage = await dm.read_register_client(DM, 31531, 'U32', device_id=2, sma_data_format='FIX2')
+    l3_voltage = await dm.read_register_client(DM, 31533, 'U32', device_id=2, sma_data_format='FIX2')
+    l1_current = await dm.read_register_client(DM, 31535, 'S32', device_id=2, sma_data_format='FIX3')
+    l2_current = await dm.read_register_client(DM, 31537, 'S32', device_id=2, sma_data_format='FIX3')
+    l3_current = await dm.read_register_client(DM, 31539, 'S32', device_id=2, sma_data_format='FIX3')
+    l1_power =   await dm.read_register_client(DM, 31505, 'S32', device_id=2, sma_data_format='FIX0')
+    l2_power =   await dm.read_register_client(DM, 31507, 'S32', device_id=2, sma_data_format='FIX0')
+    l3_power =   await dm.read_register_client(DM, 31509, 'S32', device_id=2, sma_data_format='FIX0')
+    print(f'\tL1:\t{l1_current:.3f} A\t{l1_voltage:.2f} V\t{l1_power:.0f} W')
+    print(f'\tL2:\t{l2_current:.3f} A\t{l2_voltage:.2f} V\t{l2_power:.0f} W')
+    print(f'\tL3:\t{l3_current:.3f} A\t{l1_voltage:.2f} V\t{l3_power:.0f} W')
 
 
 async def mode_1_loop():
     print(f'Mode 1 initializing')
 
-    em_cfg = config.get_energy_meter_config()
-    em_cfg['name'] = EM
+    dm_cfg = config.get_data_manager_config()
+    dm_cfg['name'] = DM
 
     while True:
         inverters = ModbusManager()
-        em = ModbusManager(client_configs=[em_cfg])
+        dm = ModbusManager(client_configs=[dm_cfg])
 
         try:
             print(f'idle mode: connecting modbus clients')
             await inverters.connect()
-            await em.connect()
+            await dm.connect()
 
             print(f'idle: relinquish control and reset power set point')
             await inverters.write_registers(40149, [0, 0])  # reset rendement
             await inverters.write_registers(40151, [0, 803])  # 803 = inactive
 
             await battery_stats(inverters)
-            await energy_meter_stats(em)
+            await data_manager_stats(dm)
 
         except Exception as e:
             print(f'idle: encountered an error: {e}')
 
         finally:
             inverters.close()
-            em.close()
+            dm.close()
 
         await asyncio.sleep(10)

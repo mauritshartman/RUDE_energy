@@ -27,8 +27,8 @@ class Config:
     def get_inverter_names(self) -> list:
         return [inv['name'] for inv in self._settings['inverters'] if inv['enable']]
 
-    def get_energy_meter_config(self) -> dict:
-        return self._settings['energy_meter']
+    def get_data_manager_config(self) -> dict:
+        return self._settings['data_manager']
 
     def get_control_mode(self) -> ControlMode:
         cm = str(self._settings['control_mode']).upper()

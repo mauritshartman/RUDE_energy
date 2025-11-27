@@ -1,5 +1,5 @@
 name: "DoeMaarWatt"
-version: "1.0.5b"
+version: "1.0.5c"
 slug: "doemaarwatt"
 description: "Manage charge cycles for home batteries based on dynamic energy prices"
 url: "https://github.com/mauritshartman/RUDE_energy"
@@ -16,7 +16,7 @@ map:
 
 options:
   inverters: []
-  energy_meter:
+  data_manager:
     host: none
     port: 502
   timezone: 0
@@ -35,7 +35,7 @@ schema:
       port: "int(0,65535)"
       battery_charge_limit: int
       battery_discharge_limit: int
-  energy_meter:
+  data_manager:
     host: str
     port: "int(0,65535)"
   timezone: int

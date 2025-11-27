@@ -19,16 +19,16 @@ configuration:
         name: Discharging limit for the battery
         description: Individual discharging limit in Watt for the inverter (0 to disable limit)
 
-  energy_meter:
-    name: Energy Meter options
-    description: Modbus configuration to read out the SMA energy meter
+  data_manager:
+    name: Data Manager M options
+    description: Modbus configuration to read out the SMA Data Manager (and energy meter)
     fields:
       host:
         name: Host
-        description: Modbus IP address of the SMA energy meter
+        description: Modbus IP address of the SMA Data Manager M
       port:
         name: Port
-        description: Modbus TCP port of the SMA energy meter
+        description: Modbus TCP port of the SMA Data Manager M
 
   control_mode: Initial control mode (1 = off, 2 = continuous manual charging, 3 = continuous manual discharging, 4 = automatic operation according to a fixed charge/discharge schedule, 5 = automatic operation according to a dynamic charge/discharge schedule
 
