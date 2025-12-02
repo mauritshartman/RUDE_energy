@@ -34,7 +34,7 @@ async def battery_stats(inverters: ModbusManager):
 
         print(f'\t{inv_name} (connected to {phi}):')
         print(f'\t\tbattery side:\t{charge:.1f} %\t{voltage:.2f} V\t{current:.3f} A\t{temp_l} - {chr(176)}C\t{temp_h} {chr(176)}C')
-        print(f'\tAC side:\t{ac_amp:.3f} A\t{ac_vol:.2f} V\t{ac_pow:.0f} W')
+        print(f'\t\tAC side:\t{ac_amp:.3f} A\t{ac_vol:.2f} V\t{ac_pow:.0f} W')
 
 
 async def data_manager_stats(dm: ModbusManager):
