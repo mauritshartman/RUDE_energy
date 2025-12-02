@@ -27,14 +27,14 @@ async def battery_stats(inverters: ModbusManager):
         current = currents[inv_name]
 
         # read phase specific values
-        phi = config.inverter_config[inv_name]['connected_phase']
+        phi = config.inverter_config(inv_name)['connected_phase']
         ac_pow = await inverters.read_register_client(inv_name, REG_MAP[phi]['p'], 'S32', device_id=3, sma_data_format='FIX0')
         ac_vol = await inverters.read_register_client(inv_name, REG_MAP[phi]['v'], 'U32', device_id=3, sma_data_format='FIX2')
         ac_amp = await inverters.read_register_client(inv_name, REG_MAP[phi]['a'], 'S32', device_id=3, sma_data_format='FIX3')
 
         print(f'\t{inv_name} (connected to {phi}):')
         print(f'\t\tbattery side:\t{charge:.1f} %\t{voltage:.2f} V\t{current:.3f} A\t{temp_l} - {chr(176)}C\t{temp_h} {chr(176)}C')
-        print(f'\t\AC side:\t{ac_amp:.3f} A\t{ac_vol:.2f} V\t{ac_pow:.0f} W')
+        print(f'\tAC side:\t{ac_amp:.3f} A\t{ac_vol:.2f} V\t{ac_pow:.0f} W')
 
 
 async def data_manager_stats(dm: ModbusManager):
