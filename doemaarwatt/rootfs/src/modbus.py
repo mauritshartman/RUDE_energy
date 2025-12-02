@@ -99,7 +99,7 @@ class ModbusManager():
         address: int,
         dtype: str,
         device_id: int = 3,
-        sma_data_format: str | dict[int, str] | None = None,
+        sma_format: str | dict[int, str] | None = None,
     ) -> Any:
         '''
         Read a holding or input register using the named client connected to client_name
@@ -127,7 +127,7 @@ class ModbusManager():
                     exc_descr = _modbus_exception_codes.get(resp.exception_code, '<unknown exception>')
                     raise Exception(f'modbus error while reading from {client_name}: ({code}) {exc_descr}')
 
-            value = self._decode_response(dtype, resp, sma_data_format=sma_data_format)
+            value = self._decode_response(dtype, resp, sma_format=sma_format)
             self.debug(f'DEBUG: Modbus[{client_name}] read register {address} -> {value}')
             return value
 
@@ -140,7 +140,7 @@ class ModbusManager():
         dtype: str,
         result_dict: dict[str, Any],
         device_id: int = 3,
-        sma_data_format: str | dict[int, str] | None = None,
+        sma_format: str | dict[int, str] | None = None,
     ):
         '''
         Read a holding or input register using the client connected to client_name
@@ -169,7 +169,7 @@ class ModbusManager():
                     exc_descr = _modbus_exception_codes.get(resp.exception_code, '<unknown exception>')
                     raise Exception(f'modbus error while reading from {client_name}: ({code}) {exc_descr}')
 
-            value = self._decode_response(dtype, resp, sma_data_format=sma_data_format)
+            value = self._decode_response(dtype, resp, sma_format=sma_format)
             result_dict[client_name] = value
             self.debug(f'DEBUG: Modbus[{client_name}] read register {address} -> {value}')
 
@@ -180,7 +180,7 @@ class ModbusManager():
         address: int,
         dtype: str,
         device_id: int = 3,
-        sma_data_format: str | dict[int, str] | None = None,
+        sma_format: str | dict[int, str] | None = None,
     ) -> dict[str, Any]:
         '''Perform a parallel register read operation across all clients'''
         ret = {}  # collect results here
@@ -190,7 +190,7 @@ class ModbusManager():
             if client is None:
                 ret[name] = 12435  # dummy value
                 continue
-            tasks.append(self._read_registers(name, address, dtype, ret, device_id=device_id, sma_data_format=sma_data_format))
+            tasks.append(self._read_registers(name, address, dtype, ret, device_id=device_id, sma_format=sma_format))
 
         try:
             await asyncio.gather(*tasks)  # exceptions raised within a task will propagate
@@ -220,7 +220,7 @@ class ModbusManager():
     def _decode_response(self,
         dtype: str,
         resp,
-        sma_data_format: str | dict[int, str] | None = None,
+        sma_format: str | dict[int, str] | None = None,
     ) -> Any:
         '''
         Decode a non-error modbus server response according to the datatype, applying proper endianness, etc
@@ -240,21 +240,21 @@ class ModbusManager():
         else:  # TODO expand for STR32 type and variable length strings
             return resp
 
-        if sma_data_format is not None:
-            sma_data_format = sma_data_format.upper()
-            if sma_data_format == 'FIX0':
+        if sma_format is not None:
+            sma_format = sma_format.upper()
+            if sma_format == 'FIX0':
                 pass  # no decimal place, so no rounding needed
-            elif sma_data_format == 'FIX1':
+            elif sma_format == 'FIX1':
                 value = float(value) / 1e1
-            elif sma_data_format == 'FIX2':
+            elif sma_format == 'FIX2':
                 value = float(value) / 1e2
-            elif sma_data_format == 'FIX3':
+            elif sma_format == 'FIX3':
                 value = float(value) / 1e3
-            elif sma_data_format == 'TEMP':
+            elif sma_format == 'TEMP':
                 value = float(value) / 1e1
-            elif isinstance(sma_data_format, dict):  # assuming data format is a tag list mapping
+            elif isinstance(sma_format, dict):  # assuming data format is a tag list mapping
                 try:
-                    value = sma_data_format[value]
+                    value = sma_format[value]
                 except KeyError:
                     raise Exception(f'no taglist mapping for value {value}')
 

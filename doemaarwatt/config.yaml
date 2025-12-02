@@ -19,7 +19,7 @@ options:
   data_manager:
     host: none
     port: 502
-  timezone: 0
+  timezone: -1
   debug: true
   control_mode: none
   mode_2:

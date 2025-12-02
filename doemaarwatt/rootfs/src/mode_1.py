@@ -13,11 +13,11 @@ REG_MAP = {
 async def battery_stats(inverters: ModbusManager):
     print(f'idle: reading enabled inverter properties:')
 
-    temps_high = await inverters.read_registers(32221, 'S32', device_id=3, sma_data_format='TEMP')
-    temps_low  = await inverters.read_registers(32227, 'S32', device_id=3, sma_data_format='TEMP')
-    charges = await inverters.read_registers(32233, 'U32', device_id=3, sma_data_format='FIX2')
-    voltages = await inverters.read_registers(30851, 'U32', device_id=3, sma_data_format='FIX2')
-    currents = await inverters.read_registers(30843, 'S32', device_id=3, sma_data_format='FIX3')
+    temps_high = await inverters.read_registers(32221, 'S32', device_id=3, sma_format='TEMP')
+    temps_low  = await inverters.read_registers(32227, 'S32', device_id=3, sma_format='TEMP')
+    charges = await inverters.read_registers(32233, 'U32', device_id=3, sma_format='FIX2')
+    voltages = await inverters.read_registers(30851, 'U32', device_id=3, sma_format='FIX2')
+    currents = await inverters.read_registers(30843, 'S32', device_id=3, sma_format='FIX3')
 
     for inv_name in temps_high.keys() & temps_low.keys() & charges.keys() & voltages.keys() & currents.keys():
         temp_h = temps_high[inv_name]
@@ -28,9 +28,9 @@ async def battery_stats(inverters: ModbusManager):
 
         # read phase specific values
         phi = config.inverter_config(inv_name)['connected_phase']
-        ac_pow = await inverters.read_register_client(inv_name, REG_MAP[phi]['p'], 'S32', device_id=3, sma_data_format='FIX0')
-        ac_vol = await inverters.read_register_client(inv_name, REG_MAP[phi]['v'], 'U32', device_id=3, sma_data_format='FIX2')
-        ac_amp = await inverters.read_register_client(inv_name, REG_MAP[phi]['a'], 'S32', device_id=3, sma_data_format='FIX3')
+        ac_pow = await inverters.read_register_client(inv_name, REG_MAP[phi]['p'], 'S32', device_id=3, sma_format='FIX0')
+        ac_vol = await inverters.read_register_client(inv_name, REG_MAP[phi]['v'], 'U32', device_id=3, sma_format='FIX2')
+        ac_amp = await inverters.read_register_client(inv_name, REG_MAP[phi]['a'], 'S32', device_id=3, sma_format='FIX3')
 
         print(f'\t{inv_name} (connected to {phi}):')
         print(f'\t\tbattery:\t{current:.3f} A\t{voltage:.2f} V\t{charge:.1f} %\t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
@@ -39,15 +39,15 @@ async def battery_stats(inverters: ModbusManager):
 
 async def data_manager_stats(dm: ModbusManager):
     print(f'idle: reading data manager properties:')
-    l1_voltage = await dm.read_register_client(DM, 31529, 'U32', device_id=2, sma_data_format='FIX2')
-    l2_voltage = await dm.read_register_client(DM, 31531, 'U32', device_id=2, sma_data_format='FIX2')
-    l3_voltage = await dm.read_register_client(DM, 31533, 'U32', device_id=2, sma_data_format='FIX2')
-    l1_current = await dm.read_register_client(DM, 31535, 'S32', device_id=2, sma_data_format='FIX3')
-    l2_current = await dm.read_register_client(DM, 31537, 'S32', device_id=2, sma_data_format='FIX3')
-    l3_current = await dm.read_register_client(DM, 31539, 'S32', device_id=2, sma_data_format='FIX3')
-    l1_power =   await dm.read_register_client(DM, 31503, 'S32', device_id=2, sma_data_format='FIX0')
-    l2_power =   await dm.read_register_client(DM, 31505, 'S32', device_id=2, sma_data_format='FIX0')
-    l3_power =   await dm.read_register_client(DM, 31507, 'S32', device_id=2, sma_data_format='FIX0')
+    l1_current = await dm.read_register_client(DM, 31535, 'S32', device_id=2, sma_format='FIX3')
+    l2_current = await dm.read_register_client(DM, 31537, 'S32', device_id=2, sma_format='FIX3')
+    l3_current = await dm.read_register_client(DM, 31539, 'S32', device_id=2, sma_format='FIX3')
+    l1_voltage = await dm.read_register_client(DM, 31529, 'U32', device_id=2, sma_format='FIX2')
+    l2_voltage = await dm.read_register_client(DM, 31531, 'U32', device_id=2, sma_format='FIX2')
+    l3_voltage = await dm.read_register_client(DM, 31533, 'U32', device_id=2, sma_format='FIX2')
+    l1_power =   await dm.read_register_client(DM, 31503, 'S32', device_id=2, sma_format='FIX0')
+    l2_power =   await dm.read_register_client(DM, 31505, 'S32', device_id=2, sma_format='FIX0')
+    l3_power =   await dm.read_register_client(DM, 31507, 'S32', device_id=2, sma_format='FIX0')
     print(f'\tL1:\t{l1_current:.3f} A\t{l1_voltage:.2f} V\t{l1_power:.0f} W')
     print(f'\tL2:\t{l2_current:.3f} A\t{l2_voltage:.2f} V\t{l2_power:.0f} W')
     print(f'\tL3:\t{l3_current:.3f} A\t{l1_voltage:.2f} V\t{l3_power:.0f} W')
