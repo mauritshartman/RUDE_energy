@@ -4,8 +4,14 @@ from config import config
 
 DM = 'Data Manager'
 
+REG_MAP = {
+    'L1': { 'p': 30777, 'v': 30783, 'a': 30977 },
+    'L2': { 'p': 30779, 'v': 30785, 'a': 30979 },
+    'L3': { 'p': 30781, 'v': 30787, 'a': 30981 },
+}
+
 async def battery_stats(inverters: ModbusManager):
-    print(f'idle: reading selected inverter properties:')
+    print(f'idle: reading enabled inverter properties:')
 
     temps_high = await inverters.read_registers(32221, 'S32', device_id=3, sma_data_format='TEMP')
     temps_low  = await inverters.read_registers(32227, 'S32', device_id=3, sma_data_format='TEMP')
@@ -19,7 +25,16 @@ async def battery_stats(inverters: ModbusManager):
         charge = charges[inv_name] * 10  # fix for now
         voltage = voltages[inv_name]
         current = currents[inv_name]
-        print(f'\t\t{inv_name}:\t{charge:.1f} %\t{voltage:.2f} V\t{current:.3f} A\t{temp_l} - {chr(176)}C\t{temp_h} {chr(176)}C')
+
+        # read phase specific values
+        phi = config.inverter_config[inv_name]['connected_phase']
+        ac_pow = await inverters.read_register_client(inv_name, REG_MAP[phi]['p'], 'S32', device_id=3, sma_data_format='FIX0')
+        ac_vol = await inverters.read_register_client(inv_name, REG_MAP[phi]['v'], 'U32', device_id=3, sma_data_format='FIX2')
+        ac_amp = await inverters.read_register_client(inv_name, REG_MAP[phi]['a'], 'S32', device_id=3, sma_data_format='FIX3')
+
+        print(f'\t{inv_name} (connected to {phi}):')
+        print(f'\t\tbattery side:\t{charge:.1f} %\t{voltage:.2f} V\t{current:.3f} A\t{temp_l} - {chr(176)}C\t{temp_h} {chr(176)}C')
+        print(f'\t\AC side:\t{ac_amp:.3f} A\t{ac_vol:.2f} V\t{ac_pow:.0f} W')
 
 
 async def data_manager_stats(dm: ModbusManager):

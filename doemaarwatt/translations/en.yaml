@@ -18,6 +18,9 @@ configuration:
       battery_discharge_limit:
         name: Discharging limit for the battery
         description: Individual discharging limit in Watt for the inverter (0 to disable limit)
+      connected_phase:
+        name: Phase (L1, L2 or L3) connected to the inverter
+        description: Phase (L1, L2 or L3) to which the inverter is connected
 
   data_manager:
     name: Data Manager M options
