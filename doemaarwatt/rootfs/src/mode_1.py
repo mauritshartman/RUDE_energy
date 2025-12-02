@@ -38,9 +38,9 @@ async def battery_stats(inverters: ModbusManager):
         elif ac_pow > 0:
             bat_stat = 'discharging'
 
-        print(f'\t{inv_name} (connected to {phi}):')
-        print(f'\t\tbattery:\t{current:.3f} A\t{voltage:.2f} V\t{bat_stat}\t{charge:.1f} %\t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
-        print(f'\t\tAC side:\t{ac_amp:.3f} A\t{ac_vol:.2f} V\t{ac_pow:.0f} W')
+        print(f'{inv_name} (connected to {phi}):')
+        print(f'\tbattery:\t{current:.3f} A\t{voltage:.2f} V\t{bat_stat}\t{charge:.1f} %\t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
+        print(f'\tAC side:\t{ac_amp:.3f} A\t{ac_vol:.2f} V\t{ac_pow:.0f} W')
 
 
 async def data_manager_stats(dm: ModbusManager):
@@ -59,9 +59,9 @@ async def data_manager_stats(dm: ModbusManager):
     l2_stat = ('no flow' if l2_power == 0 else ('drawing from grid' if l2_power < 0 else 'supplying to grid'))
     l3_stat = ('no flow' if l3_power == 0 else ('drawing from grid' if l3_power < 0 else 'supplying to grid'))
 
-    print(f'\tL1:\t{l1_current:.3f} A\t{l1_voltage:.2f} V\t{l1_power:.0f} W ({l1_stat})')
-    print(f'\tL2:\t{l2_current:.3f} A\t{l2_voltage:.2f} V\t{l2_power:.0f} W ({l2_stat})')
-    print(f'\tL3:\t{l3_current:.3f} A\t{l1_voltage:.2f} V\t{l3_power:.0f} W ({l3_stat})')
+    print(f'L1:\t{l1_current:.3f} A\t{l1_voltage:.2f} V\t{l1_power:.0f} W ({l1_stat})')
+    print(f'L2:\t{l2_current:.3f} A\t{l2_voltage:.2f} V\t{l2_power:.0f} W ({l2_stat})')
+    print(f'L3:\t{l3_current:.3f} A\t{l1_voltage:.2f} V\t{l3_power:.0f} W ({l3_stat})')
 
 
 async def mode_1_loop():
