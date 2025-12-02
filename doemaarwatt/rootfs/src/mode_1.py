@@ -33,7 +33,7 @@ async def battery_stats(inverters: ModbusManager):
         ac_amp = await inverters.read_register_client(inv_name, REG_MAP[phi]['a'], 'S32', device_id=3, sma_data_format='FIX3')
 
         print(f'\t{inv_name} (connected to {phi}):')
-        print(f'\t\tbattery side:\t{charge:.1f} %\t{voltage:.2f} V\t{current:.3f} A\t{temp_l} - {chr(176)}C\t{temp_h} {chr(176)}C')
+        print(f'\t\tbattery:\t{current:.3f} A\t{voltage:.2f} V\t{charge:.1f} %\t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
         print(f'\t\tAC side:\t{ac_amp:.3f} A\t{ac_vol:.2f} V\t{ac_pow:.0f} W')
 
 
