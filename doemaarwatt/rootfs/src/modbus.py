@@ -90,9 +90,21 @@ class ModbusManager():
             await client.write_registers(
                 address,
                 values,
-                device_id=3,  # battery-management also uses slave=3. Perhaps related to Unit ID in datasheet?
+                device_id=3,  # related to Unit_id
                 no_response_expected=no_response_expected,
             )
+
+    async def write_register_client(self,
+        client_name: str,
+        address: int,
+        values: list[int],
+        no_response_expected: bool = False,
+    ):
+        if not client_name in self._clients:
+            raise Exception(f'client name {client_name} not configured')
+        if self._clients[client_name] is None:
+            return
+        await self._clients[client_name].write_registers(address, values, device_id=3, no_response_expected=no_response_expected)
 
     async def read_register_client(self,
         client_name: str,

@@ -1,5 +1,5 @@
 name: "DoeMaarWatt"
-version: "1.0.6b"
+version: "1.0.7"
 slug: "doemaarwatt"
 description: "Manage charge cycles for home batteries based on dynamic energy prices"
 url: "https://github.com/mauritshartman/RUDE_energy"
@@ -19,9 +19,11 @@ options:
   data_manager:
     host: none
     port: 502
+    max_fuse_current: 25
   timezone: -1
   debug: true
   control_mode: none
+  loop_delay: 10
   mode_2:
     charge_amount: 2000
   mode_3:
@@ -39,9 +41,11 @@ schema:
   data_manager:
     host: str
     port: "int(0,65535)"
+    max_fuse_current: "int(1,100)"
   timezone: int
   debug: bool
-  control_mode: "match(^none$|^charge$|^discharge$|^static_schedule$|^dynamic_schedule$)"
+  control_mode: "match(^none$|^charge$|^discharge$|^static$|^dynamic$)"
+  loop_delay: "int(1,600)"
   mode_2:
     charge_amount: "int(0,12000)"
   mode_3:

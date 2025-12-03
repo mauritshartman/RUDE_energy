@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Modbus connection to SMA Data Manager
 
+## [1.0.7] - 2025-11-25
+
+### Added
+
+- Implemented smart manual charging
+- Added option to configure control loop delay
+
 ## [1.0.5] - 2025-11-25
 
 ### Added

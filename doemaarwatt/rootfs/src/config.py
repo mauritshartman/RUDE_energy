@@ -6,8 +6,8 @@ class ControlMode(Enum):
     NONE = 1  # completely idle
     CHARGE = 2  # continuous manual charging
     DISCHARGE = 3  # continuous manual discharging
-    STATIC_SCHEDULE = 4  # automatic charging / discharging according to fixed schedule
-    DYNAMIC_SCHEDULE = 5  # automatic charging / discharging according to a dynamic schedule
+    STATIC = 4  # automatic charging / discharging according to fixed schedule
+    DYNAMIC = 5  # automatic charging / discharging according to a dynamic schedule
 
 
 class Config:
@@ -27,6 +27,17 @@ class Config:
     def get_inverter_names(self) -> list:
         return [inv['name'] for inv in self._settings['inverters'] if inv['enable']]
 
+    def get_inverter_phase_map(self) -> dict[str, list[str]]:
+        '''
+        Return a dict that maps the phases (L1, L2, and L3) to enabled inverters (which can be zero or more).
+        If no inverter is enabled for a given phase, then its entry in the dict will be an empty list
+        '''
+        ret = { 'L1': [], 'L2': [], 'L3': [] }
+        for inv_setting in self._settings['inverters']:
+            if inv_setting['enable']:
+                ret[inv_setting['connected_phase']].append(inv_setting['name'])
+        return ret
+
     def get_data_manager_config(self) -> dict:
         return self._settings['data_manager']
 
@@ -42,5 +53,8 @@ class Config:
 
     def get_discharge_amount(self) -> int:
         return int(self._settings['mode_3']['discharge_amount'])
+
+    def get_loop_delay(self) -> int:
+        return int(self._settings['loop_delay'])
 
 config = Config()

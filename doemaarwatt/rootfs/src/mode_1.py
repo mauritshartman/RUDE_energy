@@ -1,67 +1,7 @@
 import asyncio
 from modbus import ModbusManager
 from config import config
-
-DM = 'Data Manager'
-
-REG_MAP = {
-    'L1': { 'p': 30777, 'v': 30783, 'a': 30977 },
-    'L2': { 'p': 30779, 'v': 30785, 'a': 30979 },
-    'L3': { 'p': 30781, 'v': 30787, 'a': 30981 },
-}
-
-async def battery_stats(inverters: ModbusManager):
-    print(f'idle: reading enabled inverter properties:')
-
-    temps_high = await inverters.read_registers(32221, 'S32', device_id=3, sma_format='TEMP')
-    temps_low  = await inverters.read_registers(32227, 'S32', device_id=3, sma_format='TEMP')
-    charges =    await inverters.read_registers(32233, 'U32', device_id=3, sma_format='FIX2')
-    voltages =   await inverters.read_registers(30851, 'U32', device_id=3, sma_format='FIX2')
-    currents =   await inverters.read_registers(30843, 'S32', device_id=3, sma_format='FIX3')
-
-    for inv_name in temps_high.keys() & temps_low.keys() & charges.keys() & voltages.keys() & currents.keys():
-        temp_h = temps_high[inv_name]
-        temp_l = temps_low[inv_name]
-        charge = charges[inv_name] * 10  # fix for now
-        voltage = voltages[inv_name]
-        current = currents[inv_name]
-
-        # read phase specific values
-        phi = config.inverter_config(inv_name)['connected_phase']
-        ac_pow = await inverters.read_register_client(inv_name, REG_MAP[phi]['p'], 'S32', device_id=3, sma_format='FIX0')
-        ac_vol = await inverters.read_register_client(inv_name, REG_MAP[phi]['v'], 'U32', device_id=3, sma_format='FIX2')
-        ac_amp = await inverters.read_register_client(inv_name, REG_MAP[phi]['a'], 'S32', device_id=3, sma_format='FIX3')
-
-        bat_stat = 'no flow'
-        if ac_pow < 0:
-            bat_stat = 'charging'
-        elif ac_pow > 0:
-            bat_stat = 'discharging'
-
-        print(f'{inv_name} (connected to {phi}):')
-        print(f'\tbattery:\t{current:.3f} A\t{voltage:.2f} V\t{bat_stat}\t{charge:.1f} %\t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
-        print(f'\tAC side:\t{ac_amp:.3f} A\t{ac_vol:.2f} V\t{ac_pow:.0f} W')
-
-
-async def data_manager_stats(dm: ModbusManager):
-    print(f'idle: reading data manager properties:')
-    l1_current = await dm.read_register_client(DM, 31535, 'S32', device_id=2, sma_format='FIX3')
-    l2_current = await dm.read_register_client(DM, 31537, 'S32', device_id=2, sma_format='FIX3')
-    l3_current = await dm.read_register_client(DM, 31539, 'S32', device_id=2, sma_format='FIX3')
-    l1_voltage = await dm.read_register_client(DM, 31529, 'U32', device_id=2, sma_format='FIX2')
-    l2_voltage = await dm.read_register_client(DM, 31531, 'U32', device_id=2, sma_format='FIX2')
-    l3_voltage = await dm.read_register_client(DM, 31533, 'U32', device_id=2, sma_format='FIX2')
-    l1_power =   await dm.read_register_client(DM, 31503, 'S32', device_id=2, sma_format='FIX0')
-    l2_power =   await dm.read_register_client(DM, 31505, 'S32', device_id=2, sma_format='FIX0')
-    l3_power =   await dm.read_register_client(DM, 31507, 'S32', device_id=2, sma_format='FIX0')
-
-    l1_stat = ('no flow' if l1_power == 0 else ('drawing from grid' if l1_power < 0 else 'supplying to grid'))
-    l2_stat = ('no flow' if l2_power == 0 else ('drawing from grid' if l2_power < 0 else 'supplying to grid'))
-    l3_stat = ('no flow' if l3_power == 0 else ('drawing from grid' if l3_power < 0 else 'supplying to grid'))
-
-    print(f'L1:\t{l1_current:.3f} A\t{l1_voltage:.2f} V\t{l1_power:.0f} W ({l1_stat})')
-    print(f'L2:\t{l2_current:.3f} A\t{l2_voltage:.2f} V\t{l2_power:.0f} W ({l2_stat})')
-    print(f'L3:\t{l3_current:.3f} A\t{l1_voltage:.2f} V\t{l3_power:.0f} W ({l3_stat})')
+from stats import DM, battery_stats, data_manager_stats
 
 
 async def mode_1_loop():
@@ -75,7 +15,6 @@ async def mode_1_loop():
         dm = ModbusManager(client_configs=[dm_cfg])
 
         try:
-            print(f'idle mode: connecting modbus clients')
             await inverters.connect()
             await dm.connect()
 
@@ -93,4 +32,4 @@ async def mode_1_loop():
             inverters.close()
             dm.close()
 
-        await asyncio.sleep(10)
+        await asyncio.sleep(config.get_loop_delay())
