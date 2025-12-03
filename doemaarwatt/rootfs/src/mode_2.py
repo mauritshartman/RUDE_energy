@@ -64,7 +64,7 @@ async def mode_2_loop():
                 if PBsent > 0:
                     for inv_name in inv_phase_map[phi]:
                         print(f'commanding {inv_name} to charge at {PBsent:.0f} W')
-                        await inverters.write_register(inv_name, 40149, [65535, 65535 - charge_amount])
+                        await inverters.write_register(inv_name, 40149, [65535, 65535 - PBsent])
 
         except Exception as e:
             print(f'manual charging: encountered an error: {e}')
