@@ -60,7 +60,7 @@ async def mode_2_loop():
             print(table)
 
             print(f'manual charging: sending charge amount (PBsent) to enabled inverters:')
-            for phi, PBsent in PBapp_phases.items():
+            for phi, PBsent in PBsent_phases.items():
                 if PBsent > 0:
                     for inv_name in inv_phase_map[phi]:
                         print(f'commanding {inv_name} to charge at {PBsent:.0f} W')
