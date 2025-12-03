@@ -13,7 +13,7 @@ async def mode_2_loop():
     inv_phase_map = config.get_inverter_phase_map()
     print(f'manual charging: the following inverters are enabled for each phase:')
     for phase, inverter_names in inv_phase_map.items():
-        name_list = 'no inverters enabled' if len(inverter_names) == 0 else ', '.join(inverter_names)
+        name_list = 'no inverter enabled' if len(inverter_names) == 0 else ', '.join(inverter_names)
         print(f'\t{phase}:\t{name_list}')
 
     charge_amount = config.get_charge_amount()
@@ -29,9 +29,9 @@ async def mode_2_loop():
 
         try:
             print(f'manual charging: connecting and assuming control')
-            client = ModbusManager()
-            await client.connect()
-            await client.write_registers(40151, [0, 802])  # 802 = active
+            await inverters.connect()
+            await dm.connect()
+            await inverters.write_registers_parallel(40151, [0, 802])  # 802 = active
 
             # get necessary stats
             inv_stats = await battery_stats(inverters)
@@ -64,7 +64,7 @@ async def mode_2_loop():
                 if PBsent > 0:
                     for inv_name in inv_phase_map[phi]:
                         print(f'commanding {inv_name} to charge at {PBsent:.0f} W')
-                        await client.write_register_client(inv_name, 40149, [65535, 65535 - charge_amount])
+                        await inverters.write_register(inv_name, 40149, [65535, 65535 - charge_amount])
 
         except Exception as e:
             print(f'manual charging: encountered an error: {e}')

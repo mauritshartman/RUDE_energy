@@ -19,8 +19,8 @@ async def mode_1_loop():
             await dm.connect()
 
             print(f'idle: relinquish control and reset power set point')
-            await inverters.write_registers(40149, [0, 0])  # reset rendement
-            await inverters.write_registers(40151, [0, 803])  # 803 = inactive
+            await inverters.write_registers_parallel(40149, [0, 0])  # reset rendement
+            await inverters.write_registers_parallel(40151, [0, 803])  # 803 = inactive
 
             await battery_stats(inverters)
             await data_manager_stats(dm)

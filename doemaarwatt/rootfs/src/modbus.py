@@ -78,7 +78,7 @@ class ModbusManager():
                 continue
             client.close()
 
-    async def write_registers(self,
+    async def write_registers_parallel(self,
         address: int,
         values: list[int],
         no_response_expected: bool = False,
@@ -94,7 +94,7 @@ class ModbusManager():
                 no_response_expected=no_response_expected,
             )
 
-    async def write_register_client(self,
+    async def write_register(self,
         client_name: str,
         address: int,
         values: list[int],
@@ -106,7 +106,7 @@ class ModbusManager():
             return
         await self._clients[client_name].write_registers(address, values, device_id=3, no_response_expected=no_response_expected)
 
-    async def read_register_client(self,
+    async def read_register(self,
         client_name: str,
         address: int,
         dtype: str,
@@ -188,7 +188,7 @@ class ModbusManager():
         except ModbusException as e:
             raise Exception(f'internal exception in Pymodbus library while reading from {client_name}: {e}')
 
-    async def read_registers(self,
+    async def read_registers_parallel(self,
         address: int,
         dtype: str,
         device_id: int = 3,

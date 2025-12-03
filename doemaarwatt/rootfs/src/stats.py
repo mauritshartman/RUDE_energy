@@ -16,11 +16,11 @@ async def battery_stats(inverters: ModbusManager) -> dict[str, Any]:
     print(f'reading enabled inverter properties:')
     ret = {}
 
-    temps_high = await inverters.read_registers(32221, 'S32', device_id=3, sma_format='TEMP')
-    temps_low  = await inverters.read_registers(32227, 'S32', device_id=3, sma_format='TEMP')
-    charges =    await inverters.read_registers(32233, 'U32', device_id=3, sma_format='FIX2')
-    voltages =   await inverters.read_registers(30851, 'U32', device_id=3, sma_format='FIX2')
-    currents =   await inverters.read_registers(30843, 'S32', device_id=3, sma_format='FIX3')
+    temps_high = await inverters.read_registers_parallel(32221, 'S32', device_id=3, sma_format='TEMP')
+    temps_low  = await inverters.read_registers_parallel(32227, 'S32', device_id=3, sma_format='TEMP')
+    charges =    await inverters.read_registers_parallel(32233, 'U32', device_id=3, sma_format='FIX2')
+    voltages =   await inverters.read_registers_parallel(30851, 'U32', device_id=3, sma_format='FIX2')
+    currents =   await inverters.read_registers_parallel(30843, 'S32', device_id=3, sma_format='FIX3')
 
     for inv_name in temps_high.keys() & temps_low.keys() & charges.keys() & voltages.keys() & currents.keys():
         temp_h = temps_high[inv_name]
@@ -31,9 +31,9 @@ async def battery_stats(inverters: ModbusManager) -> dict[str, Any]:
 
         # read phase specific values
         phi = config.inverter_config(inv_name)['connected_phase']
-        ac_pow = await inverters.read_register_client(inv_name, REG_MAP[phi]['p'], 'S32', device_id=3, sma_format='FIX0')
-        ac_vol = await inverters.read_register_client(inv_name, REG_MAP[phi]['v'], 'U32', device_id=3, sma_format='FIX2')
-        ac_amp = await inverters.read_register_client(inv_name, REG_MAP[phi]['a'], 'S32', device_id=3, sma_format='FIX3')
+        ac_pow = await inverters.read_register(inv_name, REG_MAP[phi]['p'], 'S32', device_id=3, sma_format='FIX0')
+        ac_vol = await inverters.read_register(inv_name, REG_MAP[phi]['v'], 'U32', device_id=3, sma_format='FIX2')
+        ac_amp = await inverters.read_register(inv_name, REG_MAP[phi]['a'], 'S32', device_id=3, sma_format='FIX3')
 
         bat_stat = 'no flow'
         if ac_pow < 0:
@@ -55,17 +55,17 @@ async def battery_stats(inverters: ModbusManager) -> dict[str, Any]:
 
 async def data_manager_stats(dm: ModbusManager) -> dict[str, Any]:
     print(f'reading data manager properties:')
-    l1_current = await dm.read_register_client(DM, 31535, 'S32', device_id=2, sma_format='FIX3')
-    l2_current = await dm.read_register_client(DM, 31537, 'S32', device_id=2, sma_format='FIX3')
-    l3_current = await dm.read_register_client(DM, 31539, 'S32', device_id=2, sma_format='FIX3')
+    l1_current = await dm.read_register(DM, 31535, 'S32', device_id=2, sma_format='FIX3')
+    l2_current = await dm.read_register(DM, 31537, 'S32', device_id=2, sma_format='FIX3')
+    l3_current = await dm.read_register(DM, 31539, 'S32', device_id=2, sma_format='FIX3')
 
-    l1_voltage = await dm.read_register_client(DM, 31529, 'U32', device_id=2, sma_format='FIX2')
-    l2_voltage = await dm.read_register_client(DM, 31531, 'U32', device_id=2, sma_format='FIX2')
-    l3_voltage = await dm.read_register_client(DM, 31533, 'U32', device_id=2, sma_format='FIX2')
+    l1_voltage = await dm.read_register(DM, 31529, 'U32', device_id=2, sma_format='FIX2')
+    l2_voltage = await dm.read_register(DM, 31531, 'U32', device_id=2, sma_format='FIX2')
+    l3_voltage = await dm.read_register(DM, 31533, 'U32', device_id=2, sma_format='FIX2')
 
-    l1_power =   await dm.read_register_client(DM, 31503, 'S32', device_id=2, sma_format='FIX0')
-    l2_power =   await dm.read_register_client(DM, 31505, 'S32', device_id=2, sma_format='FIX0')
-    l3_power =   await dm.read_register_client(DM, 31507, 'S32', device_id=2, sma_format='FIX0')
+    l1_power =   await dm.read_register(DM, 31503, 'S32', device_id=2, sma_format='FIX0')
+    l2_power =   await dm.read_register(DM, 31505, 'S32', device_id=2, sma_format='FIX0')
+    l3_power =   await dm.read_register(DM, 31507, 'S32', device_id=2, sma_format='FIX0')
 
     l1_stat = ('no flow' if l1_power == 0 else ('drawing from grid' if l1_power < 0 else 'supplying to grid'))
     l2_stat = ('no flow' if l2_power == 0 else ('drawing from grid' if l2_power < 0 else 'supplying to grid'))
