@@ -1,13 +1,13 @@
 from enum import Enum
+from typing import Any
 from dynaconf import Dynaconf
 
 
 class ControlMode(Enum):
     NONE = 1  # completely idle
-    CHARGE = 2  # continuous manual charging
-    DISCHARGE = 3  # continuous manual discharging
-    STATIC = 4  # automatic charging / discharging according to fixed schedule
-    DYNAMIC = 5  # automatic charging / discharging according to a dynamic schedule
+    MANUAL = 2  # continuous manual charging / discharging
+    STATIC = 3  # automatic charging / discharging according to fixed schedule
+    DYNAMIC = 4  # automatic charging / discharging according to a dynamic schedule
 
 
 class Config:
@@ -48,11 +48,11 @@ class Config:
     def get_debug(self) -> bool:
         return self._settings['debug']
 
-    def get_charge_amount(self) -> int:
-        return int(self._settings['mode_2']['charge_amount'])
-
-    def get_discharge_amount(self) -> int:
-        return int(self._settings['mode_3']['discharge_amount'])
+    def get_manual_mode_config(self) -> dict[str, Any]:
+        return {
+            'charge': self._settings['manual_mode']['charge'],
+            'amount': int(self._settings['manual_mode']['amount']),
+        }
 
     def get_loop_delay(self) -> int:
         return int(self._settings['loop_delay'])

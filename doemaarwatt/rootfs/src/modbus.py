@@ -1,8 +1,9 @@
-from pymodbus.client import AsyncModbusTcpClient as MBClient
-from pymodbus import ModbusException
 import asyncio
+import struct
 from config import config
 from typing import Any
+from pymodbus.client import AsyncModbusTcpClient as MBClient
+from pymodbus import ModbusException
 
 
 _modbus_exception_codes = {
@@ -16,6 +17,18 @@ _modbus_exception_codes = {
     0x0A: "Gateway Path Unavailable - Gateway error",
     0x0B: "Gateway Target Failed - Target not responding"
 }
+
+
+def to_s32_list(v: int) -> list[int]:
+    '''Convert a signed 32-bit integer into a list of two unsigned 16-bit shorts'''
+    r = struct.pack('>i', v)
+    return list(struct.unpack('>HH', r))
+
+
+def to_u32_list(v: int) -> list[int]:
+    '''Convert an unsigned 32-bit integer into a list of two unsigned 16-bit shorts'''
+    r = struct.pack('>I', abs(v))
+    return list(struct.unpack('>HH', r))
 
 
 class ModbusManager():
@@ -84,9 +97,11 @@ class ModbusManager():
         no_response_expected: bool = False,
     ):
         for name, client in self._clients.items():
-            self.debug(f'DEBUG: Modbus[{name}] write registers {address} -> {values}')
+            self.debug(f'DEBUG: Modbus[{name}] write register {address} <- {values}')
+
             if client is None:
                 continue
+
             await client.write_registers(
                 address,
                 values,
@@ -102,8 +117,11 @@ class ModbusManager():
     ):
         if not client_name in self._clients:
             raise Exception(f'client name {client_name} not configured')
+        self.debug(f'DEBUG: Modbus[{client_name}] write register {address} <- {values}')
+
         if self._clients[client_name] is None:
             return
+
         await self._clients[client_name].write_registers(address, values, device_id=3, no_response_expected=no_response_expected)
 
     async def read_register(self,

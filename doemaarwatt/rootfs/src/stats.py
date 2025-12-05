@@ -42,8 +42,8 @@ async def battery_stats(inverters: ModbusManager) -> dict[str, Any]:
             bat_stat = 'discharging'
 
         print(f'{inv_name} (connected to {phi}):')
-        print(f'\tbattery:\t{current:.3f} A\t{voltage:.2f} V\t{bat_stat}\t{charge:.1f} %\t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
-        print(f'\tAC side:\t{ac_amp:.3f} A\t{ac_vol:.2f} V\t{ac_pow:.0f} W')
+        print(f'\tbattery:\t{current:.2f} A\t{voltage:.1f} V\t{bat_stat}\t{charge:.1f} %\t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
+        print(f'\tAC side:\t{ac_amp:.2f} A\t{ac_vol:.1f} V\t{ac_pow:.0f} W')
 
         ret[inv_name] = {
             'phase': phi,
@@ -75,9 +75,12 @@ async def data_manager_stats(dm: ModbusManager) -> dict[str, Any]:
 
     table = PrettyTable()
     table.add_column('', ['Current', 'Max Current', 'Voltage', 'Power', 'Status'])
-    table.add_column('L1', [f'{l1_current:.3f}', f'{mf} A', f'{l1_voltage:.2f} V', f'{l1_power:.0f} W', l1_stat])
-    table.add_column('L2', [f'{l2_current:.3f}', f'{mf} A', f'{l2_voltage:.2f} V', f'{l2_power:.0f} W', l2_stat])
-    table.add_column('L3', [f'{l3_current:.3f}', f'{mf} A', f'{l3_voltage:.2f} V', f'{l3_power:.0f} W', l3_stat])
+    table.add_column('L1', [f'{l1_current:.2f}', f'{mf} A', f'{l1_voltage:.1f} V', f'{l1_power:.0f} W', l1_stat])
+    table.add_column('L2', [f'{l2_current:.2f}', f'{mf} A', f'{l2_voltage:.1f} V', f'{l2_power:.0f} W', l2_stat])
+    table.add_column('L3', [f'{l3_current:.2f}', f'{mf} A', f'{l3_voltage:.1f} V', f'{l3_power:.0f} W', l3_stat])
+    table.align['L1'] = 'r'
+    table.align['L2'] = 'r'
+    table.align['L3'] = 'r'
     print(table)
 
     return {
