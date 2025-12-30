@@ -15,3 +15,10 @@ This addon will dynamically compute and implement a charge/discharge schedule to
 [i386-shield]: https://img.shields.io/badge/i386-yes-green.svg
 
 This battery manager works with up to three SMA tripower inverters.
+
+### Useful resources:
+
+- [HA addon development](https://developers.home-assistant.io/docs/add-ons/tutorial)
+- How to write a service script ([S6 docs](https://github.com/just-containers/s6-overlay?tab=readme-ov-file#writing-a-service-script))
+- [Nginx proxy_pass](https://dev.to/danielkun/nginx-everything-about-proxypass-2ona)
+- [Nginx sub_filter](https://nginx.org/en/docs/http/ngx_http_sub_module.html#sub_filter)

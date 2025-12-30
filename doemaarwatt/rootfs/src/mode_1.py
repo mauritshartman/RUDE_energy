@@ -1,6 +1,6 @@
 import asyncio
 from modbus import ModbusManager
-from config import config
+# from config import config
 from stats import DM, battery_stats, data_manager_stats
 
 

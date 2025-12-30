@@ -1,7 +1,6 @@
 from typing import Any
 from prettytable import PrettyTable
 from modbus import ModbusManager
-from config import config
 
 
 DM = 'Data Manager'
@@ -12,8 +11,12 @@ REG_MAP = {
     'L3': { 'p': 30781, 'v': 30787, 'a': 30981 },
 }
 
-async def battery_stats(inverters: ModbusManager) -> dict[str, Any]:
+async def battery_stats(
+    inverters: ModbusManager,
+    phase_map: dict[str, str],
+) -> dict[str, Any]:
     print(f'reading enabled inverter properties:')
+    print(phase_map)
     ret = {}
 
     temps_high = await inverters.read_registers_parallel(32221, 'S32', device_id=3, sma_format='TEMP')
@@ -30,12 +33,12 @@ async def battery_stats(inverters: ModbusManager) -> dict[str, Any]:
         current = currents[inv_name]
 
         # read phase specific values
-        phi = config.inverter_config(inv_name)['connected_phase']
+        phi = phase_map[inv_name]
         ac_pow = await inverters.read_register(inv_name, REG_MAP[phi]['p'], 'S32', device_id=3, sma_format='FIX0')
         ac_vol = await inverters.read_register(inv_name, REG_MAP[phi]['v'], 'U32', device_id=3, sma_format='FIX2')
         ac_amp = await inverters.read_register(inv_name, REG_MAP[phi]['a'], 'S32', device_id=3, sma_format='FIX3')
 
-        bat_stat = 'no flow'
+        bat_stat = 'standby'
         if ac_pow < 0:
             bat_stat = 'charging'
         elif ac_pow > 0:
@@ -53,7 +56,10 @@ async def battery_stats(inverters: ModbusManager) -> dict[str, Any]:
     return ret
 
 
-async def data_manager_stats(dm: ModbusManager) -> dict[str, Any]:
+async def data_manager_stats(
+    dm: ModbusManager,
+    max_fuse: int,
+) -> dict[str, Any]:
     print(f'reading data manager properties:')
     l1_current = await dm.read_register(DM, 31535, 'S32', device_id=2, sma_format='FIX3')
     l2_current = await dm.read_register(DM, 31537, 'S32', device_id=2, sma_format='FIX3')
@@ -71,7 +77,7 @@ async def data_manager_stats(dm: ModbusManager) -> dict[str, Any]:
     l2_stat = ('no flow' if l2_power == 0 else ('drawing from grid' if l2_power < 0 else 'supplying to grid'))
     l3_stat = ('no flow' if l3_power == 0 else ('drawing from grid' if l3_power < 0 else 'supplying to grid'))
 
-    mf = config.get_data_manager_config()['max_fuse_current']
+    mf = max_fuse
 
     table = PrettyTable()
     table.add_column('', ['Current', 'Max Current', 'Voltage', 'Power', 'Status'])

@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-profile doe_maar_watt flags=(attach_disconnected,mediate_deleted) {
+profile doemaarwatt flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
   # Capabilities

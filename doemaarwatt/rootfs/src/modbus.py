@@ -1,6 +1,5 @@
 import asyncio
 import struct
-from config import config
 from typing import Any
 from pymodbus.client import AsyncModbusTcpClient as MBClient
 from pymodbus import ModbusException
@@ -34,43 +33,29 @@ def to_u32_list(v: int) -> list[int]:
 class ModbusManager():
 
     def __init__(self,
-        client_configs: list[dict[str, Any]] | None = None,
+        client_configs: list[dict[str, Any]],
+        debug: bool = False,
     ):
-        self._debug: bool = config.get_debug()
+        self._debug: bool = debug
 
         self._clients: dict[str, MBClient] = {}
 
-        if client_configs is None:
-            for inv_name in config.get_inverter_names():
-                inv_config = config.inverter_config(inv_name)
-
-                if inv_config['host'].lower() in ['test', 'debug', 'none']:
-                    self.debug(f'DEBUG: creating dummy client for {inv_name}')
-                    self._clients[inv_name] = None
-                else:
-                    self.debug(f'DEBUG: creating modbus client for {inv_name}')
-                    self._clients[inv_name] = MBClient(
-                        inv_config['host'],
-                        port=int(inv_config['port']),
-                        name=f'Modbus[{inv_name}]',
-                        reconnect_delay=f'10.0',  # TODO: make config setting
-                        timeout=5,
-                    )
-        else:
-            for cfg in client_configs:
-                name = cfg['name']
-                if cfg['host'].lower() in ['test', 'debug', 'none']:
-                    self.debug(f'DEBUG: creating dummy client for {name}')
-                    self._clients[name] = None
-                else:
-                    self.debug(f'DEBUG: creating modbus client for {name}')
-                    self._clients[name] = MBClient(
-                        cfg['host'],
-                        port=int(cfg.get('port', 502)),
-                        name=f'Modbus[{name}]',
-                        reconnect_delay=f'10.0',  # TODO: make config setting
-                        timeout=5,
-                    )
+        for cfg in client_configs:
+            if len(cfg) == 0:
+                continue
+            name = cfg['name']
+            if cfg['host'].lower() in ['test', 'debug', 'none']:
+                self.debug(f'DEBUG: creating dummy client for {name}')
+                self._clients[name] = None
+            else:
+                self.debug(f'DEBUG: creating modbus client for {name}')
+                self._clients[name] = MBClient(
+                    cfg['host'],
+                    port=int(cfg.get('port', 502)),
+                    name=f'Modbus[{name}]',
+                    reconnect_delay=f'10.0',  # TODO: make config setting
+                    timeout=5,
+                )
 
     def debug(self, msg: str):
         if self._debug:

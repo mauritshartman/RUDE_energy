@@ -1,7 +1,7 @@
 import asyncio
 from prettytable import PrettyTable
 from modbus import ModbusManager, to_s32_list
-from config import config
+# from config import config
 from stats import DM, battery_stats, data_manager_stats
 from pbsent import calc_PBsent
 

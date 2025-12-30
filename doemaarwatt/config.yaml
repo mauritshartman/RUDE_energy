@@ -1,5 +1,5 @@
 name: "DoeMaarWatt"
-version: "1.0.11"
+version: "1.0.13"
 slug: "doemaarwatt"
 description: "Manage charge cycles for home batteries based on dynamic energy prices"
 url: "https://github.com/mauritshartman/RUDE_energy"
@@ -13,6 +13,7 @@ init: false
 homeassistant_api: true
 map:
   - share:rw
+ingress: true
 
 options:
   inverters: []
@@ -24,9 +25,6 @@ options:
   debug: true
   control_mode: none
   loop_delay: 10
-  manual_mode:
-    charge: true
-    amount: 2000
 
 schema:
   inverters:
@@ -45,6 +43,3 @@ schema:
   debug: bool
   control_mode: "match(^none$|^manual$|^static$|^dynamic$)"
   loop_delay: "int(1,600)"
-  manual_mode:
-    charge: bool
-    amount: "int(0,12000)"
