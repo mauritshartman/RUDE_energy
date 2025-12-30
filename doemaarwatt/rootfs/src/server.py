@@ -217,6 +217,10 @@ class DoeMaarWattServer:
                 raise
 
             finally:
+                # make sure to relinquish control:
+                await inverters.write_registers_parallel(40149, [0, 0])  # reset rendement
+                await inverters.write_registers_parallel(40151, [0, 803])  # 803 = inactive
+
                 inverters.close()
                 dm.close()
                 self.reset_stats()
