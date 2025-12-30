@@ -8,7 +8,7 @@ const config = useConfigStore()
 const { mode_manual } = storeToRefs(config)
 
 const direction_options = [
-    { label: 'idle', value: 'idle' },
+    { label: 'standby', value: 'standby' },
     { label: 'charge', value: 'charge' },
     { label: 'discharge', value: 'discharge' },
 ]

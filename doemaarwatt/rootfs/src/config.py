@@ -113,16 +113,21 @@ class DoeMaarWattConfig:
         return self._dyn_config['mode_dynamic']
 
     def get_inverter_phase_map(self) -> dict[str, list[str]]:
+        ret = {}
+        for inv_setting in self.get_inverters_config():
+            if inv_setting['enable']:
+                ret[inv_setting['name']] = inv_setting['connected_phase']
+        return ret
+
+    def get_phase_inverters_map(self) -> dict[str, list[str]]:
         '''
         Return a dict that maps the phases (L1, L2, and L3) to enabled inverters (which can be zero or more).
         If no inverter is enabled for a given phase, then its entry in the dict will be an empty list
         '''
-        # ret = { 'L1': [], 'L2': [], 'L3': [] }
-        ret = {}
+        ret = { 'L1': [], 'L2': [], 'L3': [] }
         for inv_setting in self.get_inverters_config():
             if inv_setting['enable']:
-                # ret[inv_setting['connected_phase']].append(inv_setting['name'])
-                ret[inv_setting['name']] = inv_setting['connected_phase']
+                ret[inv_setting['connected_phase']].append(inv_setting['name'])
         return ret
 
     def set_general_config(self, cfg: dict):

@@ -13,7 +13,11 @@ export const useControlStore = defineStore('control', {
         active_stats: (state) => {
             if (state.stats?.inverters) { return state.stats }
             else { return null }
-        }
+        },
+        active_inv_control: (state) => {
+            if (state.stats?.inv_control) { return state.stats.inv_control }
+            else { return null }
+        },
     },
 
     actions: {
@@ -26,8 +30,8 @@ export const useControlStore = defineStore('control', {
                 options.body = JSON.stringify(post_body)
             }
 
-            // const resp = await fetch(`http://localhost:8080/api${path}`, options)
-            const resp = await fetch("/api"+path, options)
+            const resp = await fetch(`http://localhost:8080${path}`, options)
+            // const resp = await fetch("/api"+path, options)
             if (!resp.ok) { throw new Error(`response status: ${resp.status}`) }
             const ret = await resp.json()
             return ret

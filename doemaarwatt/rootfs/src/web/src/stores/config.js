@@ -29,8 +29,8 @@ export const useConfigStore = defineStore('configuration', {
                 options.body = JSON.stringify(post_body)
             }
 
-            // const resp = await fetch(`http://localhost:8080/api${path}`, options)
-            const resp = await fetch("/api"+path, options)
+            const resp = await fetch(`http://localhost:8080${path}`, options)
+            // const resp = await fetch("/api"+path, options)
             if (!resp.ok) { throw new Error(`response status: ${resp.status}`) }
             const ret = await resp.json()
             return ret
