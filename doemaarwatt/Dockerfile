@@ -31,7 +31,7 @@ RUN \
     chown -R root:root  /var/log/nginx && \
     chmod -R 777        /var/log/nginx && \
     chown -R root:root  /var/lib/nginx && \
-    chmod -R 777        /var/lib/nginx && \
+    chmod -R 777        /var/lib/nginx
 
 # Copy root filesystem
 COPY rootfs /
