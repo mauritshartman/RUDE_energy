@@ -5,8 +5,11 @@ from aiohttp import web
 from mode import ControlMode, MIN_MODE_VALUE, MAX_MODE_VALUE
 
 
-# DYN_CONFIG_PATH = Path('/data/dyn_config.json')
-DYN_CONFIG_PATH = Path.home() / Path('dyn_config.json')
+# Local development path:
+# DYN_CONFIG_PATH = Path.home() / Path('dyn_config.json')
+# Production build version:
+DYN_CONFIG_PATH = Path('/data/dyn_config.json')
+
 VALID_PHASES = { 'L1', 'L2', 'L3' }
 DYN_CONFIG_DEFAULT = {
     'general': {
