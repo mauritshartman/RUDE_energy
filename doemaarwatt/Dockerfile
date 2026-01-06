@@ -40,3 +40,7 @@ RUN \
 
 # Copy root filesystem
 COPY rootfs /
+
+RUN \
+    chown -R www-data:www-data  /src/web/dist && \
+    chmod -R 755                /src/web/dist
