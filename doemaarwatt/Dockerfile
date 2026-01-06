@@ -25,16 +25,15 @@ RUN \
     mkdir -p /var/lib/nginx && \
     mkdir -p /var/lib/nginx/logs && \
     mkdir -p /var/lib/nginx/tmp && \
-    mkdir -p /var/lib/nginx/tmp/client_body
+    mkdir -p /var/lib/nginx/tmp/client_body && \
+    mkdir -p /var/lib/nginx/tmp/proxy
 
 # # Set permissions
 RUN \
     chown -R nginx:nginx    /var/log/nginx && \
     chmod -R 777            /var/log/nginx && \
     chown -R nginx:nginx    /var/lib/nginx && \
-    chmod -R 777            /var/lib/nginx && \
-    chown -R nginx:nginx    /var/lib/nginx/tmp && \
-    chmod -R 777            /var/lib/nginx/tmp
+    chmod -R 777            /var/lib/nginx
 
 # Copy root filesystem
 COPY rootfs /
