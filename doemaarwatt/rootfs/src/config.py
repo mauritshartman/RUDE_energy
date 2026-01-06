@@ -9,6 +9,7 @@ from mode import ControlMode, MIN_MODE_VALUE, MAX_MODE_VALUE
 # DYN_CONFIG_PATH = Path.home() / Path('dyn_config.json')
 # Production build version:
 DYN_CONFIG_PATH = Path('/data/dyn_config.json')
+print(f'DoeMaarWatt backend server: config stored in {DYN_CONFIG_PATH}')
 
 VALID_PHASES = { 'L1', 'L2', 'L3' }
 DYN_CONFIG_DEFAULT = {
@@ -66,8 +67,10 @@ class DoeMaarWattConfig:
         if DYN_CONFIG_PATH.exists():  # check for save dynamic config from an earlier session
             with DYN_CONFIG_PATH.open() as f:
                 self._dyn_config = json.load(f)
+                print(f'DoeMaarWatt backend server: loaded existing config:\n{self._dyn_config}')
         else:  # no file exists, so create one with default settings
             self.save_dyn_config()
+            print(f'DoeMaarWatt backend server: loaded new default config:\n{self._dyn_config}')
 
     def save_dyn_config(self):
         with DYN_CONFIG_PATH.open(mode='w') as f:
