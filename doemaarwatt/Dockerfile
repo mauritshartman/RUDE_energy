@@ -42,5 +42,6 @@ RUN \
 COPY rootfs /
 
 RUN \
+    mkdir -p /src/web/dist && \
     chown -R www-data:www-data  /src/web/dist && \
     chmod -R 755                /src/web/dist
