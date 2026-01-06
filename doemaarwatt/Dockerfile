@@ -28,10 +28,12 @@ RUN \
 
 # # Set permissions
 RUN \
-    chown -R root:root  /var/log/nginx && \
-    chmod -R 777        /var/log/nginx && \
-    chown -R root:root  /var/lib/nginx && \
-    chmod -R 777        /var/lib/nginx
+    chown -R nginx:nginx    /var/log/nginx && \
+    chmod -R 777            /var/log/nginx && \
+    chown -R nginx:nginx    /var/lib/nginx && \
+    chmod -R 777            /var/lib/nginx && \
+    chown -R nginx:nginx    /var/lib/nginx/tmp && \
+    chmod -R 777            /var/lib/nginx/tmp
 
 # Copy root filesystem
 COPY rootfs /
