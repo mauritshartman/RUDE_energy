@@ -6,6 +6,7 @@ ENV S6_KEEP_ENV=1
 
 # Create a group and user for nginx
 RUN addgroup -S nginx && adduser -S nginx -G nginx
+USER nginx
 
 # Install required packages:
 RUN \
