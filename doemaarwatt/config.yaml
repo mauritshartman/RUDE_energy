@@ -1,5 +1,5 @@
 name: "DoeMaarWatt"
-version: "1.0.15"
+version: "1.0.16"
 slug: "doemaarwatt"
 description: "Manage charge cycles for home batteries based on dynamic energy prices"
 url: "https://github.com/mauritshartman/RUDE_energy"
@@ -14,32 +14,3 @@ homeassistant_api: true
 map:
   - share:rw
 ingress: true
-
-options:
-  inverters: []
-  data_manager:
-    host: none
-    port: 502
-    max_fuse_current: 25
-  timezone: -1
-  debug: true
-  control_mode: none
-  loop_delay: 10
-
-schema:
-  inverters:
-    - name: str
-      enable: bool
-      host: str
-      port: "int(0,65535)"
-      battery_charge_limit: int
-      battery_discharge_limit: int
-      connected_phase: "match(^L1$|^L2$|^L3$)"
-  data_manager:
-    host: str
-    port: "int(0,65535)"
-    max_fuse_current: "int(1,100)"
-  timezone: int
-  debug: bool
-  control_mode: "match(^none$|^manual$|^static$|^dynamic$)"
-  loop_delay: "int(1,600)"
