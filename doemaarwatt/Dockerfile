@@ -24,7 +24,8 @@ RUN \
     mkdir -p /var/log/nginx && \
     mkdir -p /var/lib/nginx && \
     mkdir -p /var/lib/nginx/logs && \
-    mkdir -p /var/lib/nginx/tmp
+    mkdir -p /var/lib/nginx/tmp && \
+    mkdir -p /var/lib/nginx/tmp/client_body
 
 # # Set permissions
 RUN \
