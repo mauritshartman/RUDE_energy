@@ -20,20 +20,20 @@ COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt --break-system-packages
 
 # Create required directories
-RUN \
-    mkdir -p /var/log/nginx && \
-    mkdir -p /var/lib/nginx && \
-    mkdir -p /var/lib/nginx/logs && \
-    mkdir -p /var/lib/nginx/tmp
+# RUN \
+#     mkdir -p /var/log/nginx && \
+#     mkdir -p /var/lib/nginx && \
+#     mkdir -p /var/lib/nginx/logs && \
+#     mkdir -p /var/lib/nginx/tmp
 
-# Set permissions
-RUN \
-    chown -R root:root  /var/log/nginx && \
-    chmod -R 777        /var/log/nginx && \
-    chown -R root:root  /var/lib/nginx && \
-    chmod -R 777        /var/lib/nginx && \
-    chown -R root:root  /var/lib/nginx/tmp && \
-    chmod -R 777        /var/lib/nginx/tmp
+# # Set permissions
+# RUN \
+#     chown -R root:root  /var/log/nginx && \
+#     chmod -R 777        /var/log/nginx && \
+#     chown -R root:root  /var/lib/nginx && \
+#     chmod -R 777        /var/lib/nginx && \
+#     chown -R root:root  /var/lib/nginx/tmp && \
+#     chmod -R 777        /var/lib/nginx/tmp
 
 # Copy root filesystem
 COPY rootfs /
