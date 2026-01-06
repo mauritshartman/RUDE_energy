@@ -27,13 +27,11 @@ RUN \
     mkdir -p /var/lib/nginx/tmp
 
 # # Set permissions
-# RUN \
-#     chown -R root:root  /var/log/nginx && \
-#     chmod -R 777        /var/log/nginx && \
-#     chown -R root:root  /var/lib/nginx && \
-#     chmod -R 777        /var/lib/nginx && \
-#     chown -R root:root  /var/lib/nginx/tmp && \
-#     chmod -R 777        /var/lib/nginx/tmp
+RUN \
+    chown -R root:root  /var/log/nginx && \
+    chmod -R 777        /var/log/nginx && \
+    chown -R root:root  /var/lib/nginx && \
+    chmod -R 777        /var/lib/nginx && \
 
 # Copy root filesystem
 COPY rootfs /
