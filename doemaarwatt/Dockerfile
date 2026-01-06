@@ -26,6 +26,7 @@ RUN \
     mkdir -p /var/lib/nginx/logs && \
     mkdir -p /var/lib/nginx/tmp && \
     mkdir -p /var/lib/nginx/tmp/client_body && \
+    mkdir -p /var/lib/nginx/tmp/fastcgi && \
     mkdir -p /var/lib/nginx/tmp/proxy
 
 # # Set permissions
