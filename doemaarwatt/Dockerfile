@@ -20,11 +20,11 @@ COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt --break-system-packages
 
 # Create required directories
-# RUN \
-#     mkdir -p /var/log/nginx && \
-#     mkdir -p /var/lib/nginx && \
-#     mkdir -p /var/lib/nginx/logs && \
-#     mkdir -p /var/lib/nginx/tmp
+RUN \
+    mkdir -p /var/log/nginx && \
+    mkdir -p /var/lib/nginx && \
+    mkdir -p /var/lib/nginx/logs && \
+    mkdir -p /var/lib/nginx/tmp
 
 # # Set permissions
 # RUN \
