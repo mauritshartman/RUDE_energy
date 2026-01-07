@@ -17,7 +17,8 @@ from pbsent import calc_PBsent
 
 
 API_SERVER_PORT = 8099  # Home Assistant ingress port
-FRONTEND_PATH = (Path(__file__).parent / 'web/dist').resolve()
+# FRONTEND_PATH = (Path(__file__).parent / 'web/dist').resolve()
+FRONTEND_PATH = Path('/src/web/dist')
 
 def get_ingress_filters(ingress_path: str) -> list:
     return [
