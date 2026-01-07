@@ -53,6 +53,7 @@ class DoeMaarWattServer:
 
     def setup_app(self) -> None:
         # super static routing with filtering:
+        print(f'this main.py files is located at {__file__}')
         try:
             directory = Path(FRONTEND_PATH).expanduser().resolve(strict=True)
         except FileNotFoundError as error:
