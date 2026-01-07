@@ -1,5 +1,5 @@
 name: "DoeMaarWatt"
-version: "1.0.18m"
+version: "1.0.18n"
 slug: "doemaarwatt"
 description: "Manage charge cycles for home batteries based on dynamic energy prices"
 url: "https://github.com/mauritshartman/RUDE_energy"
@@ -14,3 +14,4 @@ homeassistant_api: true
 map:
   - share:rw
 ingress: true
+ingress_entry: /index.html
