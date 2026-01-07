@@ -6,9 +6,9 @@ from mode import ControlMode, MIN_MODE_VALUE, MAX_MODE_VALUE
 
 
 # Local development path:
-# DYN_CONFIG_PATH = Path.home() / Path('dyn_config.json')
+DYN_CONFIG_PATH = Path.home() / Path('dyn_config.json')
 # Production build version:
-DYN_CONFIG_PATH = Path('/data/dyn_config.json')
+# DYN_CONFIG_PATH = Path('/data/dyn_config.json')
 print(f'DoeMaarWatt backend server: config stored in {DYN_CONFIG_PATH}')
 
 VALID_PHASES = { 'L1', 'L2', 'L3' }
@@ -219,19 +219,19 @@ class DoeMaarWattConfig:
 
     # web handlers
     def setup_config_endpoints(self, router):
-        router.add_get( '/config',                 self.handle_get_config)
-        router.add_get( '/config/general',         self.handle_get_general_config)
-        router.add_post('/config/general',         self.handle_post_general_config)
-        router.add_get( '/config/inverters',       self.handle_get_inverter_config)
-        router.add_post('/config/inverters',       self.handle_post_inverter_config)
-        router.add_get( '/config/data_manager',    self.handle_get_data_manager_config)
-        router.add_post('/config/data_manager',    self.handle_post_data_manager_config)
-        router.add_get( '/config/mode/manual',     self.handle_get_mode_manual_config)
-        router.add_post('/config/mode/manual',     self.handle_post_mode_manual_config)
-        router.add_get( '/config/mode/static',     self.handle_get_mode_static_config)
-        router.add_post('/config/mode/static',     self.handle_post_mode_static_config)
-        router.add_get( '/config/mode/dynamic',    self.handle_get_mode_dynamic_config)
-        router.add_post('/config/mode/dynamic',    self.handle_post_mode_dynamic_config)
+        router.add_get('/api/config',               self.handle_get_config)
+        router.add_get('/api/config/general',       self.handle_get_general_config)
+        router.add_post('/api/config/general',      self.handle_post_general_config)
+        router.add_get('/api/config/inverters',     self.handle_get_inverter_config)
+        router.add_post('/api/config/inverters',    self.handle_post_inverter_config)
+        router.add_get('/api/config/data_manager',  self.handle_get_data_manager_config)
+        router.add_post('/api/config/data_manager', self.handle_post_data_manager_config)
+        router.add_get('/api/config/mode/manual',   self.handle_get_mode_manual_config)
+        router.add_post('/api/config/mode/manual',  self.handle_post_mode_manual_config)
+        router.add_get('/api/config/mode/static',   self.handle_get_mode_static_config)
+        router.add_post('/api/config/mode/static',  self.handle_post_mode_static_config)
+        router.add_get('/api/config/mode/dynamic',  self.handle_get_mode_dynamic_config)
+        router.add_post('/api/config/mode/dynamic', self.handle_post_mode_dynamic_config)
 
     async def handle_get_config(self, req: web.Request) -> web.Response:
         return web.json_response(self._dyn_config)

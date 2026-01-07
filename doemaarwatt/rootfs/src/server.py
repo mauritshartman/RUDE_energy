@@ -1,18 +1,33 @@
 import asyncio
 import signal
+import tempfile
 import os
+from pathlib import Path
 import time
 import json
 from aiohttp import web
+from typing import Callable, Awaitable
 import aiohttp_cors
 
+from static import filter_ingress_prefix
 from modbus import ModbusManager, to_s32_list
 from config import DoeMaarWattConfig, ControlMode
 from stats import DM, battery_stats, data_manager_stats
 from pbsent import calc_PBsent
 
 
-API_SERVER_PORT = 8080
+API_SERVER_PORT = 8099  # Home Assistant ingress port
+FRONTEND_PATH = (Path(__file__).parent / 'web/dist').resolve()
+
+def get_ingress_filters(ingress_path: str) -> list:
+    return [
+        ( 'href="/', f'href="{ingress_path}/' ),
+        ( 'src="/src/', f'src="{ingress_path}/src/' ),
+        ( 'src="/assets/', f'src="{ingress_path}/assets/' ),
+        ( 'fetch("/api"+', f'fetch("{ingress_path}/api"+' ),
+        ( '<script src="/', f'<script src="{ingress_path}/' ),
+        ( "top.location.href='", f"top.location.href='{ingress_path}" ),
+    ]
 
 
 class DoeMaarWattServer:
@@ -22,7 +37,7 @@ class DoeMaarWattServer:
         self.mode = self.config.mode  # use configured startup mode
 
         # webserver related:
-        self.app = web.Application()
+        self.app = web.Application(middlewares=[self.filter_ingress_prefix])
         self.setup_app()
         self.main_task: asyncio.Task = None
         self.sub_task: asyncio.Task = None
@@ -37,8 +52,19 @@ class DoeMaarWattServer:
         signal.signal(signal.SIGINT, sig_handler)
 
     def setup_app(self) -> None:
-        self.app.router.add_get('/', self.handle_root)
-        self.app.router.add_post('/run', self.handle_run)
+        # super static routing with filtering:
+        try:
+            directory = Path(FRONTEND_PATH).expanduser().resolve(strict=True)
+        except FileNotFoundError as error:
+            raise ValueError(f"'{directory}' does not exist") from error
+        if not directory.is_dir():
+            raise ValueError(f"'{directory}' is not a directory")
+        self._static_dir = directory
+        # self.app.router.register_resource(FilteredStaticResource('/', self._static_dir))
+        self.app.router.add_static('/', self._static_dir, show_index=True)
+
+        self.app.router.add_get('/api/', self.handle_root)
+        self.app.router.add_post('/api/run', self.handle_run)
         self.config.setup_config_endpoints(self.app.router)
 
         cors = aiohttp_cors.setup(self.app, defaults={
@@ -228,6 +254,43 @@ class DoeMaarWattServer:
 
 
     # Endpoint handlers
+    @web.middleware
+    async def filter_ingress_prefix(self,
+        request: web.Request,
+        handler: Callable[[web.Request], Awaitable[web.StreamResponse]],
+    ) -> web.StreamResponse:
+        resp = await handler(request)
+        if not isinstance(resp, web.FileResponse):  # this middleware only acts on static file serving
+            return resp
+        if 'X-Ingress-Path' not in request.headers:  # no need to filter the static files as we are not running as a HA addon
+            return resp
+
+        print(request.path)
+        filepath = (self._static_dir / request.path[1:]).resolve()
+        print(filepath)
+        if not filepath.exists():
+            return web.Response(text='file not found', status=404)
+
+        ingress_path = request.headers['X-Ingress-Path']
+        print(f'applying filters for ingress path: "{ingress_path}"')
+
+        try:
+            with filepath.open('rb') as f:
+                buf = f.read()
+
+            for m in get_ingress_filters(ingress_path):
+                old = m[0].encode('utf-8')
+                new = m[1].encode('utf-8')
+                buf = buf.replace(old, new)
+
+            with tempfile.NamedTemporaryFile(mode='w+b', delete=False) as temp_file:
+                temp_file.write(buf)
+
+            return web.FileResponse(temp_file.name)
+
+        except Exception as e:
+            raise web.HTTPBadRequest(text=json.dumps({'status': 'error', 'msg': str(e)}))
+
     async def handle_root(self, request):
         print(request.headers)
         return web.json_response({
@@ -256,3 +319,4 @@ class DoeMaarWattServer:
             return web.json_response({'status': 'ok'})
         except Exception as e:
             raise web.HTTPBadRequest(text=json.dumps({'status': 'error', 'msg': str(e)}))
+

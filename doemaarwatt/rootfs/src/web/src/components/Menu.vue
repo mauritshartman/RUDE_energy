@@ -82,12 +82,17 @@ onMounted(async () => {
     await control.fetch_status()
     await config.fetch_config()
 
-    console.log(`status refresh loop at ${general.value.loop_delay} seconds`)
+
+    let ld = general.value.loop_delay
+    if (typeof ld === 'undefined') {
+        ld = 8
+    }
+    console.log(`status refresh loop at ${ld} seconds`)
 
     timer.value = setInterval(async () => {
-        console.log(`periodic status fetch`)
+        console.log(`periodic status fetch (every ${ld} seconds)`)
         await control.fetch_status()
-    }, general.value.loop_delay * 1000)
+    }, ld * 1000)
 })
 
 onBeforeUnmount(() => {

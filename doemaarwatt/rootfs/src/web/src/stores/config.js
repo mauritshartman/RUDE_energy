@@ -30,7 +30,7 @@ export const useConfigStore = defineStore('configuration', {
             }
 
             // local development fetch line:
-            const resp = await fetch(`http://localhost:8080${path}`, options)
+            const resp = await fetch(`http://localhost:8099/api${path}`, options)
             // production build line:
             // const resp = await fetch("/api"+path, options)
             if (!resp.ok) { throw new Error(`response status: ${resp.status}`) }
