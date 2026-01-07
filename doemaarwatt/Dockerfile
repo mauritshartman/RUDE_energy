@@ -9,4 +9,7 @@ COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt --break-system-packages
 
 # Copy root filesystem
-COPY rootfs/ /
+COPY rootfs /
+
+RUN mkdir -p /src/web
+COPY rootfs/src/web/dist /src/web
