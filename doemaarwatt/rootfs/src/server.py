@@ -17,8 +17,8 @@ from pbsent import calc_PBsent
 
 
 API_SERVER_PORT = 8099  # Home Assistant ingress port
-# FRONTEND_PATH = (Path(__file__).parent / 'web/dist').resolve()
-FRONTEND_PATH = Path('/src/web/dist')
+FRONTEND_PATH = (Path(__file__).parent / 'web/dist')
+# FRONTEND_PATH = Path('/src/web/dist')
 
 def get_ingress_filters(ingress_path: str) -> list:
     return [
@@ -56,7 +56,7 @@ class DoeMaarWattServer:
         # super static routing with filtering:
         print(f'this main.py files is located at {__file__}')
         try:
-            directory = Path(FRONTEND_PATH).expanduser().resolve(strict=True)
+            directory = Path(FRONTEND_PATH)#.expanduser().resolve(strict=True)
         except FileNotFoundError as error:
             raise ValueError(f"'{directory}' does not exist") from error
         if not directory.is_dir():
