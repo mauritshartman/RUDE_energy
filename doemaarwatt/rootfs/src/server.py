@@ -17,8 +17,8 @@ from pbsent import calc_PBsent
 
 
 API_SERVER_PORT = 8099  # Home Assistant ingress port
-FRONTEND_PATH = (Path(__file__).parent / 'web/dist')
-# FRONTEND_PATH = Path('/src/web/dist')
+FRONTEND_PATH = (Path(__file__).parent / 'web/dist').resolve()
+FRONTEND_PATH = Path('/src/web/dist')
 
 def get_ingress_filters(ingress_path: str) -> list:
     return [
@@ -100,7 +100,7 @@ class DoeMaarWattServer:
     async def control_loop(self) -> None:
         runner = web.AppRunner(self.app)
         await runner.setup()
-        site = web.TCPSite(runner, 'localhost', API_SERVER_PORT)
+        site = web.TCPSite(runner, host=None, port=API_SERVER_PORT)  # None for all interfaces (see https://docs.aiohttp.org/en/stable/web_reference.html#aiohttp.web.TCPSite)
         await site.start()
         print(f'backend webserver started on {API_SERVER_PORT}')
 
