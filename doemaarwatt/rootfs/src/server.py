@@ -19,6 +19,11 @@ from pbsent import calc_PBsent
 API_SERVER_PORT = 8099  # Home Assistant ingress port
 FRONTEND_PATH = (Path(__file__).parent / 'web/dist').resolve()
 FRONTEND_PATH = Path('/src/web/dist')
+CONTENT_TYPE_MAP = {
+    '.html': 'text/html',
+    '.css': 'text/css',
+    '.js': 'text/javascript',
+}
 
 def get_ingress_filters(ingress_path: str) -> list:
     return [
@@ -267,9 +272,8 @@ class DoeMaarWattServer:
         if 'X-Ingress-Path' not in request.headers:  # no need to filter the static files as we are not running as a HA addon
             return resp
 
-        print(request.path)
         filepath = (self._static_dir / request.path[1:]).resolve()
-        print(filepath)
+        print(f'request: {request.path} -> filepath: {filepath}')
         if not filepath.exists():
             return web.Response(text='file not found', status=404)
 
@@ -288,8 +292,10 @@ class DoeMaarWattServer:
             with tempfile.NamedTemporaryFile(mode='w+b', delete=False) as temp_file:
                 temp_file.write(buf)
 
-            return web.FileResponse(temp_file.name)
-
+            modified_resp = web.FileResponse(temp_file.name)
+            # FileResponse by default sets octet-stream as content-type. Apply correct header:
+            modified_resp.headers['Content-Type'] = CONTENT_TYPE_MAP.get(filepath.suffix, 'application/octet-stream')
+            return modified_resp
         except Exception as e:
             raise web.HTTPBadRequest(text=json.dumps({'status': 'error', 'msg': str(e)}))
 
