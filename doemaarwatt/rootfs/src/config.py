@@ -6,9 +6,9 @@ from mode import ControlMode, MIN_MODE_VALUE, MAX_MODE_VALUE
 
 
 # Local development path:
-DYN_CONFIG_PATH = Path.home() / Path('dyn_config.json')
+# DYN_CONFIG_PATH = Path.home() / Path('dyn_config.json')
 # Production build version:
-# DYN_CONFIG_PATH = Path('/data/dyn_config.json')
+DYN_CONFIG_PATH = Path('/data/dyn_config.json')
 print(f'DoeMaarWatt backend server: config stored in {DYN_CONFIG_PATH}')
 
 VALID_PHASES = { 'L1', 'L2', 'L3' }
