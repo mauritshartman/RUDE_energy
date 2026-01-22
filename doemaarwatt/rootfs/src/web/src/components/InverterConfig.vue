@@ -20,7 +20,7 @@ const on_removed = async (idx) => {
 const on_add = async () => {
   console.log(`appending a new config`)
   inverters.value.push({
-    name: '', host: '', port: 502, battery_charge_limit: 0, battery_discharge_limit: 0, connected_phase: 'L1'
+    name: '', host: '', port: 502, battery_charge_limit: 0, battery_discharge_limit: 0, connected_phase: 'L1', enable: true,
   })
 }
 

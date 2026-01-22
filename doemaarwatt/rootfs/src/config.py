@@ -3,13 +3,13 @@ import json
 from pathlib import Path
 from aiohttp import web
 from mode import ControlMode, MIN_MODE_VALUE, MAX_MODE_VALUE
+from logger import Logger, LogLevel
 
 
 # Local development path:
-# DYN_CONFIG_PATH = Path.home() / Path('dyn_config.json')
+DYN_CONFIG_PATH = Path.home() / Path('dyn_config.json')
 # Production build version:
-DYN_CONFIG_PATH = Path('/data/dyn_config.json')
-print(f'DoeMaarWatt backend server: config stored in {DYN_CONFIG_PATH}')
+# DYN_CONFIG_PATH = Path('/data/dyn_config.json')
 
 VALID_PHASES = { 'L1', 'L2', 'L3' }
 DYN_CONFIG_DEFAULT = {
@@ -61,16 +61,20 @@ STATIC_SCHEDULE_ENTRY = {
 
 
 class DoeMaarWattConfig:
-    def __init__(self):
+    def __init__(self, logger: Logger):
+        self.log = logger
+
+        self.log.debug(f'DoeMaarWatt backend server: config stored in {DYN_CONFIG_PATH}')
+
         # read dynamic config (stored at /data/dyn_config.json)
         self._dyn_config = DYN_CONFIG_DEFAULT  # dynamic addon configuration
         if DYN_CONFIG_PATH.exists():  # check for save dynamic config from an earlier session
             with DYN_CONFIG_PATH.open() as f:
                 self._dyn_config = json.load(f)
-                print(f'DoeMaarWatt backend server: loaded existing config:\n{self._dyn_config}')
+                self.log.debug(f'DoeMaarWatt backend server: loaded existing config:\n{self._dyn_config}')
         else:  # no file exists, so create one with default settings
             self.save_dyn_config()
-            print(f'DoeMaarWatt backend server: loaded new default config:\n{self._dyn_config}')
+            self.log.debug(f'DoeMaarWatt backend server: loaded new default config:\n{self._dyn_config}')
 
     def save_dyn_config(self):
         with DYN_CONFIG_PATH.open(mode='w') as f:
@@ -82,8 +86,10 @@ class DoeMaarWattConfig:
     @mode.setter
     def mode(self, m: ControlMode | int):
         if isinstance(m, int):
+            self.log.info(f'config: setting mode to {m}')
             self._dyn_config['general']['mode'] = m
         elif isinstance(m, ControlMode):
+            self.log.info(f'config: setting mode to {m.value}')
             self._dyn_config['general']['mode'] = m.value
         else:
             raise ValueError(f'invalid mode value: {m}')
@@ -94,6 +100,7 @@ class DoeMaarWattConfig:
         return self._dyn_config['general']['debug']
     @debug.setter
     def debug(self, dbg):
+        self.log.info(f'config: setting debug output to {dbg}')
         self._dyn_config['general']['debug'] = dbg
         self.save_dyn_config()
 
@@ -102,6 +109,7 @@ class DoeMaarWattConfig:
         return self._dyn_config['general']['autostart']
     @autostart.setter
     def autostart(self, astart):
+        self.log.info(f'config: setting autostart to {astart}')
         self._dyn_config['general']['autostart'] = astart
         self.save_dyn_config()
 
@@ -147,8 +155,11 @@ class DoeMaarWattConfig:
             if k == 'mode' and (v < MIN_MODE_VALUE or v > MAX_MODE_VALUE):
                 raise Exception(f'invalid general config: field {k} has invalid value: {v}')
 
+        self.log.info(f'config: setting general config to {cfg}')
         self._dyn_config['general'] = cfg
         self.save_dyn_config()
+
+        self.log.set_loglevel(LogLevel.DEBUG if cfg['debug'] else LogLevel.INFO)
 
     def set_inverters_config(self, cfg: list):
         if not isinstance(cfg, list):
@@ -168,6 +179,7 @@ class DoeMaarWattConfig:
 
             self._dyn_config['inverters'].append(c)
 
+        self.log.info(f'config: setting inverters config to:\n{"\n".join(str(s) for s in self._dyn_config["inverters"])}')
         self.save_dyn_config()
 
     def set_data_manager_config(self, cfg: dict):
@@ -179,6 +191,7 @@ class DoeMaarWattConfig:
             if not isinstance(v, DM_CONFIG[k]):
                 raise Exception(f'invalid data manager config: field {k} has invalid value: {v}')
 
+        self.log.info(f'config: setting data manager config to {cfg}')
         self._dyn_config['data_manager'] = cfg
         self.save_dyn_config()
 
@@ -192,6 +205,7 @@ class DoeMaarWattConfig:
                 if k == 'direction' and v not in VALID_DIRECTION:
                     raise Exception(f'invalid mode manual config: field {k} has invalid value: {v}')
 
+        self.log.info(f'config: setting manual mode config to {cfg}')
         self._dyn_config['mode_manual'] = cfg
         self.save_dyn_config()
 
@@ -208,12 +222,14 @@ class DoeMaarWattConfig:
                     if len(set(entry.keys()) ^ set(STATIC_SCHEDULE_ENTRY.keys())) != 0:
                         raise Exception(f'invalid mode static config: schedule entry invalid: {entry}')
 
+        self.log.info(f'config: setting static mode config to {cfg}')
         self._dyn_config['mode_static'] = cfg
         self.save_dyn_config()
 
     def set_mode_dynamic_config(self, cfg: dict):
         if not isinstance(cfg, dict):
             raise Exception(f'mode dynamic config requires a dict, passed: {cfg}')
+        self.log.info(f'config: setting dynamic mode config to {cfg}')
         self._dyn_config['mode_dynamic'] = cfg
         self.save_dyn_config()
 

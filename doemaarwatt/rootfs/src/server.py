@@ -2,6 +2,7 @@ import asyncio
 import signal
 import tempfile
 import os
+from datetime import datetime as dt
 from pathlib import Path
 import time
 import json
@@ -9,21 +10,24 @@ from aiohttp import web
 from typing import Callable, Awaitable
 import aiohttp_cors
 
-from static import filter_ingress_prefix
 from modbus import ModbusManager, to_s32_list
 from config import DoeMaarWattConfig, ControlMode
 from stats import DM, battery_stats, data_manager_stats
 from pbsent import calc_PBsent
+from logger import Logger, LogLevel
 
 
 API_SERVER_PORT = 8099  # Home Assistant ingress port
 FRONTEND_PATH = (Path(__file__).parent / 'web/dist').resolve()
-FRONTEND_PATH = Path('/src/web/dist')
+# FRONTEND_PATH = Path('/src/web/dist')
 CONTENT_TYPE_MAP = {
     '.html': 'text/html',
     '.css': 'text/css',
     '.js': 'text/javascript',
 }
+
+LOG_PATH = Path('/data/logs/')
+LOG_PATH = Path('logs/')
 
 def get_ingress_filters(ingress_path: str) -> list:
     return [
@@ -39,7 +43,9 @@ def get_ingress_filters(ingress_path: str) -> list:
 class DoeMaarWattServer:
     def __init__(self) -> None:
         # control related variables
-        self.config = DoeMaarWattConfig()
+        self.log = Logger(loglevel=LogLevel.DEBUG, filedir=LOG_PATH, rotate=10)
+        self.config = DoeMaarWattConfig(logger=self.log)
+        self.log.set_loglevel(LogLevel.DEBUG if self.config.debug else LogLevel.INFO)
         self.mode = self.config.mode  # use configured startup mode
 
         # webserver related:
@@ -53,7 +59,7 @@ class DoeMaarWattServer:
         self.reset_stats()
 
         def sig_handler(sig, frame):
-            print(f'\nSIGINT received')
+            self.log.info(f'\nSIGINT received')
             self.stop()
         signal.signal(signal.SIGINT, sig_handler)
 
@@ -71,6 +77,7 @@ class DoeMaarWattServer:
 
         self.app.router.add_get('/api/', self.handle_root)
         self.app.router.add_post('/api/run', self.handle_run)
+        self.app.router.add_post('/api/log', self.log.handle_log)
         self.config.setup_config_endpoints(self.app.router)
 
         cors = aiohttp_cors.setup(self.app, defaults={
@@ -106,16 +113,16 @@ class DoeMaarWattServer:
         await runner.setup()
         site = web.TCPSite(runner, host=None, port=API_SERVER_PORT)  # None for all interfaces (see https://docs.aiohttp.org/en/stable/web_reference.html#aiohttp.web.TCPSite)
         await site.start()
-        print(f'backend webserver started on {API_SERVER_PORT}')
+        self.log.info(f'backend webserver started on {API_SERVER_PORT}')
 
         while self.running:  # will only be stopped by a stop() / SIGINT
             try:
-                print(f'waiting for running to become true')
+                self.log.debug(f'waiting for running to become true')
                 while not self.sub_running:  # busy waiting until sub_task can start running
                     await asyncio.sleep(0.25)
 
                 self.mode = self.config.mode  # use configured startup mode
-                print(f'we are running: determined startup mode {self.mode}')
+                self.log.info(f'we are running: determined startup mode {self.mode}')
                 if self.mode == ControlMode.IDLE:
                     self.sub_task = asyncio.create_task(self.mode_1_loop())
                 elif self.mode == ControlMode.MANUAL:
@@ -125,11 +132,11 @@ class DoeMaarWattServer:
                 await self.sub_task
 
             except asyncio.CancelledError:
-                print('main control loop handling cancel')
+                self.log.debug('main control loop handling cancel')
                 self.stop_sub_task()
 
         await runner.cleanup()
-        print(f'backend webserver stopped')
+        self.log.info(f'backend webserver stopped')
 
     def reset_stats(self):
         self.stats = {
@@ -139,7 +146,7 @@ class DoeMaarWattServer:
         }
 
     async def mode_1_loop(self):
-        print(f'mode 1 loop started')
+        self.log.info(f'mode 1 loop started')
 
         # check if startup conditions are met:
         inv_cfg = self.config.get_inverters_config()
@@ -154,7 +161,7 @@ class DoeMaarWattServer:
                 await inverters.connect()
                 await dm.connect()
 
-                print(f'idle: relinquish control and reset power set point')
+                self.log.info(f'idle: relinquish control and reset power set point')
                 await inverters.write_registers_parallel(40149, [0, 0])  # reset rendement
                 await inverters.write_registers_parallel(40151, [0, 803])  # 803 = inactive
 
@@ -163,16 +170,16 @@ class DoeMaarWattServer:
 
                 await asyncio.sleep(self.config.get_general_config().get('loop_delay', 10))
             except asyncio.CancelledError:
-                print(f'mode 1 loop cancelled')
+                self.log.info(f'mode 1 loop cancelled')
                 raise
             finally:
                 inverters.close()
                 dm.close()
                 self.reset_stats()
-                print(f'closed modbus connections')
+                self.log.info(f'closed modbus connections')
 
     async def mode_2_loop(self):
-        print(f'Mode 2 (manual mode) started')
+        self.log.info(f'Mode 2 (manual mode) started')
 
         manual_cfg = self.config.get_mode_manual_config()
         charge_amount = manual_cfg.get('amount', 0)
@@ -200,7 +207,7 @@ class DoeMaarWattServer:
                 self.stats['data_manager'] = await data_manager_stats(dm, dm_cfg.get('max_fuse_current', 25))
 
                 # determine PBsent for each phase
-                print(f'manual mode: computing safe charge/discharge amount (PBsent) for each phase:')
+                self.log.info(f'manual mode: computing safe charge/discharge amount (PBsent) for each phase:')
                 PBsent_phases = {}
 
                 self.stats['inv_control'] = {}
@@ -231,21 +238,21 @@ class DoeMaarWattServer:
                         'PBsent': PBsent_phases[phi],
                     }
 
-                print(f'manual mode: sending charge/discharge amount (PBsent) to enabled inverters:')
+                self.log.info(f'manual mode: sending charge/discharge amount (PBsent) to enabled inverters:')
                 for phi, PBsent in PBsent_phases.items():
                     if PBsent < 0:  # negative: so charge
                         for inv_name in inv_phase_map[phi]:
-                            print(f'commanding {inv_name} to charge at {PBsent:.0f} W')
+                            self.log.info(f'commanding {inv_name} to charge at {PBsent:.0f} W')
                             await inverters.write_register(inv_name, 40149, to_s32_list(PBsent))
                     else:  # zero or positive: so discharge
                         for inv_name in inv_phase_map[phi]:
-                            print(f'commanding {inv_name} to discharge at {PBsent:.0f} W')
+                            self.log.info(f'commanding {inv_name} to discharge at {PBsent:.0f} W')
                             await inverters.write_register(inv_name, 40149, to_s32_list(PBsent))
 
                 await asyncio.sleep(self.config.get_general_config().get('loop_delay', 10))
 
             except asyncio.CancelledError:
-                print(f'mode 2 loop cancelled')
+                self.log.debug(f'mode 2 loop cancelled')
                 raise
 
             finally:
@@ -256,7 +263,7 @@ class DoeMaarWattServer:
                 inverters.close()
                 dm.close()
                 self.reset_stats()
-                print(f'closed modbus connections')
+                self.log.info(f'closed modbus connections')
 
 
     # Endpoint handlers
@@ -272,12 +279,12 @@ class DoeMaarWattServer:
             return resp
 
         filepath = (self._static_dir / request.path[1:]).resolve()
-        print(f'request: {request.path} -> filepath: {filepath}')
+        self.log.debug(f'request: {request.path} -> filepath: {filepath}')
         if not filepath.exists():
             return web.Response(text='file not found', status=404)
 
         ingress_path = request.headers['X-Ingress-Path']
-        print(f'applying filters for ingress path: "{ingress_path}"')
+        self.log.debug(f'applying filters for ingress path: "{ingress_path}"')
 
         try:
             with filepath.open('rb') as f:
@@ -325,4 +332,3 @@ class DoeMaarWattServer:
             return web.json_response({'status': 'ok'})
         except Exception as e:
             raise web.HTTPBadRequest(text=json.dumps({'status': 'error', 'msg': str(e)}))
-

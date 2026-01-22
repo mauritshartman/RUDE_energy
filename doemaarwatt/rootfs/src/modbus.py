@@ -125,7 +125,7 @@ class ModbusManager():
         '''
         client = self._clients.get(client_name)
         if client is None:
-            return 12345  # dummy value
+            return 123.45  # dummy value
 
         try:
             cnt = self._dtype_to_word_count(dtype)
@@ -203,7 +203,7 @@ class ModbusManager():
         tasks = []
         for name, client in self._clients.items():
             if client is None:
-                ret[name] = 12435  # dummy value
+                ret[name] = 124.35  # dummy value
                 continue
             tasks.append(self._read_registers(name, address, dtype, ret, device_id=device_id, sma_format=sma_format))
 

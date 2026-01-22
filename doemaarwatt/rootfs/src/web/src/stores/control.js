@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { DateTime } from 'luxon'
 
 export const useControlStore = defineStore('control', {
     state: () => ({
@@ -7,6 +8,7 @@ export const useControlStore = defineStore('control', {
         mode: 1,
         error_status: '',
         stats: null,
+        update_time: DateTime.now(),
     }),
 
     getters: {
@@ -31,12 +33,33 @@ export const useControlStore = defineStore('control', {
             }
 
             // local development fetch line:
-            const resp = await fetch(`http://localhost:8099/api${path}`, options)
+            // const resp = await fetch(`http://localhost:8099/api${path}`, options)
             // production build fetch line:
-            // const resp = await fetch("/api"+path, options)
+            const resp = await fetch("/api"+path, options)
             if (!resp.ok) { throw new Error(`response status: ${resp.status}`) }
             const ret = await resp.json()
             return ret
+        },
+        async fetch_log(d) {
+            this.error_status = ''
+            const options = {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(d)
+            }
+            try {
+                // local development fetch line:
+                // const resp = await fetch(`http://localhost:8099/api/log`, options)
+                // production build fetch line:
+                const resp = await fetch("/api/log", options)
+
+                if (!resp.ok) { throw new Error(`response status: ${resp.status}`) }
+                const ret = await resp.text()
+                return ret
+            } catch (err) {
+                this.error_status = `config store: error while fetching log: ${err.msg}`
+                return ''
+            }
         },
         async fetch_status() {
             try {
@@ -45,6 +68,7 @@ export const useControlStore = defineStore('control', {
                 this.running_start = status.running_start
                 this.mode = status.mode
                 this.stats = status.stats
+                this.update_time = DateTime.now()
             } catch (err) {
                 this.running = false
                 this.running_start = null
