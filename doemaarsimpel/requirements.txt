@@ -1,0 +1,4 @@
+pymodbus~=3.11.3
+requests~=2.32.5
+dynaconf~=3.2.12
+prettytable~=3.17.0

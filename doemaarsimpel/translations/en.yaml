@@ -1,0 +1,56 @@
+configuration:
+  inverters:
+    - name:
+        name: Inverter name
+        description: Convenient name to give to the inverter
+      enable:
+        name: enable
+        description: Enable this inverter into DoeMaarWatt control
+      host:
+        name: Inverter modbus IP address
+        description: Modbus IP address for the inverter. Use 'test' to configure as dummy
+      port:
+        name: Inverter modbus TCP port
+        description: Modbus TCP port for the inverter.
+      battery_charge_limit:
+        name: Charging limit for the battery
+        description: Individual charging limit in Watt for the inverter (0 to disable limit)
+      battery_discharge_limit:
+        name: Discharging limit for the battery
+        description: Individual discharging limit in Watt for the inverter (0 to disable limit)
+      connected_phase:
+        name: Phase (L1, L2 or L3) connected to the inverter
+        description: Phase (L1, L2 or L3) to which the inverter is connected
+
+  data_manager:
+    name: Data Manager M options
+    description: Modbus configuration to read out the SMA Data Manager (and energy meter)
+    fields:
+      host:
+        name: Host
+        description: Modbus IP address of the SMA Data Manager M
+      port:
+        name: Port
+        description: Modbus TCP port of the SMA Data Manager M
+      max_fuse_current:
+        name: Max fuse current (A)
+        description: Maximum current for the main fuse in Ampere. Per phase.
+
+  control_mode:
+    name: Control mode
+    description: Initial control mode (none = off, manual = continuous charging or discharging, static = automatic operation according to a fixed charge/discharge schedule, dynamic = automatic operation according to a dynamic charge/discharge schedule
+
+  loop_delay:
+    name: Loop delay
+    description: Control loop delay in seconds (default 10)
+
+  manual_mode:
+    name: Manual Mode options
+    description: Configuration settings specific to Manual Mode operation (manual charging/discharging)
+    fields:
+      charge:
+        name: Whether to charge
+        description: Whether to continuously charge (true) or discharge (false)
+      amount:
+        name: Total charge or discharge amount
+        description: Battery charge/discharge amount (in Watts) for each battery inverters individually
