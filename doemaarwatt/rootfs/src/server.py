@@ -158,23 +158,29 @@ class DoeMaarWattServer:
         if len(dm_cfg) > 0:
             dm_cfg['name'] = DM
 
-        while self.sub_running:
+        while self.sub_running:  # outer, reconnect loop
             try:
                 self.inverters = ModbusManager(client_configs=inv_cfg, log=self.log)
                 self.dm = ModbusManager(client_configs=[dm_cfg], log=self.log)
                 await self.inverters.connect()
                 await self.dm.connect()
+                self.log.info(f'(re)connected to data manager and inverters')
 
-                self.log.info(f'idle: relinquish control and reset power set point')
-                await self.inverters.write_registers_parallel(40149, [0, 0])  # reset rendement
-                await self.inverters.write_registers_parallel(40151, [0, 803])  # 803 = inactive
+                while self.sub_running:  # inner, control loop
+                    self.log.info(f'idle: relinquish control and reset power set point')
+                    await self.inverters.write_registers_parallel(40149, [0, 0])  # reset rendement
+                    await self.inverters.write_registers_parallel(40151, [0, 803])  # 803 = inactive
 
-                self.stats['inverters'] = await battery_stats(self.inverters, self.config.get_inverter_phase_map())
-                self.stats['data_manager'] = await data_manager_stats(self.dm, dm_cfg.get('max_fuse_current', 25))
+                    self.stats['inverters'] = await battery_stats(self.inverters, self.config.get_inverter_phase_map())
+                    self.stats['data_manager'] = await data_manager_stats(self.dm, dm_cfg.get('max_fuse_current', 25))
 
-                await asyncio.sleep(self.config.get_general_config().get('loop_delay', 10))
+                    await asyncio.sleep(self.config.get_general_config().get('loop_delay', 10))
+
             except asyncio.CancelledError:
                 self.log.info(f'mode 1 loop cancelled')
+                raise
+            except Exception as e:
+                self.log.error(f'encountered error: {e}')
                 raise
             finally:
                 self.inverters.close()
