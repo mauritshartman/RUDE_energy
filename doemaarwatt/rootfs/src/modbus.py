@@ -3,6 +3,7 @@ import struct
 from typing import Any
 from pymodbus.client import AsyncModbusTcpClient as MBClient
 from pymodbus import ModbusException
+from logger import Logger
 
 
 _modbus_exception_codes = {
@@ -34,9 +35,9 @@ class ModbusManager():
 
     def __init__(self,
         client_configs: list[dict[str, Any]],
-        debug: bool = False,
+        log: Logger,
     ):
-        self._debug: bool = debug
+        self.log = log
 
         self._clients: dict[str, MBClient] = {}
 
@@ -45,10 +46,10 @@ class ModbusManager():
                 continue
             name = cfg['name']
             if cfg['host'].lower() in ['test', 'debug', 'none']:
-                self.debug(f'DEBUG: creating dummy client for {name}')
+                self.log.debug(f'modbus[{name}]: creating dummy client')
                 self._clients[name] = None
             else:
-                self.debug(f'DEBUG: creating modbus client for {name}')
+                self.log.debug(f'modbus[{name}]: creating modbus client')
                 self._clients[name] = MBClient(
                     cfg['host'],
                     port=int(cfg.get('port', 502)),
@@ -57,24 +58,21 @@ class ModbusManager():
                     timeout=5,
                 )
 
-    def debug(self, msg: str):
-        if self._debug:
-            print(msg)
-
     async def connect(self):
         for name, client in self._clients.items():
-            self.debug(f'DEBUG: connecting to inverter {name}')
             if client is None:
                 continue
             await client.connect()
             if not client.connected:
                 raise Exception(f'unable to connect to inverter {name}')
+            self.log.debug(f'modbus[{name}]: connected')
 
     def close(self):
-        for client in self._clients.values():
+        for name, client in self._clients.items():
             if client is None:
                 continue
             client.close()
+            self.log.debug(f'modbus[{name}]: closed connection to inverter')
 
     async def write_registers_parallel(self,
         address: int,
@@ -82,7 +80,7 @@ class ModbusManager():
         no_response_expected: bool = False,
     ):
         for name, client in self._clients.items():
-            self.debug(f'DEBUG: Modbus[{name}] write register {address} <- {values}')
+            self.log.debug(f'modbus[{name}]: write register {address} <- {values}')
 
             if client is None:
                 continue
@@ -102,7 +100,7 @@ class ModbusManager():
     ):
         if not client_name in self._clients:
             raise Exception(f'client name {client_name} not configured')
-        self.debug(f'DEBUG: Modbus[{client_name}] write register {address} <- {values}')
+        self.log.debug(f'modbus[{client_name}]: write register {address} <- {values}')
 
         if self._clients[client_name] is None:
             return
@@ -129,7 +127,7 @@ class ModbusManager():
 
         try:
             cnt = self._dtype_to_word_count(dtype)
-            self.debug(f'DEBUG: Modbus[{client_name}] trying to read register {address} (count: {cnt})')
+            self.log.debug(f'modbus[{client_name}]: trying to read register {address} (count: {cnt})')
 
             if str(address)[0] == '4':
                 resp = await client.read_holding_registers(address, count=cnt, device_id=device_id)
@@ -142,8 +140,8 @@ class ModbusManager():
                     exc_descr = _modbus_exception_codes.get(resp.exception_code, '<unknown exception>')
                     raise Exception(f'modbus error while reading from {client_name}: ({code}) {exc_descr}')
 
-            value = self._decode_response(dtype, resp, sma_format=sma_format)
-            self.debug(f'DEBUG: Modbus[{client_name}] read register {address} -> {value}')
+            value = self._decode_response(client_name, dtype, resp, sma_format=sma_format)
+            self.log.debug(f'modbus[{client_name}]: read register {address} -> {value}')
             return value
 
         except ModbusException as e:
@@ -171,7 +169,7 @@ class ModbusManager():
 
         try:
             cnt = self._dtype_to_word_count(dtype)
-            self.debug(f'DEBUG: Modbus[{client_name}] trying to read register {address} (count: {cnt})')
+            self.log.debug(f'modbus[{client_name}]: trying to read register {address} (count: {cnt})')
 
             if str(address)[0] == '4':
                 resp = await client.read_holding_registers(address, count=cnt, device_id=device_id)
@@ -184,9 +182,9 @@ class ModbusManager():
                     exc_descr = _modbus_exception_codes.get(resp.exception_code, '<unknown exception>')
                     raise Exception(f'modbus error while reading from {client_name}: ({code}) {exc_descr}')
 
-            value = self._decode_response(dtype, resp, sma_format=sma_format)
+            value = self._decode_response(client_name, dtype, resp, sma_format=sma_format)
             result_dict[client_name] = value
-            self.debug(f'DEBUG: Modbus[{client_name}] read register {address} -> {value}')
+            self.log.debug(f'modbus[{client_name}]: read register {address} -> {value}')
 
         except ModbusException as e:
             raise Exception(f'internal exception in Pymodbus library while reading from {client_name}: {e}')
@@ -210,7 +208,7 @@ class ModbusManager():
         try:
             await asyncio.gather(*tasks)  # exceptions raised within a task will propagate
         except Exception as e:
-            self.debug(f'DEBUG: Modbus parallel read failed: {e}')
+            self.log.error(f'modbus: Modbus parallel read failed: {e}')
             self.close()
             raise
 
@@ -233,6 +231,7 @@ class ModbusManager():
         raise Exception(f'unrecognized Modbus datatype: {dtype}')
 
     def _decode_response(self,
+        client_name: str,
         dtype: str,
         resp,
         sma_format: str | dict[int, str] | None = None,
@@ -273,5 +272,5 @@ class ModbusManager():
                 except KeyError:
                     raise Exception(f'no taglist mapping for value {value}')
 
-        self.debug(f"DEBUG: decoded response '{resp}' into {value}")
+        self.log.debug(f"modbus[{client_name}]: decoded response '{resp}' into {value}")
         return value
