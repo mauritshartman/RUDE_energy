@@ -22,7 +22,7 @@ class Mode3Controller(BaseController):
 
     @property
     def mode(self) -> ControlMode:
-        return ControlMode.MANUAL
+        return ControlMode.STATIC
 
     def setup(self) -> None:
         super().setup()
@@ -44,7 +44,7 @@ class Mode3Controller(BaseController):
         self.inv_phase_map = self.config.get_phase_inverters_map()
 
     def get_PBapp_phases(self) -> dict:
-        cur_time = dt.now().time()
+        cur_time = dt.now().astimezone().time()
 
         charge_amount = 0  # default: idle (if no schedule entries are defined)
         if len(self.schedule) > 0:

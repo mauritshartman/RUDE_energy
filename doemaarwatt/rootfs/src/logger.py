@@ -151,9 +151,10 @@ class Logger(metaclass=Singleton):
 
         split_msg = combined_msg.split("\n")
 
+        ts = f'{dt.now().astimezone().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}'
         parsed_msg = ""
         for message in split_msg:
-            parsed_msg += f"{dt.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]} | {loglevel.name:<5} | {self._message_prefix} {message}\n"
+            parsed_msg += f"{ts} | {loglevel.name:<5} | {self._message_prefix} {message}\n"
         parsed_msg = parsed_msg[:-1]
 
         self._log_to_file(parsed_msg)
