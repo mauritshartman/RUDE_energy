@@ -13,7 +13,7 @@ export const useConfigStore = defineStore('configuration', {
         inverters:      (state) => (state.config === null) ? [] : state.config.inverters,
         data_manager:   (state) => (state.config === null) ? -1 : state.config.data_manager,
         mode_manual:    (state) => (state.config === null) ? -1 : state.config.mode_manual,
-        mode_static:    (state) => (state.config === null) ? -1 : state.config.mode_static,
+        mode_static:    (state) => (state.config === null) ? [] : state.config.mode_static,
         mode_dynamic:   (state) => (state.config === null) ? -1 : state.config.mode_dynamic,
         error:          (state) => (state.error_status !== ''),
         status:         (state) => (state.error_status !== '') ? '': state.error_status,
