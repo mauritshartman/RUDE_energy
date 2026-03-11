@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any
+from typing import Any, Optional
 from datetime import time, datetime as dt
 
 from config import DoeMaarWattConfig, ControlMode
@@ -17,7 +17,7 @@ class Mode3Controller(BaseController):
     ) -> None:
         super().__init__(cfg, log)
 
-        self.inv_phase_map: dict[str, list[str]] = None
+        self.inv_phase_map: Optional[dict[str, list[str]]] = None
         self.schedule: list[dict[str, Any]]
 
     @property
@@ -30,7 +30,7 @@ class Mode3Controller(BaseController):
         static_cfg = self.config.get_mode_static_config()
         self.schedule = []
         for t in static_cfg['schedule']:
-            entry = { 'time': time.fromisoformat(t['time']) }
+            entry: dict[str, Any] = { 'time': time.fromisoformat(t['time']) }
             if t['direction'] in ['idle', 'standby']:
                 entry['amount'] = 0
             elif t['direction'] == 'charge':
@@ -44,6 +44,8 @@ class Mode3Controller(BaseController):
         self.inv_phase_map = self.config.get_phase_inverters_map()
 
     def get_PBapp_phases(self) -> dict:
+        assert not self.inv_phase_map is None
+
         cur_time = dt.now().astimezone().time()
 
         charge_amount = 0  # default: idle (if no schedule entries are defined)
@@ -111,9 +113,7 @@ class Mode3Controller(BaseController):
             PBsent_phases = {}
             self.stats['inv_control'] = {}
             for phi in ['L1', 'L2', 'L3']:
-                PBapp = PBapp_phases[phi]
-                if PBapp == 0:
-                    continue
+                PBapp = PBapp_phases[phi]  # NOTE: can be zero (for standby)
 
                 PGnow = self.stats['data_manager'][phi]['P']  # negative: drawing power from the grid
                 VGnow = self.stats['data_manager'][phi]['V']
