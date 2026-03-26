@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Mode 4 (dynamic schedule) implementation
+
+## [1.0.22b] - 2026-03-26
+
+### Added
+
 - Mode 3 (static schedule) implementation
 
 ## [1.0.21] - 2026-01-29
