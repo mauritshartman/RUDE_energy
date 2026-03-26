@@ -1,6 +1,6 @@
 import asyncio
 import struct
-from typing import Any
+from typing import Any, Optional
 from pymodbus.client import AsyncModbusTcpClient as MBClient
 from pymodbus import ModbusException
 from logger import Logger
@@ -39,7 +39,7 @@ class ModbusManager():
     ):
         self.log = log
 
-        self._clients: dict[str, MBClient] = {}
+        self._clients: dict[str, Optional[MBClient]] = {}
 
         for cfg in client_configs:
             if len(cfg) == 0:
@@ -54,7 +54,7 @@ class ModbusManager():
                     cfg['host'],
                     port=int(cfg.get('port', 502)),
                     name=f'Modbus[{name}]',
-                    reconnect_delay=f'10.0',  # TODO: make config setting
+                    reconnect_delay=10.0,  # TODO: make config setting
                     timeout=5,
                 )
 
@@ -102,10 +102,11 @@ class ModbusManager():
             raise Exception(f'client name {client_name} not configured')
         self.log.debug(f'modbus[{client_name}]: write register {address} <- {values}')
 
-        if self._clients[client_name] is None:
+        client = self._clients[client_name]
+        if client is None:
             return
 
-        await self._clients[client_name].write_registers(address, values, device_id=3, no_response_expected=no_response_expected)
+        await client.write_registers(address, values, device_id=3, no_response_expected=no_response_expected)
 
     async def read_register(self,
         client_name: str,
@@ -123,7 +124,7 @@ class ModbusManager():
         '''
         client = self._clients.get(client_name)
         if client is None:
-            return 123.45  # dummy value
+            return 1.2345  # dummy value
 
         try:
             cnt = self._dtype_to_word_count(dtype)
@@ -133,6 +134,8 @@ class ModbusManager():
                 resp = await client.read_holding_registers(address, count=cnt, device_id=device_id)
             elif str(address)[0] == '3':
                 resp = await client.read_input_registers(address, count=cnt, device_id=device_id)
+            else:
+                raise Exception(f'unable to handle address {address}')
 
             if resp.isError():
                 code = getattr(resp, 'exception_code', None)
@@ -175,6 +178,8 @@ class ModbusManager():
                 resp = await client.read_holding_registers(address, count=cnt, device_id=device_id)
             elif str(address)[0] == '3':
                 resp = await client.read_input_registers(address, count=cnt, device_id=device_id)
+            else:
+                raise Exception(f'unable to handle address {address}')
 
             if resp.isError():
                 code = getattr(resp, 'exception_code', None)
@@ -201,7 +206,7 @@ class ModbusManager():
         tasks = []
         for name, client in self._clients.items():
             if client is None:
-                ret[name] = 124.35  # dummy value
+                ret[name] = 1.2345  # dummy value
                 continue
             tasks.append(self._read_registers(name, address, dtype, ret, device_id=device_id, sma_format=sma_format))
 
@@ -255,20 +260,21 @@ class ModbusManager():
             return resp
 
         if sma_format is not None:
-            sma_format = sma_format.upper()
-            if sma_format == 'FIX0':
-                pass  # no decimal place, so no rounding needed
-            elif sma_format == 'FIX1':
-                value = float(value) / 1e1
-            elif sma_format == 'FIX2':
-                value = float(value) / 1e2
-            elif sma_format == 'FIX3':
-                value = float(value) / 1e3
-            elif sma_format == 'TEMP':
-                value = float(value) / 1e1
+            if isinstance(sma_format, str):
+                sma_format = sma_format.upper()
+                if sma_format == 'FIX0':
+                    pass  # no decimal place, so no rounding needed
+                elif sma_format == 'FIX1':
+                    value = float(value) / 1e1  # type: ignore
+                elif sma_format == 'FIX2':
+                    value = float(value) / 1e2  # type: ignore
+                elif sma_format == 'FIX3':
+                    value = float(value) / 1e3  # type: ignore
+                elif sma_format == 'TEMP':
+                    value = float(value) / 1e1  # type: ignore
             elif isinstance(sma_format, dict):  # assuming data format is a tag list mapping
                 try:
-                    value = sma_format[value]
+                    value = sma_format[value]  # type: ignore
                 except KeyError:
                     raise Exception(f'no taglist mapping for value {value}')
 

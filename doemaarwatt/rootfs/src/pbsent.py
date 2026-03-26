@@ -1,8 +1,10 @@
+from typing import Union
+
 from prettytable import PrettyTable
 
 
 def calc_PBsent(
-    PBapp: int,
+    PBapp: Union[int, float],
     PBnow: float,
     PGnow: float,
     VGnow: float,

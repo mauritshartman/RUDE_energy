@@ -4,6 +4,8 @@ import { storeToRefs } from "pinia";
 import { useControlStore } from '../stores/control';
 import { useConfigStore } from "../stores/config";
 import StatusTables from './StatusTables.vue';
+import PricesGraph from "./PricesGraph.vue";
+import ScheduleGraph from "./ScheduleGraph.vue";
 import { DateTime } from "luxon";
 
 const control = useControlStore()
@@ -39,11 +41,14 @@ onBeforeUnmount(() => {
 <template>
     <h2>Main Page</h2>
     <p>
-        <template v-if="control.running">Currently running in mode {{ control.mode }}</template>
+        <template v-if="control.running">Currently running in mode {{ control.mode }} ({{ control.mode_name }})</template>
         <template v-else>Not running</template>
 
         as of {{ control.update_time.toLocaleString(DateTime.TIME_WITH_SECONDS) }}.
     </p>
+
+    <ScheduleGraph v-if="control.schedule?.length" />
+    <PricesGraph v-if="control.prices?.prices" />
 
     <StatusTables />
 </template>

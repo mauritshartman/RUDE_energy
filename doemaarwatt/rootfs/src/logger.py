@@ -6,7 +6,7 @@
 import enum
 import os
 import json
-from datetime import date, datetime as dt, timedelta
+from datetime import date, datetime as dt, timedelta, timezone
 from typing import Optional, Union
 from pathlib import Path
 from aiohttp import web
@@ -49,13 +49,13 @@ def getLevelName(level: Union[str, int]):
 class Logger(metaclass=Singleton):
     ROTATE_FRACTION = 1000
 
-    def __init__(
-        self,
+    def __init__(self,
         message_prefix: Optional[str] = None,
         loglevel: LogLevel = LogLevel.INFO,
         filedir: Optional[Union[Path, str]] = None,
         rotate: Optional[int] = None,
         suffix: Optional[str] = None,
+        timezone_offset: Optional[int] = None,
     ):
         self.setup(
             message_prefix=message_prefix,
@@ -63,15 +63,16 @@ class Logger(metaclass=Singleton):
             filedir=filedir,
             rotate=rotate,
             suffix=suffix,
+            timezone_offset=timezone_offset
         )
 
-    def setup(
-        self,
+    def setup(self,
         message_prefix: Optional[str] = None,
         loglevel: LogLevel = LogLevel.INFO,
         filedir: Optional[str] = None,
         rotate: Optional[int] = None,
         suffix: Optional[str] = None,
+        timezone_offset: Optional[int] = None,
     ):
         """Rules for the logdir:
         - If it starts with ~ expand to the user directory
@@ -80,6 +81,12 @@ class Logger(metaclass=Singleton):
         """
         if loglevel is not None and not isinstance(loglevel, LogLevel):
             raise ConfigurationException(f"Invalid screen loglevel {loglevel}")
+
+        # timezone
+        if timezone_offset is None:
+            self.tz = timezone(timedelta(hours=0))
+        else:
+            self.tz = timezone(timedelta(hours=timezone_offset))
 
         # Loglevels
         self.loglevel = loglevel
@@ -110,6 +117,10 @@ class Logger(metaclass=Singleton):
 
         # Only rotate every now and then so count number of logs
         self._num_logs = 0
+
+    def set_timezone(self, offset: int):
+        self.tz = timezone(timedelta(hours=offset))
+        self.debug(f'setting logging timezone to {self.tz}')
 
     def set_loglevel(self, loglevel: LogLevel):
         self.loglevel = loglevel
@@ -151,7 +162,7 @@ class Logger(metaclass=Singleton):
 
         split_msg = combined_msg.split("\n")
 
-        ts = f'{dt.now().astimezone().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}'
+        ts = f'{dt.now(self.tz).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}'
         parsed_msg = ""
         for message in split_msg:
             parsed_msg += f"{ts} | {loglevel.name:<5} | {self._message_prefix} {message}\n"
@@ -162,7 +173,7 @@ class Logger(metaclass=Singleton):
 
     def _today_string(self) -> str:
         """Return a folder based on todays date"""
-        today = date.today()
+        today = dt.now(self.tz).date()
         return f"{today.year}-{today.month:02d}-{today.day:02d}"
 
     def _filename(self) -> str:
@@ -185,7 +196,7 @@ class Logger(metaclass=Singleton):
                 not isinstance(parsed, dict) or 'date' not in parsed
             ):
                 raise Exception(f'invalid log request value: {parsed}')
-            ts = dt.strptime(parsed['date'], '%Y-%m-%d')
+            ts = dt.strptime(parsed['date'], '%Y-%m-%d').astimezone(self.tz)
             logfile = self.get_log(ts)
             if logfile is None:
                 return web.Response(text='logfile not present')
@@ -218,17 +229,17 @@ class Logger(metaclass=Singleton):
 
         log_files = [f for f in os.listdir(self.filedir) if f.endswith(".log")]
         delta = timedelta(days=self._rotate_delay)
-        now = dt.now()
-        today = dt(year=now.year, month=now.month, day=now.day)
+        now = dt.now(self.tz)
+        today = dt(year=now.year, month=now.month, day=now.day, tzinfo=self.tz)
 
         for log_file in log_files:
             try:
-                log_date = dt.strptime(log_file[:10], "%Y-%m-%d")
+                log_date = dt.strptime(log_file[:10], "%Y-%m-%d").astimezone(self.tz)
                 age = today - log_date
                 if age > delta:
                     to_delete = os.path.join(self.filedir, log_file)
-                    self.debug(f"Deleting old log directory {to_delete}")
+                    print(f"Deleting old log directory {to_delete}")
                     os.remove(to_delete)
 
             except ValueError as e:
-                self.error(f"Cannot parse directory to date: {self.filedir}: {str(e)}")
+                print(f"Cannot parse directory to date: {self.filedir}: {str(e)}")

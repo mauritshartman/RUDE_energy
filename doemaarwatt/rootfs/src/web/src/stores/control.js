@@ -8,6 +8,9 @@ export const useControlStore = defineStore('control', {
         mode: 1,
         error_status: '',
         stats: null,
+        prices: null,
+        schedule: null,
+        schedule_ts: null,
         update_time: DateTime.now(),
     }),
 
@@ -19,6 +22,12 @@ export const useControlStore = defineStore('control', {
         active_inv_control: (state) => {
             if (state.stats?.inv_control) { return state.stats.inv_control }
             else { return null }
+        },
+        mode_name: (state) => {
+            if (state.mode === 1) { return 'idle' }
+            else if (state.mode === 2) { return 'manual' }
+            else if (state.mode === 3) { return 'static schedule' }
+            else if (state.mode === 4) { return 'dynamic schedule' }
         },
     },
 
@@ -64,16 +73,23 @@ export const useControlStore = defineStore('control', {
         async fetch_status() {
             try {
                 const status = await this._make_fetch(`/`)
+
                 this.running = status.running
                 this.running_start = status.running_start
                 this.mode = status.mode
                 this.stats = status.stats
+                this.prices = status.prices
+                this.schedule = status.schedule ?? null
+                this.schedule_ts = status.schedule_ts ?? null
                 this.update_time = DateTime.now()
             } catch (err) {
                 this.running = false
                 this.running_start = null
                 this.mode = 1
                 this.stats = null
+                this.prices = null
+                this.schedule = null
+                this.schedule_ts = null
                 this.error_status = `control store: error while fetching status: ${err.msg}`
             }
         },
@@ -84,6 +100,8 @@ export const useControlStore = defineStore('control', {
                 this.config = null
                 this.error_status = `config store: error while updating general config: ${err.msg}`
             }
+
+            await new Promise(resolve => setTimeout(resolve, 1500))
             await this.fetch_status()
         }
     }

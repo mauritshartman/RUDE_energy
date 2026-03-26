@@ -1,7 +1,10 @@
 
 import json
 from pathlib import Path
+from typing import Any
+
 from aiohttp import web
+
 from mode import ControlMode, MIN_MODE_VALUE, MAX_MODE_VALUE
 from logger import Logger, LogLevel
 
@@ -18,26 +21,35 @@ DYN_CONFIG_DEFAULT = {
         'autostart': False,
         'debug': False,
         'loop_delay': 10,
+        'timezone_offset': 1,
     },
     'inverters': [],
     'data_manager': {},
     'mode_manual': { 'amount': 0, 'direction': 'standby' },
     'mode_static': { 'schedule': [] },
-    'mode_dynamic': {},
+    'mode_dynamic': {
+        'price_update_time': '16:00',
+        'update_interval': 3600,
+        'resolution': 60,
+        'fallback_mode': 1,
+        'efficiency': 0.9,
+    },
 }
 GEN_CONFIG = {
     'mode': int,
     'autostart': bool,
     'debug': bool,
     'loop_delay': int,
+    'timezone_offset': int
 }
 INV_CONFIG = {
     'name': str,
     'enable': bool,
     'host': str,
     'port': int,
-    'battery_charge_limit': int,
-    'battery_discharge_limit': int,
+    'battery_capacity': int,  # Capacity in Wh of the battery connected to the inverter
+    'battery_charge_limit': int,  # Maximum power when charging the battery connected to the inverter
+    'battery_discharge_limit': int,  # Maximum power when discharging the battery connected to the inverter
     'connected_phase': str,  # L1 / L2 / L3
 }
 DM_CONFIG = {
@@ -58,23 +70,32 @@ STATIC_SCHEDULE_ENTRY = {
     'amount': int,  # always positive
     'direction': str,
 }
+MODE_DYNAMIC_CONFIG = {
+    'price_update_time': str,
+    'update_interval': int,
+    'resolution': int,
+    'fallback_mode': int,
+    'efficiency': float,
+}
 
 
 class DoeMaarWattConfig:
     def __init__(self, logger: Logger):
         self.log = logger
 
-        self.log.debug(f'DoeMaarWatt backend server: config stored in {DYN_CONFIG_PATH}')
-
         # read dynamic config (stored at /data/dyn_config.json)
         self._dyn_config = DYN_CONFIG_DEFAULT  # dynamic addon configuration
         if DYN_CONFIG_PATH.exists():  # check for save dynamic config from an earlier session
             with DYN_CONFIG_PATH.open() as f:
                 self._dyn_config = json.load(f)
+                self.log.set_timezone(self.timezone_offset)
                 self.log.debug(f'DoeMaarWatt backend server: loaded existing config:\n{self._dyn_config}')
         else:  # no file exists, so create one with default settings
             self.save_dyn_config()
+            self.log.set_timezone(self.timezone_offset)
             self.log.debug(f'DoeMaarWatt backend server: loaded new default config:\n{self._dyn_config}')
+
+        self.log.debug(f'DoeMaarWatt backend server: config stored in {DYN_CONFIG_PATH}')
 
     def save_dyn_config(self):
         with DYN_CONFIG_PATH.open(mode='w') as f:
@@ -113,20 +134,33 @@ class DoeMaarWattConfig:
         self._dyn_config['general']['autostart'] = astart
         self.save_dyn_config()
 
+    @property
+    def timezone_offset(self) -> int:
+        return int(self._dyn_config['general']['timezone_offset'])
+    @timezone_offset.setter
+    def timezone_offset(self, tz_offset):
+        self.log.info(f'config: setting timezone_offset to {tz_offset}')
+        self._dyn_config['general']['timezone_offset'] = int(tz_offset)
+        self.save_dyn_config()
+
     def get_general_config(self) -> dict:
         return self._dyn_config['general']
     def get_inverters_config(self) -> list:
         return self._dyn_config['inverters']
     def get_data_manager_config(self) -> dict:
         return self._dyn_config['data_manager']
-    def get_mode_manual_config(self) -> dict:
+    def get_mode_manual_config(self) -> dict[str, Any]:
         return self._dyn_config['mode_manual']
-    def get_mode_static_config(self) -> dict:
+    def get_mode_static_config(self) -> dict[str, Any]:
         return self._dyn_config['mode_static']
-    def get_mode_dynamic_config(self) -> dict:
+    def get_mode_dynamic_config(self) -> dict[str, Any]:
         return self._dyn_config['mode_dynamic']
 
-    def get_inverter_phase_map(self) -> dict[str, list[str]]:
+    def get_inverter_phase_map(self) -> dict[str, str]:
+        '''
+        Return a dict that maps the enabled inverters (by name) to their connected
+        phases.
+        '''
         ret = {}
         for inv_setting in self.get_inverters_config():
             if inv_setting['enable']:
@@ -142,6 +176,15 @@ class DoeMaarWattConfig:
         for inv_setting in self.get_inverters_config():
             if inv_setting['enable']:
                 ret[inv_setting['connected_phase']].append(inv_setting['name'])
+        return ret
+
+    def get_inverter_field_map(self, field: str) -> dict[str, Any]:
+        '''Return a dict that maps the enabled inverters (by name) a field from the config'''
+        assert field in INV_CONFIG
+        ret = {}
+        for inv_setting in self.get_inverters_config():
+            if inv_setting['enable']:
+                ret[inv_setting['name']] = inv_setting[field]
         return ret
 
     def set_general_config(self, cfg: dict):

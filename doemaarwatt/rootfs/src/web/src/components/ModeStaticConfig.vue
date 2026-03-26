@@ -16,7 +16,6 @@ import {
     Legend,
     Filler,
     TimeScale,
-    plugins
 } from 'chart.js'
 import 'chartjs-adapter-luxon';
 import { Line } from 'vue-chartjs'

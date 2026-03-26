@@ -9,6 +9,7 @@ import InverterConfig from './components/InverterConfig.vue'
 import DataManagerConfig from './components/DataManagerConfig.vue'
 import ModeManualConfig from './components/ModeManualConfig.vue'
 import ModeStaticConfig from './components/ModeStaticConfig.vue'
+import ModeDynamicConfig from './components/ModeDynamicConfig.vue'
 import StartupMode from './components/StartupMode.vue'
 import LogViewer from './components/LogViewer.vue'
 
@@ -22,7 +23,7 @@ const routes = [
     { name: 'general_config', path: '/config/general', component: StartupMode },
     { name: 'manual_config', path: '/config/manual', component: ModeManualConfig },
     { name: 'static_schedule_config', path: '/config/static', component: ModeStaticConfig },
-    { name: 'dynamic_schedule_config', path: '/config/dynamic', component: ModeStaticConfig },
+    { name: 'dynamic_schedule_config', path: '/config/dynamic', component: ModeDynamicConfig },
     { name: 'logfiles', path: '/logfiles', component: LogViewer },
 ]
 

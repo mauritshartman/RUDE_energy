@@ -10,16 +10,15 @@ import {
   HandLeftOutline,
   BarChartOutline,
   AppsOutline,
-  PlayCircleOutline,
-  StopCircleOutline,
   FileTrayFullOutline,
 } from "@vicons/ionicons5";
-import { NIcon, NMenu, NFloatButton } from "naive-ui";
+import { NIcon, NMenu, NButton, NGrid, NGi } from "naive-ui";
 import { RouterLink } from "vue-router";
 import { useControlStore } from "../stores/control";
 
 const control = useControlStore();
 
+const loading = ref(false)
 
 const render_icon = (icon) => {
   return () => h(NIcon, null, { default: () => h(icon) });
@@ -119,24 +118,29 @@ const menu_options = ref([
 ]);
 
 const toggle_running = async () => {
-  control.set_running(!control.running);
+  loading.value = true
+  await control.set_running(!control.running);
+  loading.value = false
 };
 </script>
 
 <template>
-  <n-menu :options="menu_options" mode="horizontal" responsive />
+  <n-grid cols="6">
+    <n-gi span="5">
+      <n-menu :options="menu_options" mode="horizontal" responsive />
+    </n-gi>
+    <n-gi>
+      <n-button
+        :loading="loading"
+        :disabled="loading"
+        type="primary"
+        @click="toggle_running"
+        style="float: right"
+      >
+        <template v-if="control.running">Stop</template>
+        <template v-else>Start</template>
+      </n-button>
+    </n-gi>
+  </n-grid>
 
-  <n-float-button
-    :right="20"
-    :top="10"
-    :height="64"
-    :width="64"
-    type="primary"
-    @click="toggle_running"
-  >
-    <n-icon size="56">
-      <StopCircleOutline v-if="control.running" />
-      <PlayCircleOutline v-else />
-    </n-icon>
-  </n-float-button>
 </template>

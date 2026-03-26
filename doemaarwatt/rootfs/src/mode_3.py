@@ -1,6 +1,6 @@
 import asyncio
 from typing import Any, Optional
-from datetime import time, datetime as dt
+from datetime import time, datetime as dt, timezone, timedelta
 
 from config import DoeMaarWattConfig, ControlMode
 from logger import Logger
@@ -17,8 +17,8 @@ class Mode3Controller(BaseController):
     ) -> None:
         super().__init__(cfg, log)
 
-        self.inv_phase_map: Optional[dict[str, list[str]]] = None
-        self.schedule: list[dict[str, Any]]
+        self.inv_phase_map: dict[str, list[str]] = None  # type: ignore
+        self.schedule: list[dict[str, Any]] = []
 
     @property
     def mode(self) -> ControlMode:
@@ -43,10 +43,10 @@ class Mode3Controller(BaseController):
 
         self.inv_phase_map = self.config.get_phase_inverters_map()
 
-    def get_PBapp_phases(self) -> dict:
+    def get_PBapp_phases(self, now: dt) -> dict[str, float]:
         assert not self.inv_phase_map is None
 
-        cur_time = dt.now().astimezone().time()
+        cur_time = now.time()
 
         charge_amount = 0  # default: idle (if no schedule entries are defined)
         if len(self.schedule) > 0:
@@ -103,43 +103,8 @@ class Mode3Controller(BaseController):
             self.log.debug(f'mode 3 control loop started')
             await self.inverters.write_registers_parallel(40151, [0, 802])  # 802 = active
 
-            # get necessary stats
-            self.stats['inverters'] = await battery_stats(self.inverters, self.config.get_inverter_phase_map())
-            self.stats['data_manager'] = await data_manager_stats(self.dm, self.dm_cfg.get('max_fuse_current', 25))
-
-            # determine PBsent for each phase
-            self.log.info(f'static schedule mode: computing safe charge/discharge amount (PBsent) for each phase:')
-            PBapp_phases = self.get_PBapp_phases()
-            PBsent_phases = {}
-            self.stats['inv_control'] = {}
-            for phi in ['L1', 'L2', 'L3']:
-                PBapp = PBapp_phases[phi]  # NOTE: can be zero (for standby)
-
-                PGnow = self.stats['data_manager'][phi]['P']  # negative: drawing power from the grid
-                VGnow = self.stats['data_manager'][phi]['V']
-                Imax =  self.stats['data_manager'][phi]['Amax'] # eg. 25A main fuse
-                PGmax = abs(VGnow * Imax)
-                PBnow = sum(v['ac_side']['P'] for v in self.stats['inverters'].values() if v['phase'] == phi)  # total power of all inverters on phase
-
-                PBsent_phases[phi] = calc_PBsent(PBapp, PBnow, PGnow, VGnow, Imax, col_header=phi)
-
-                self.stats['inv_control'][phi] = {
-                    'PBapp': PBapp, 'PBnow': PBnow, 'PGnow': PGnow,'VGnow': VGnow, 'Imax': Imax,
-                    'PGmin': -1 * PGmax, 'PGmax': PGmax,
-                    'Pother': PGnow - PBnow,
-                    'PBlim_min': -1 * PGmax - (PGnow - PBnow), 'PBlim_max': PGmax - (PGnow - PBnow),
-                    'PBsent': PBsent_phases[phi],
-                }
-
-            self.log.info(f'static schedule mode: sending charge/discharge amount (PBsent) to enabled inverters:')
-            for phi, PBsent in PBsent_phases.items():
-                if PBsent < 0:  # negative: so charge
-                    for inv_name in self.inv_phase_map[phi]:
-                        self.log.info(f'commanding {inv_name} to charge at {PBsent:.0f} W')
-                        await self.inverters.write_register(inv_name, 40149, to_s32_list(PBsent))
-                else:  # zero or positive: so discharge
-                    for inv_name in self.inv_phase_map[phi]:
-                        self.log.info(f'commanding {inv_name} to discharge at {PBsent:.0f} W')
-                        await self.inverters.write_register(inv_name, 40149, to_s32_list(PBsent))
+            # get necessary stats and determine PBsent for each phase
+            await self.get_stats()
+            await self.command_PBsent(dt.now(tz=self.tz))
 
             await asyncio.sleep(self.config.get_general_config().get('loop_delay', 10))

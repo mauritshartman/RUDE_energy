@@ -39,7 +39,6 @@ onMounted(async () => { await config.fetch_config() })
                 :options="mode_options"
             />
         </n-form-item-gi>
-
         <n-grid-item span="0 m:4">
             <p>
                 Please select the startup mode of DoeMaarWatt. DoeMaarWatt operates in various modes, those being:
@@ -55,22 +54,30 @@ onMounted(async () => { await config.fetch_config() })
         <n-form-item-gi span="4" label="Debug output:" path="debug">
             <n-switch v-model:value="general.debug" />
         </n-form-item-gi>
-
         <n-grid-item span="0 m:4">
             <p>
                 Whether to send additional debugging output, such as Modbus messages, to the addon log.
             </p>
         </n-grid-item>
 
-        <n-form-item-gi span="4" label="Control loop delay" path="loop_delay">
+        <n-form-item-gi span="0 m:4" label="Control loop delay" path="loop_delay">
             <n-input-number v-model:value="general.loop_delay" min="1" max="100" :show-button="false">
                 <template #suffix>sec</template>
             </n-input-number>
         </n-form-item-gi>
-
         <n-grid-item span="0 m:4">
             <p>DoeMaarWatt operates in a loop. The loop_delay sets the delay in seconds between control actions.</p>
         </n-grid-item>
+
+        <n-form-item-gi span="0 m:4" label="Timezone offset (UTC)" path="timezone_offset">
+            <n-input-number v-model:value="general.timezone_offset" min="-12" max="12" :show-button="false">
+                <template #suffix>hours</template>
+            </n-input-number>
+        </n-form-item-gi>
+        <n-grid-item span="0 m:4">
+            <p>Indicate your local timezone offset with respect to UTC (Universal Time Coordinated).</p>
+        </n-grid-item>
+
     </n-grid>
 </n-form>
 

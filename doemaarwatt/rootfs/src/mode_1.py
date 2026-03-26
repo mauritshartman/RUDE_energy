@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime as dt
 
 from config import DoeMaarWattConfig, ControlMode
 from logger import Logger
@@ -17,6 +18,9 @@ class Mode1Controller(BaseController):
     @property
     def mode(self) -> ControlMode:
         return ControlMode.IDLE
+
+    def get_PBapp_phases(self, now: dt) -> dict[str, float]:
+        return {'L1': 0.0, 'L2': 0.0, 'L3': 0.0}
 
     async def loop(self):
         while self.running:  # outer, reconnect loop
@@ -49,7 +53,6 @@ class Mode1Controller(BaseController):
             await self.inverters.write_registers_parallel(40149, [0, 0])  # reset rendement
             await self.inverters.write_registers_parallel(40151, [0, 803])  # 803 = inactive
 
-            self.stats['inverters'] = await battery_stats(self.inverters, self.config.get_inverter_phase_map())
-            self.stats['data_manager'] = await data_manager_stats(self.dm, self.dm_cfg.get('max_fuse_current', 25))
+            await self.get_stats()
 
             await asyncio.sleep(self.config.get_general_config().get('loop_delay', 10))

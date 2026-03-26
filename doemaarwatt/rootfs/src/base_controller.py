@@ -1,12 +1,16 @@
 from abc import ABC, abstractmethod
 import time
+from datetime import datetime as dt, timezone, timedelta
+from typing import Any
 
 from aiohttp import web
 
 from config import DoeMaarWattConfig, ControlMode
-from modbus import ModbusManager
+from modbus import ModbusManager, to_s32_list
 from logger import Logger
 from stats import DM
+from pbsent import calc_PBsent
+from stats import battery_stats, data_manager_stats
 
 
 class BaseController(ABC):
@@ -24,8 +28,12 @@ class BaseController(ABC):
         # data manager and inverter config: will be updated by setup()
         self.inverters: ModbusManager
         self.dm: ModbusManager
-        self.inv_cfg = None
-        self.dm_cfg = None
+        self.inv_cfg: list[dict[str, Any]] = None  # type: ignore
+        self.dm_cfg: dict[str, Any] = None  # type: ignore
+
+        self.inv_phase_map: dict[str, list[str]] = None  # type: ignore
+
+        self.tz : timezone = None  # type: ignore
 
     def reset_stats(self) -> None:
         self.start_ts = None
@@ -53,6 +61,10 @@ class BaseController(ABC):
         if len(self.dm_cfg) > 0:
             self.dm_cfg['name'] = DM
 
+        self.inv_phase_map = self.config.get_phase_inverters_map()
+
+        self.tz = timezone(timedelta(hours=self.config.timezone_offset))
+
     async def run(self) -> None:
         self.running = True
         self.start_ts = time.time()
@@ -60,6 +72,11 @@ class BaseController(ABC):
         self.setup()
 
         await self.loop()  # must be implemented by the concrete subclass
+
+    @abstractmethod
+    def get_PBapp_phases(self, now: dt) -> dict[str, float]:
+        '''Return a mapping of each phase (L1, L2, L3) to its associated PBapp'''
+        raise NotImplementedError
 
     @abstractmethod
     async def loop(self) -> None:
@@ -73,6 +90,48 @@ class BaseController(ABC):
         '''
         raise NotImplementedError
 
+    async def get_stats(self):
+        self.stats['inverters'] = await battery_stats(self.inverters, self.config.get_inverter_phase_map())  # type: ignore
+        self.stats['data_manager'] = await data_manager_stats(self.dm, self.dm_cfg.get('max_fuse_current', 25))  # type: ignore
+
+    async def command_PBsent(self, now: dt) -> None:
+        self.log.info(f'computing safe charge/discharge amount (PBsent) for each phase:')
+        PBapp_phases = self.get_PBapp_phases(now)
+        PBsent_phases = {}
+        self.stats['inv_control'] = {}  # type: ignore
+        for phi in ['L1', 'L2', 'L3']:
+            PBapp = PBapp_phases[phi]
+            if PBapp == 0:
+                continue
+
+            PGnow = self.stats['data_manager'][phi]['P']  # type: ignore | negative value: drawing power from the grid
+            VGnow = self.stats['data_manager'][phi]['V']  # type: ignore
+            Imax =  self.stats['data_manager'][phi]['Amax']  # type: ignore | eg. 25A main fuse
+            PGmax = abs(VGnow * Imax)
+            # compute PBnow: total power of all inverters on phase
+            PBnow = sum(v['ac_side']['P'] for v in self.stats['inverters'].values() if v['phase'] == phi)  # type: ignore
+
+            PBsent_phases[phi] = calc_PBsent(PBapp, PBnow, PGnow, VGnow, Imax, col_header=phi)
+
+            self.stats['inv_control'][phi] = {
+                'PBapp': PBapp, 'PBnow': PBnow, 'PGnow': PGnow,'VGnow': VGnow, 'Imax': Imax,
+                'PGmin': -1 * PGmax, 'PGmax': PGmax,
+                'Pother': PGnow - PBnow,
+                'PBlim_min': -1 * PGmax - (PGnow - PBnow), 'PBlim_max': PGmax - (PGnow - PBnow),
+                'PBsent': PBsent_phases[phi],
+            }
+
+        self.log.info(f'sending charge/discharge amount (PBsent) to enabled inverters:')
+        for phi, PBsent in PBsent_phases.items():
+            if PBsent < 0:  # negative: so charge
+                for inv_name in self.inv_phase_map[phi]:
+                    self.log.info(f'commanding {inv_name} to charge at {PBsent:.0f} W')
+                    await self.inverters.write_register(inv_name, 40149, to_s32_list(PBsent))
+            else:  # zero or positive: so discharge
+                for inv_name in self.inv_phase_map[phi]:
+                    self.log.info(f'commanding {inv_name} to discharge at {PBsent:.0f} W')
+                    await self.inverters.write_register(inv_name, 40149, to_s32_list(PBsent))
+
     def handle_status(self, request):
         return web.json_response({
             'status': 'ok',
@@ -80,4 +139,7 @@ class BaseController(ABC):
             'running_start': self.start_ts,
             'mode': self.mode.value,
             'stats': self.stats,
+            'prices': None,
+            'schedule': None,
+            'schedule_ts': None,
         })

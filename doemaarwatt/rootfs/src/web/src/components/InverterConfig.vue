@@ -20,7 +20,9 @@ const on_removed = async (idx) => {
 const on_add = async () => {
   console.log(`appending a new config`)
   inverters.value.push({
-    name: '', host: '', port: 502, battery_charge_limit: 0, battery_discharge_limit: 0, connected_phase: 'L1', enable: true,
+    name: '', host: '', port: 502,
+    battery_capacity: 0, battery_charge_limit: 0, battery_discharge_limit: 0,
+    connected_phase: 'L1', enable: true,
   })
 }
 
@@ -42,6 +44,7 @@ onMounted(async () => { await config.fetch_config() })
       v-model:enable="inv_cfg.enable"
       v-model:host="inv_cfg.host"
       v-model:port="inv_cfg.port"
+      v-model:battery_capacity="inv_cfg.battery_capacity"
       v-model:battery_charge_limit="inv_cfg.battery_charge_limit"
       v-model:battery_discharge_limit="inv_cfg.battery_discharge_limit"
       v-model:connected_phase="inv_cfg.connected_phase"

@@ -6,14 +6,12 @@ import { darkTheme } from 'naive-ui';
 
 <template>
   <n-config-provider :theme="darkTheme">
-    <n-global-style />
-    <div style="margin-left: 20px; margin-right: 20px;">
+    <div style="margin-left: 20px; margin-right: 20px; margin-top: 5px;">
       <Menu></Menu>
 
       <RouterView />
     </div>
+
+    <n-global-style />
   </n-config-provider>
 </template>
-
-<style scoped>
-</style>

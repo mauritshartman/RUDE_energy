@@ -3,7 +3,7 @@ import signal
 import tempfile
 from pathlib import Path
 import json
-from typing import Callable, Awaitable
+from typing import Callable, Awaitable, Optional
 
 from aiohttp import web
 import aiohttp_cors
@@ -14,6 +14,7 @@ from base_controller import BaseController
 from mode_1 import Mode1Controller
 from mode_2 import Mode2Controller
 from mode_3 import Mode3Controller
+from mode_4 import Mode4Controller
 
 
 API_SERVER_PORT = 8099  # Home Assistant ingress port
@@ -28,11 +29,18 @@ CONTENT_TYPE_MAP = {
 LOG_PATH = Path('/data/logs/')
 LOG_PATH = Path('logs/')
 
-CONTROLLER_MAP: dict[ControlMode, BaseController] = {
-    ControlMode.IDLE: Mode1Controller,
-    ControlMode.MANUAL: Mode2Controller,
-    ControlMode.STATIC: Mode3Controller,
-}
+
+def get_controller_class(m: ControlMode):
+    if m == ControlMode.IDLE:
+        return Mode1Controller
+    elif m == ControlMode.MANUAL:
+        return Mode2Controller
+    elif m == ControlMode.STATIC:
+        return Mode3Controller
+    elif m == ControlMode.DYNAMIC:
+        return Mode4Controller
+    else:
+        raise NotImplementedError(f'no controller implemented for mode {m}')
 
 
 def get_ingress_filters(ingress_path: str) -> list:
@@ -55,13 +63,13 @@ class DoeMaarWattServer:
         self.log.set_loglevel(LogLevel.DEBUG if self.config.debug else LogLevel.INFO)
         self.mode = self.config.mode  # use configured startup mode
 
-        self.controller: BaseController = None
+        self.controller: Optional[BaseController] = None
 
         # webserver related:
         self.app = web.Application(middlewares=[self.filter_ingress_prefix])
         self.setup_app()
-        self.main_task: asyncio.Task = None
-        self.sub_task: asyncio.Task = None
+        self.main_task: Optional[asyncio.Task] = None
+        self.sub_task: Optional[asyncio.Task] = None
         self.running = True  # for main control loop
         self.sub_running = self.config.autostart  # for sub control loop
 
@@ -75,7 +83,7 @@ class DoeMaarWattServer:
         try:
             directory = Path(FRONTEND_PATH)#.expanduser().resolve(strict=True)
         except FileNotFoundError as error:
-            raise ValueError(f"'{directory}' does not exist") from error
+            raise ValueError(f"'{FRONTEND_PATH}' does not exist") from error
         if not directory.is_dir():
             raise ValueError(f"'{directory}' is not a directory")
         self._static_dir = directory
@@ -116,6 +124,8 @@ class DoeMaarWattServer:
             self.sub_task.cancel()
             self.sub_task = None
 
+        self.controller = None
+
     async def main_loop(self) -> None:
         runner = web.AppRunner(self.app)
         await runner.setup()
@@ -130,7 +140,7 @@ class DoeMaarWattServer:
                     await asyncio.sleep(0.25)
 
                 self.mode = self.config.mode  # use configured startup mode
-                self.controller = CONTROLLER_MAP[self.mode](self.config, self.log)
+                self.controller = get_controller_class(self.mode)(self.config, self.log)
                 self.log.info(f'we are running: determined startup mode {self.mode}')
                 self.sub_task = asyncio.create_task(self.controller.run())
                 await self.sub_task
@@ -166,10 +176,11 @@ class DoeMaarWattServer:
         if self.controller is None:
             return web.json_response({
                 'status': 'ok',
-                'running': False,  # no control loop active at the moment
+                'running': self.sub_running,  # may be True while controller is still starting up
                 'running_start': None,
                 'mode': self.mode.value,
                 'stats': None,
+                'prices': None,
             })
         else:
             return self.controller.handle_status(request)

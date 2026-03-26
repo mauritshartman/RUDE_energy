@@ -9,6 +9,7 @@ const name = defineModel('name')
 const enable = defineModel('enable')
 const host = defineModel('host')
 const port = defineModel('port')
+const battery_capacity = defineModel('battery_capacity')
 const battery_charge_limit = defineModel('battery_charge_limit')
 const battery_discharge_limit = defineModel('battery_discharge_limit')
 const connected_phase = defineModel('connected_phase')
@@ -27,16 +28,22 @@ const phase_options = [
         label-placement="top"
     >
         <n-grid cols="4 s:4 m:8 l:16 xl:16" x-gap="10" responsive="screen">
-            <n-form-item-gi span="4" label="Name" path="name">
+            <n-form-item-gi span="3" label="Name" path="name">
                 <n-input v-model:value="name" placeholder="inverter name" />
             </n-form-item-gi>
 
-            <n-form-item-gi span="3" label="Host" path="host">
+            <n-form-item-gi span="2" label="Host" path="host">
                 <n-input v-model:value="host" placeholder="192.168..." />
             </n-form-item-gi>
 
             <n-form-item-gi  span="1" label="Port" path="port">
                 <n-input-number v-model:value="port" min="1" max="65535" :show-button="false" />
+            </n-form-item-gi>
+
+            <n-form-item-gi  span="2" label="Battery capacity" path="battery_capacity">
+                <n-input-number v-model:value="battery_capacity" min="0" max="100000" :show-button="false">
+                    <template #suffix>Wh</template>
+                </n-input-number>
             </n-form-item-gi>
 
             <n-form-item-gi  span="2" label="Battery charge limit" path="battery_charge_limit">
