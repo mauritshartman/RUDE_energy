@@ -253,8 +253,11 @@ class SchedulePeriod:
     def PBapp_inverters(self) -> dict[str, float]:
         ret = {}
         for inv, charge in self.end_charge.items():
-            charge_delta = charge - self.start_charge[inv]  # diff in Wh
-            ret[inv] = charge_delta / self.duration_hours  # charge/discharge power in Watts
+            charge_delta = charge - self.start_charge[inv]  # diff in Wh, battery side
+            if charge_delta >= 0:  # charging: AC must supply more than what is stored due to inverter efficiency
+                ret[inv] = -1 * charge_delta / self.duration_hours / self.efficiency
+            else:  # discharging: AC receives less than what leaves the battery due to inverter efficiency
+                ret[inv] = -1 * charge_delta / self.duration_hours * self.efficiency
         return ret
 
 

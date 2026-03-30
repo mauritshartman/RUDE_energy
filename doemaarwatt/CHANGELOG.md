@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Fix for mode 4 PBapp sign
+- Correctly apply battery inverter efficiency when computing PBapp from schedule
+
+## [1.0.23] - 2026-03-30
+
+### Added
+
 - Mode 4 (dynamic schedule) implementation
 
 ## [1.0.22b] - 2026-03-26
