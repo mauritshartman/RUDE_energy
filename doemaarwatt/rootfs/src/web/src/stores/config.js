@@ -93,5 +93,13 @@ export const useConfigStore = defineStore('configuration', {
                 this.error_status = `config store: error while updating dynamic mode config: ${err.msg}`
             }
         },
+        async apply_bart_home_setup(cfg) {
+            try {
+                const resp = await this._make_fetch(`/config/bart_setup`, 'POST')
+            } catch (err) {
+                this.config = null
+                this.error_status = `config store: error while applying Bart home setup: ${err.msg}`
+            }
+        },
     }
 })

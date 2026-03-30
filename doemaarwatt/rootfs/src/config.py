@@ -20,19 +20,19 @@ DYN_CONFIG_DEFAULT = {
         'mode': ControlMode['IDLE'],
         'autostart': False,
         'debug': False,
-        'loop_delay': 10,
-        'timezone_offset': 1,
+        'loop_delay': 5,
+        'timezone_offset': 2,
     },
     'inverters': [],
     'data_manager': {},
     'mode_manual': { 'amount': 0, 'direction': 'standby' },
     'mode_static': { 'schedule': [] },
     'mode_dynamic': {
-        'price_update_time': '16:00',
+        'price_update_time': '14:00',
         'update_interval': 3600,
         'resolution': 60,
         'fallback_mode': 1,
-        'efficiency': 0.9,
+        'efficiency': 0.95,
     },
 }
 GEN_CONFIG = {
@@ -204,6 +204,45 @@ class DoeMaarWattConfig:
 
         self.log.set_loglevel(LogLevel.DEBUG if cfg['debug'] else LogLevel.INFO)
 
+    def set_bart_home_setup(self):
+        self.set_data_manager_config({
+            'host': '192.168.1.153',
+            'port': 502,
+            'max_fuse_current': 24,
+        })
+        self.set_inverters_config([
+            {
+                'name': 'SBS 6.0-10 L1',
+                'enable': True,
+                'host': '192.168.1.110',
+                'port': 502,
+                'battery_capacity': 64000,
+                'battery_charge_limit': 6000,
+                'battery_discharge_limit': 6000,
+                'connected_phase': 'L1',
+            },
+            {
+                'name': 'SBS 6.0-10 L2',
+                'enable': True,
+                'host': '192.168.1.94',
+                'port': 502,
+                'battery_capacity': 64000,
+                'battery_charge_limit': 6000,
+                'battery_discharge_limit': 6000,
+                'connected_phase': 'L2',
+            },
+            {
+                'name': 'SBS 5.0-10 L3',
+                'enable': True,
+                'host': '192.168.1.137',
+                'port': 502,
+                'battery_capacity': 64000,
+                'battery_charge_limit': 5000,
+                'battery_discharge_limit': 5000,
+                'connected_phase': 'L3',
+            },
+        ])
+
     def set_inverters_config(self, cfg: list):
         if not isinstance(cfg, list):
             raise Exception(f'inverter config requires a list of dicts, passed: {cfg}')
@@ -291,6 +330,7 @@ class DoeMaarWattConfig:
         router.add_post('/api/config/mode/static',  self.handle_post_mode_static_config)
         router.add_get('/api/config/mode/dynamic',  self.handle_get_mode_dynamic_config)
         router.add_post('/api/config/mode/dynamic', self.handle_post_mode_dynamic_config)
+        router.add_post('/api/config/bart_setup',   self.handle_post_bart_setup)
 
     async def handle_get_config(self, req: web.Request) -> web.Response:
         return web.json_response(self._dyn_config)
@@ -357,6 +397,13 @@ class DoeMaarWattConfig:
         try:
             parsed = await req.json()
             self.set_mode_dynamic_config(parsed)
+            return web.json_response({'status': 'ok'})
+        except Exception as e:
+            raise web.HTTPBadRequest(text=json.dumps({'status': 'error', 'msg': str(e)}))
+
+    async def handle_post_bart_setup(self, req: web.Request) -> web.Response:
+        try:
+            self.set_bart_home_setup()
             return web.json_response({'status': 'ok'})
         except Exception as e:
             raise web.HTTPBadRequest(text=json.dumps({'status': 'error', 'msg': str(e)}))

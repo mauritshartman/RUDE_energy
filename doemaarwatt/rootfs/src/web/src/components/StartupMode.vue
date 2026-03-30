@@ -19,6 +19,11 @@ const on_save = async () => {
   await config.sync_general_config(general.value)
 }
 
+const on_bart = async () => {
+    await config.apply_bart_home_setup()
+    await config.fetch_config()
+}
+
 onMounted(async () => { await config.fetch_config() })
 </script>
 
@@ -82,6 +87,8 @@ onMounted(async () => { await config.fetch_config() })
 </n-form>
 
     <n-flex justify="space-between">
+        <div>&nbsp;</div>
+        <n-button @click="on_bart" type="warning">Apply Bart Home Setup</n-button>
         <div>&nbsp;</div>
         <n-button @click="on_save" type="primary">Save</n-button>
     </n-flex>
