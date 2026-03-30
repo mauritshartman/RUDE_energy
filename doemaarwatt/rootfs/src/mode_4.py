@@ -76,15 +76,14 @@ class Mode4Controller(BaseController):
 
             except asyncio.CancelledError:
                 self.log.debug(f'mode 4 (dynamic schedule mode) loop cancelled')
-                self.stop()  # running to false so break out of inner loop
-                self._stop_price_loop_task()  # stop the price update loop as well
+                self.stop()  # running to false so outer loop exits cleanly
+                self._stop_price_loop_task()
             except Exception as e:
                 exception_occurred = True
                 template = "An exception of type {0} occurred. Arguments:\n{1!r}"
                 message = template.format(type(e).__name__, e.args)
                 self.log.error(message)
-                self.stop()  # running to false so break out of inner loop
-                self._stop_price_loop_task()
+                self._stop_price_loop_task()  # price task will be restarted on reconnect
 
             # an error or cancellation occurred: make sure to relinquish control:
             try:

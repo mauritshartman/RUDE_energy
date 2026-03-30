@@ -3,7 +3,7 @@ import math
 import json
 
 import numpy as np
-from scipy.optimize import linprog
+from scipy.optimize import milp, LinearConstraint, Bounds
 from prettytable import PrettyTable
 
 from config import DoeMaarWattConfig
@@ -86,24 +86,30 @@ class DynamicScheduler:
             return
 
         # ------------------------------------------------------------------
-        # LP variable layout
-        # x[i*N + t]         = e[i][t] = energy in battery i at END of slot t
-        # x[M*N + i*N + t]   = c[i][t] = energy charged INTO battery i in t
-        # x[2*M*N + i*N + t] = d[i][t] = energy discharged FROM battery i in t
+        # MILP variable layout
+        # x[i*N + t]         = e[i][t] = energy in battery i at END of slot t  (continuous)
+        # x[M*N + i*N + t]   = c[i][t] = energy charged INTO battery i in t    (continuous)
+        # x[2*M*N + i*N + t] = d[i][t] = energy discharged FROM battery i in t (continuous)
+        # x[3*M*N + t]        = z[t]   = 1 if charging allowed in slot t        (binary)
         #
         # Efficiency mu is applied asymmetrically:
         #   Charging:    drawing c/mu Wh from grid stores c Wh in battery
         #   Discharging: releasing d Wh from battery delivers d*mu Wh to grid
+        #
+        # Mutual-exclusion constraint (no inverter charges while another discharges):
+        #   c[i][t] <= charge_limit[i] * h * z[t]          (z=1 → charging allowed)
+        #   d[i][t] <= discharge_limit[i] * h * (1 - z[t]) (z=0 → discharging allowed)
         # ------------------------------------------------------------------
-        n_vars = M * N * 3
+        n_vars = M * N * 3 + N
 
         def e_idx(i, t): return i * N + t
         def c_idx(i, t): return M * N + i * N + t
         def d_idx(i, t): return 2 * M * N + i * N + t
+        def z_idx(t):    return 3 * M * N + t
 
         mu = self.efficiency
 
-        # --- Objective: minimise total grid energy cost ---
+        # --- Objective: minimise total grid energy cost (z variables have zero cost) ---
         # Charging c[i][t] Wh (battery side) draws c/mu from the grid at price[t]
         # Discharging d[i][t] Wh (battery side) delivers d*mu to the grid at price[t]
         obj = np.zeros(n_vars)
@@ -112,14 +118,24 @@ class DynamicScheduler:
                 obj[c_idx(i, t)] =  prices[t] / (mu * 1000.0)
                 obj[d_idx(i, t)] = -prices[t] * mu / 1000.0
 
-        # --- Bounds: SoC limits per inverter + non-negative charge/discharge ---
+        # --- Bounds ---
         e_min = {inv: inv_capacities[inv] * BATTERY_EMPTY_THRESHOLD for inv in inverters}
         e_max = {inv: inv_capacities[inv] * BATTERY_FULL_THRESHOLD  for inv in inverters}
-        bounds = (
-            [(e_min[inverters[i]], e_max[inverters[i]]) for i in range(M) for _ in range(N)]
-            + [(0.0, inv_charge_limits[inverters[i]] * h)    for i in range(M) for _ in range(N)]
-            + [(0.0, inv_discharge_limits[inverters[i]] * h) for i in range(M) for _ in range(N)]
-        )
+        lb = np.zeros(n_vars)
+        ub = np.full(n_vars, np.inf)
+        for i, inv in enumerate(inverters):
+            for t in range(N):
+                lb[e_idx(i, t)] = e_min[inv]
+                ub[e_idx(i, t)] = e_max[inv]
+                ub[c_idx(i, t)] = inv_charge_limits[inv] * h
+                ub[d_idx(i, t)] = inv_discharge_limits[inv] * h
+        for t in range(N):
+            ub[z_idx(t)] = 1.0  # binary: [0, 1]
+
+        # --- Integrality: z[t] are binary (integer within [0, 1]) ---
+        integrality = np.zeros(n_vars)
+        for t in range(N):
+            integrality[z_idx(t)] = 1
 
         # --- Equality constraints: battery energy balance per slot ---
         # e[i][t] - e[i][t-1] - c[i][t] + d[i][t] = 0  (t > 0)
@@ -142,10 +158,39 @@ class DynamicScheduler:
                     b_eq[row] = 0.0
                 row += 1
 
+        # --- Inequality constraints: mutual exclusion of charge/discharge per slot ---
+        # c[i][t] <= charge_limit[i]*h * z[t]
+        # d[i][t] <= discharge_limit[i]*h * (1 - z[t])  →  d[i][t] + discharge_limit[i]*h * z[t] <= discharge_limit[i]*h
+        n_ineq = 2 * M * N
+        A_ineq = np.zeros((n_ineq, n_vars))
+        b_ineq = np.zeros(n_ineq)
+
+        row = 0
+        for i, inv in enumerate(inverters):
+            for t in range(N):
+                A_ineq[row, c_idx(i, t)] =  1.0
+                A_ineq[row, z_idx(t)]    = -inv_charge_limits[inv] * h
+                b_ineq[row] = 0.0
+                row += 1
+        for i, inv in enumerate(inverters):
+            for t in range(N):
+                A_ineq[row, d_idx(i, t)] = 1.0
+                A_ineq[row, z_idx(t)]    = inv_discharge_limits[inv] * h
+                b_ineq[row] = inv_discharge_limits[inv] * h
+                row += 1
+
         # --- Solve ---
-        result = linprog(obj, A_eq=A_eq, b_eq=b_eq, bounds=bounds, method='highs')
+        result = milp(
+            c=obj,
+            constraints=[
+                LinearConstraint(A_eq,   b_eq,                      b_eq),    # type: ignore[arg-type]
+                LinearConstraint(A_ineq, -np.inf * np.ones(n_ineq), b_ineq),  # type: ignore[arg-type]
+            ],
+            integrality=integrality,
+            bounds=Bounds(lb, ub),  # type: ignore[arg-type]
+        )
         if not result.success:
-            raise Exception(f'DynamicScheduler: LP solve failed: {result.message}')
+            raise Exception(f'DynamicScheduler: MILP solve failed: {result.message}')
 
         x = result.x
 

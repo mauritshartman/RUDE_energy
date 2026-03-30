@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Fix for mode 4 that generates mixed charging/discharging schedules
+
+## [1.0.23b] - 2026-03-30
+
+### Added
+
 - Fix for mode 4 PBapp sign
 - Correctly apply battery inverter efficiency when computing PBapp from schedule
 
