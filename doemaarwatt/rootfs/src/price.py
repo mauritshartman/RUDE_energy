@@ -7,6 +7,7 @@ import aiohttp
 
 from config import DoeMaarWattConfig
 from logger import Logger
+from night_price_predictor import init_night_price_predictor, predict_night_price
 from time_functions import datetimerange
 
 
@@ -34,6 +35,8 @@ class PriceManager:
         self.prices: dict[dt, float] = {}
         if PRICE_PATH.exists():
             self.load_prices()
+
+        init_night_price_predictor(log)
 
     def to_dict(self) -> dict:
         return {
@@ -86,6 +89,27 @@ class PriceManager:
                             ts = dt.strptime(p['datum'], TIME_FMT).astimezone(self.tz)  # ensure configured timezone
                             self.prices[ts] = float(p['prijs'])
 
+            try:
+                resolution_str = {15: '15min', 60: '1hour'}.get(self.resolution)
+                if resolution_str is None:
+                    self.log.info(f'night price predictor: unsupported resolution {self.resolution}min, skipping prediction')
+                else:
+                    prev_date = max(self.prices).date()
+                    prediction_date = prev_date + timedelta(days=1)
+                    prev_hourly = self._get_hourly_prices(prev_date)
+                    self.log.debug(f'predicting additional prices for {prediction_date} based on prices of {prev_date}')
+                    if prev_hourly is not None:
+                        night_predictions = predict_night_price(prediction_date, prev_hourly, resolution_str)
+                        pred_times = []
+                        for pred in night_predictions:
+                            h, m = map(int, pred['time'].split(':'))
+                            pred_ts = dt(prediction_date.year, prediction_date.month, prediction_date.day, h, m, tzinfo=self.tz)
+                            pred_times.append(pred_ts)
+                            self.prices[pred_ts] = pred['price']
+                        self.log.debug(f'added {len(night_predictions)} predicted night prices for {prediction_date} [{min(pred_times)} - {max(pred_times)}]')
+            except Exception as e:
+                self.log.error(f'error predicting night prices: {e}')
+
             self.prices_ts = dt.now(self.tz)
 
             self.save_prices()
@@ -96,6 +120,19 @@ class PriceManager:
             # TODO send a push message when this happens - preferably through HA
             # exponential backoff
             # raise exception to trigger fallback after x attempts
+
+    def _get_hourly_prices(self, target_date) -> Optional[list[float]]:
+        '''Extract 24 hourly average prices from self.prices for target_date. Returns None if any hour is missing.'''
+        hourly = []
+        for hour in range(24):
+            hour_start = dt(target_date.year, target_date.month, target_date.day, hour, 0, tzinfo=self.tz)
+            hour_end = hour_start + timedelta(hours=1)
+            slot_prices = [v for k, v in self.prices.items() if hour_start <= k < hour_end]
+            if not slot_prices:
+                self.log.info(f'night price predictor: no prices for {target_date} hour {hour}, skipping prediction')
+                return None
+            hourly.append(sum(slot_prices) / len(slot_prices))
+        return hourly
 
     def get_price(self, st: Optional[dt] = None) -> float:
         if st is None:
