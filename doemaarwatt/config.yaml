@@ -1,5 +1,5 @@
 name: "DoeMaarWatt"
-version: "1.0.24b"
+version: "1.0.24c"
 slug: "doemaarwatt"
 description: "Manage charge cycles for home batteries based on dynamic energy prices"
 url: "https://github.com/mauritshartman/RUDE_energy"

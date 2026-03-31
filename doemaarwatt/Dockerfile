@@ -6,7 +6,8 @@ FROM $BUILD_FROM
 
 # Install Python requisites:
 COPY requirements.txt requirements.txt
-RUN apk add --no-cache --virtual .build-deps gcc g++ musl-dev python3-dev \
+RUN apk add --no-cache libgomp \
+    && apk add --no-cache --virtual .build-deps gcc g++ musl-dev python3-dev \
     && pip install -r requirements.txt --break-system-packages \
     && apk del .build-deps
 
