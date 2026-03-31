@@ -11,9 +11,8 @@ from night_price_predictor import init_night_price_predictor, predict_night_pric
 from time_functions import datetimerange
 
 
-TKN = 'ken=2d0eecc332c75ab92e5e507ee'
-ENEVER_TODAY =      f'https://enever.nl/apiv3/stroomprijs_vandaag.php?to{TKN}1664fa1&price=prijs'
-ENEVER_TOMORROW =   f'https://enever.nl/apiv3/stroomprijs_morgen.php?to{TKN}1664fa1&price=prijs'
+ENEVER_TODAY =      'https://enever.nl/apiv3/stroomprijs_vandaag.php?token={TOKEN}&price=prijs'
+ENEVER_TOMORROW =   'https://enever.nl/apiv3/stroomprijs_morgen.php?token={TOKEN}&price=prijs'
 
 PRICE_PATH = Path('/data/prices.json')
 PRICE_PATH = Path('prices.json')
@@ -25,6 +24,8 @@ class PriceManager:
         log: Logger,
     ) -> None:
         self.log = log
+
+        self.enever_token = cfg.get_mode_dynamic_config()['api_token']
 
         self.tz = timezone(timedelta(hours=cfg.timezone_offset))
 
@@ -71,16 +72,23 @@ class PriceManager:
         self.prices = {}
 
         try:
+            if self.enever_token is None or len(self.enever_token) == 0:
+                raise ValueError(f'no Enever API token set')
+            today_url =       ENEVER_TODAY.format(TOKEN=self.enever_token) + f'&resolution={self.resolution}'
+            tomorrow_url = ENEVER_TOMORROW.format(TOKEN=self.enever_token) + f'&resolution={self.resolution}'
+
             async with aiohttp.ClientSession() as session:
-                self.log.debug(f'fetching prices for today')
-                async with session.get(f'{ENEVER_TODAY}&resolution={self.resolution}') as resp:
+                self.log.debug(f'fetching prices for today using {today_url}')
+                async with session.get(today_url) as resp:
                     parsed = await resp.json()
+                    if not isinstance(parsed['data'], list):
+                        raise Exception(f'no price data returned, check API token validity: {parsed["data"]}')
                     for p in parsed['data']:
                         ts = dt.strptime(p['datum'], TIME_FMT).astimezone(self.tz)  # ensure configured timezone
                         self.prices[ts] = float(p['prijs'])
 
-                self.log.debug(f'fetching prices for tomorrow')
-                async with session.get(f'{ENEVER_TOMORROW}&resolution={self.resolution}') as resp:
+                self.log.debug(f'fetching prices for tomorrow: {tomorrow_url}')
+                async with session.get(tomorrow_url) as resp:
                     parsed = await resp.json()
                     if len(parsed['data']) == 0:  # empty data list indicates data for tomorrow is not available yet
                         self.log.debug(f'tomorrow\'s data not yet available')

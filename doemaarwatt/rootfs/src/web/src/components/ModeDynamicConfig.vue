@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from 'vue'
-import { NDivider, NForm, NGrid, NFormItemGi, NSelect, NInputNumber, NFlex, NButton } from 'naive-ui'
+import { NDivider, NForm, NGrid, NFormItemGi, NSelect, NInputNumber, NInput, NFlex, NButton } from 'naive-ui'
 import { useConfigStore } from '../stores/config'
 import { storeToRefs } from 'pinia'
 
@@ -30,6 +30,7 @@ const format_percentage = (val) => {
     if (val === null) { return '' }
     return '' + Math.round(val * 1000) / 10
 }
+
 
 onMounted(async () => { await config.fetch_config() })
 </script>
@@ -78,7 +79,7 @@ onMounted(async () => { await config.fetch_config() })
         </n-input-number>
     </n-form-item-gi>
 
-    <n-form-item-gi span="4" label="Fallback Mode" path="fallback">
+    <n-form-item-gi span="2" label="Fallback Mode" path="fallback">
       <n-select
         v-model:value="mode_dynamic.fallback"
         placeholder="Select fallback mode"
@@ -86,7 +87,7 @@ onMounted(async () => { await config.fetch_config() })
       />
     </n-form-item-gi>
 
-    <n-form-item-gi span="4" label="Charge/discharge efficiency" path="efficiency">
+    <n-form-item-gi span="2" label="(Dis)charge efficiency" path="efficiency">
         <n-input-number
             v-model:value="mode_dynamic.efficiency"
             :default-value="0.95"
@@ -98,6 +99,15 @@ onMounted(async () => { await config.fetch_config() })
         >
             <template #suffix>%</template>
         </n-input-number>
+    </n-form-item-gi>
+
+    <n-form-item-gi span="4" label="Enever API token" path="api_token">
+        <n-input
+            v-model:value="mode_dynamic.api_token"
+            type="text"
+            placeholder="API token..."
+        >
+        </n-input>
     </n-form-item-gi>
   </n-grid>
 

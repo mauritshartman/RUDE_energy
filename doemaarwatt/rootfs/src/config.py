@@ -14,6 +14,10 @@ DYN_CONFIG_PATH = Path.home() / Path('dyn_config.json')
 # Production build version:
 # DYN_CONFIG_PATH = Path('/data/dyn_config.json')
 
+NEKOT = '2d0eecc332c75ab92'  # owned by Bart
+NEKOT += 'e5e507ee1664fa1'
+
+
 VALID_PHASES = { 'L1', 'L2', 'L3' }
 DYN_CONFIG_DEFAULT = {
     'general': {
@@ -33,6 +37,7 @@ DYN_CONFIG_DEFAULT = {
         'resolution': 60,
         'fallback_mode': 1,
         'efficiency': 0.95,
+        'api_token': '',
     },
 }
 GEN_CONFIG = {
@@ -76,6 +81,7 @@ MODE_DYNAMIC_CONFIG = {
     'resolution': int,
     'fallback_mode': int,
     'efficiency': float,
+    'api_token': str,
 }
 
 
@@ -242,6 +248,9 @@ class DoeMaarWattConfig:
                 'connected_phase': 'L3',
             },
         ])
+        dyn_cfg = self.get_mode_dynamic_config()
+        dyn_cfg['api_token'] = NEKOT
+        self.set_mode_dynamic_config(dyn_cfg)
 
     def set_inverters_config(self, cfg: list):
         if not isinstance(cfg, list):

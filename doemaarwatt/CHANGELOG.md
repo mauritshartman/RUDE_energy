@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Moved Enever API token its own config setting
+
+## [1.0.24d] - 2026-03-31
+
+### Added
+
 - Added a price predictor for the first four hours of the next day, based on a linear regression model
 
 ## [1.0.24] - 2026-03-31
