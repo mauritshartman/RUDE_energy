@@ -6,7 +6,9 @@ FROM $BUILD_FROM
 
 # Install Python requisites:
 COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt --break-system-packages
+RUN apk add --no-cache --virtual .build-deps gcc g++ musl-dev python3-dev \
+    && pip install -r requirements.txt --break-system-packages \
+    && apk del .build-deps
 
 # Copy root filesystem
 COPY rootfs /
