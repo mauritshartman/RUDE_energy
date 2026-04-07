@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added Bart's long-lived token to home setup button
+
+## [1.0.27] - 2026-04-07
+
+### Added
+
 - Extended the night price predictor to 8 hours instead of 4
 
 ## [1.0.26] - 2026-04-07

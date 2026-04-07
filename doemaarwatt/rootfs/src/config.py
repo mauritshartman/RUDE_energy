@@ -17,6 +17,9 @@ DYN_CONFIG_PATH = Path.home() / Path('dyn_config.json')
 NEKOT = '2d0eecc332c75ab92'  # owned by Bart
 NEKOT += 'e5e507ee1664fa1'
 
+NEKOT2 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJiOGMzMzlkMjI2MjM0MGIwOGNhM2VkZDY1OTVhNDA4My' # created by Bart's home instance
+NEKOT2 += 'IsImlhdCI6MTc3NTU1NTk2NCwiZXhwIjoyMDkwOTE1OTY0fQ.HY28ijV94VgjQnRFd_fcpJ086J-5Lhm9OzJeGLVnPRk'
+
 
 VALID_PHASES = { 'L1', 'L2', 'L3' }
 DYN_CONFIG_DEFAULT = {
@@ -253,6 +256,10 @@ class DoeMaarWattConfig:
         dyn_cfg = self.get_mode_dynamic_config()
         dyn_cfg['api_token'] = NEKOT
         self.set_mode_dynamic_config(dyn_cfg)
+
+        gen_cfg = self.get_general_config()
+        gen_cfg['supervisor_token'] = NEKOT2
+        self.set_general_config(gen_cfg)
 
     def set_inverters_config(self, cfg: list):
         if not isinstance(cfg, list):
