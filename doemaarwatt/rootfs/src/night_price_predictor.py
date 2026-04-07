@@ -32,8 +32,8 @@ MODEL_FILES = {
 
 # Output slots per resolution
 SLOTS = {
-    "1hour": [(h, 0)  for h in range(4)],
-    "15min": [(h, m)  for h in range(4) for m in range(0, 60, 15)],
+    "1hour": [(h, 0)  for h in range(8)],
+    "15min": [(h, m)  for h in range(8) for m in range(0, 60, 15)],
 }
 
 # ---------------------------------------------------------------------------
@@ -51,7 +51,7 @@ def init_night_price_predictor(log: Logger) -> None:
 
 def predict_night_price(prediction_date: date, prev_day_hourly_prices: list[float], resolution: str) -> list[dict]:
     """
-    Predict electricity prices for the first 4 hours of prediction_date.
+    Predict electricity prices for the first 8 hours of prediction_date.
 
     Args:
         prediction_date:        The day to predict prices for.

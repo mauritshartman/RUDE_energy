@@ -160,5 +160,9 @@ class BaseController(ABC):
                 return
 
         headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
-        async with aiohttp.ClientSession() as session:
-            await session.post(url, json={'title': title, 'message': message}, headers=headers)
+        try:
+            async with aiohttp.ClientSession() as session:
+                await session.post(url, json={'title': title, 'message': message}, headers=headers)
+
+        except Exception as e:
+            self.log.error(f'unable to send HA notification: {e}')
