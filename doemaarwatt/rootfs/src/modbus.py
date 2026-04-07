@@ -44,6 +44,9 @@ class ModbusManager():
         for cfg in client_configs:
             if len(cfg) == 0:
                 continue
+            if not cfg.get('enable', True): # eg. skip disabled inverters
+                continue
+
             name = cfg['name']
             if cfg['host'].lower() in ['test', 'debug', 'none']:
                 self.log.debug(f'modbus[{name}]: creating dummy client')
