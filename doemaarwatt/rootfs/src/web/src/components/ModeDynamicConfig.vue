@@ -79,9 +79,9 @@ onMounted(async () => { await config.fetch_config() })
         </n-input-number>
     </n-form-item-gi>
 
-    <n-form-item-gi span="2" label="Fallback Mode" path="fallback">
+    <n-form-item-gi span="2" label="Fallback Mode" path="fallback_mode">
       <n-select
-        v-model:value="mode_dynamic.fallback"
+        v-model:value="mode_dynamic.fallback_mode"
         placeholder="Select fallback mode"
         :options="fallback_options"
       />

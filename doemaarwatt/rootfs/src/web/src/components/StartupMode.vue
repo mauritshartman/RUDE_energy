@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from 'vue';
-import { NDivider, NForm, NGrid, NFormItemGi, NSelect, NGridItem, NSwitch, NInputNumber, NFlex, NButton } from 'naive-ui'
+import { NDivider, NForm, NGrid, NFormItemGi, NSelect, NGridItem, NSwitch, NInput, NInputNumber, NFlex, NButton } from 'naive-ui'
 import { useConfigStore } from '../stores/config';
 import { storeToRefs } from 'pinia'
 
@@ -65,7 +65,7 @@ onMounted(async () => { await config.fetch_config() })
             </p>
         </n-grid-item>
 
-        <n-form-item-gi span="0 m:4" label="Control loop delay" path="loop_delay">
+        <n-form-item-gi span="0 m:4" label="Control loop delay:" path="loop_delay">
             <n-input-number v-model:value="general.loop_delay" min="1" max="100" :show-button="false">
                 <template #suffix>sec</template>
             </n-input-number>
@@ -74,13 +74,25 @@ onMounted(async () => { await config.fetch_config() })
             <p>DoeMaarWatt operates in a loop. The loop_delay sets the delay in seconds between control actions.</p>
         </n-grid-item>
 
-        <n-form-item-gi span="0 m:4" label="Timezone offset (UTC)" path="timezone_offset">
+        <n-form-item-gi span="0 m:4" label="Timezone offset (UTC):" path="timezone_offset">
             <n-input-number v-model:value="general.timezone_offset" min="-12" max="12" :show-button="false">
                 <template #suffix>hours</template>
             </n-input-number>
         </n-form-item-gi>
         <n-grid-item span="0 m:4">
             <p>Indicate your local timezone offset with respect to UTC (Universal Time Coordinated).</p>
+        </n-grid-item>
+
+        <n-form-item-gi span="0 m:4" label="Long-lived access token:" path="supervisor_token">
+            <n-input
+            v-model:value="general.supervisor_token"
+            type="text"
+            placeholder="Long-lived access token..."
+        >
+        </n-input>
+        </n-form-item-gi>
+        <n-grid-item span="0 m:4">
+            <p>Long-lived access token, used for Home Assistant push notifications. Can be set from your profile (lower left) -> Security -> Long-lived access tokens.</p>
         </n-grid-item>
 
     </n-grid>

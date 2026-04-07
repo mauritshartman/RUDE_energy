@@ -26,6 +26,7 @@ DYN_CONFIG_DEFAULT = {
         'debug': False,
         'loop_delay': 5,
         'timezone_offset': 2,
+        'supervisor_token': '',
     },
     'inverters': [],
     'data_manager': {},
@@ -45,7 +46,8 @@ GEN_CONFIG = {
     'autostart': bool,
     'debug': bool,
     'loop_delay': int,
-    'timezone_offset': int
+    'timezone_offset': int,
+    'supervisor_token': str,
 }
 INV_CONFIG = {
     'name': str,

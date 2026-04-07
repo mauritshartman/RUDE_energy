@@ -1,5 +1,6 @@
 from datetime import datetime as dt, timedelta, timezone
 from pathlib import Path
+import asyncio
 import json
 from typing import Optional, Union
 
@@ -14,9 +15,12 @@ from time_functions import datetimerange
 ENEVER_TODAY =      'https://enever.nl/apiv3/stroomprijs_vandaag.php?token={TOKEN}&price=prijs'
 ENEVER_TOMORROW =   'https://enever.nl/apiv3/stroomprijs_morgen.php?token={TOKEN}&price=prijs'
 
+MAX_ATTEMPTS = 5
+
 PRICE_PATH = Path('/data/prices.json')
 PRICE_PATH = Path('prices.json')
 TIME_FMT = '%Y-%m-%dT%H:%M:%S%z'
+
 
 class PriceManager:
     def __init__(self,
@@ -38,6 +42,18 @@ class PriceManager:
             self.load_prices()
 
         init_night_price_predictor(log)
+
+    @property
+    def enever_today_url(self) -> str:
+        if self.enever_token is None or len(self.enever_token) == 0:
+            raise ValueError(f'no Enever API token set')
+        return ENEVER_TODAY.format(TOKEN=self.enever_token) + f'&resolution={self.resolution}'
+
+    @property
+    def enever_tomorrow_url(self) -> str:
+        if self.enever_token is None or len(self.enever_token) == 0:
+            raise ValueError(f'no Enever API token set')
+        return ENEVER_TOMORROW.format(TOKEN=self.enever_token) + f'&resolution={self.resolution}'
 
     def to_dict(self) -> dict:
         return {
@@ -69,65 +85,67 @@ class PriceManager:
             self.log.debug(f'loaded prices from {PRICE_PATH}')
 
     async def fetch_prices(self) -> None:
-        self.prices = {}
-
-        try:
-            if self.enever_token is None or len(self.enever_token) == 0:
-                raise ValueError(f'no Enever API token set')
-            today_url =       ENEVER_TODAY.format(TOKEN=self.enever_token) + f'&resolution={self.resolution}'
-            tomorrow_url = ENEVER_TOMORROW.format(TOKEN=self.enever_token) + f'&resolution={self.resolution}'
-
-            async with aiohttp.ClientSession() as session:
-                self.log.debug(f'fetching prices for today using {today_url}')
-                async with session.get(today_url) as resp:
-                    parsed = await resp.json()
-                    if not isinstance(parsed['data'], list):
-                        raise Exception(f'no price data returned, check API token validity: {parsed["data"]}')
-                    for p in parsed['data']:
-                        ts = dt.strptime(p['datum'], TIME_FMT).astimezone(self.tz)  # ensure configured timezone
-                        self.prices[ts] = float(p['prijs'])
-
-                self.log.debug(f'fetching prices for tomorrow: {tomorrow_url}')
-                async with session.get(tomorrow_url) as resp:
-                    parsed = await resp.json()
-                    if len(parsed['data']) == 0:  # empty data list indicates data for tomorrow is not available yet
-                        self.log.debug(f'tomorrow\'s data not yet available')
-                    else:
-                        for p in parsed['data']:
-                            ts = dt.strptime(p['datum'], TIME_FMT).astimezone(self.tz)  # ensure configured timezone
-                            self.prices[ts] = float(p['prijs'])
+        attempt_no = 1
+        while attempt_no < MAX_ATTEMPTS:
+            if attempt_no > 1:
+                await asyncio.sleep(10 * 2**attempt_no) # exponential backoff
 
             try:
-                resolution_str = {15: '15min', 60: '1hour'}.get(self.resolution)
-                if resolution_str is None:
-                    self.log.info(f'night price predictor: unsupported resolution {self.resolution}min, skipping prediction')
-                else:
-                    prev_date = max(self.prices).date()
-                    prediction_date = prev_date + timedelta(days=1)
-                    prev_hourly = self._get_hourly_prices(prev_date)
-                    self.log.debug(f'predicting additional prices for {prediction_date} based on prices of {prev_date}')
-                    if prev_hourly is not None:
-                        night_predictions = predict_night_price(prediction_date, prev_hourly, resolution_str)
-                        pred_times = []
-                        for pred in night_predictions:
-                            h, m = map(int, pred['time'].split(':'))
-                            pred_ts = dt(prediction_date.year, prediction_date.month, prediction_date.day, h, m, tzinfo=self.tz)
-                            pred_times.append(pred_ts)
-                            self.prices[pred_ts] = pred['price']
-                        self.log.debug(f'added {len(night_predictions)} predicted night prices for {prediction_date} [{min(pred_times)} - {max(pred_times)}]')
+                new_prices = {}
+
+                async with aiohttp.ClientSession() as session:
+                    self.log.debug(f'fetching prices for today using {self.enever_today_url}')
+                    async with session.get(self.enever_today_url) as resp:
+                        parsed = await resp.json()
+                        if not isinstance(parsed['data'], list):
+                            raise Exception(f'no price data returned, check API token validity: {parsed["data"]}')
+                        for p in parsed['data']:
+                            ts = dt.strptime(p['datum'], TIME_FMT).astimezone(self.tz)  # ensure configured timezone
+                            new_prices[ts] = float(p['prijs'])
+
+                    self.log.debug(f'fetching prices for tomorrow: {self.enever_tomorrow_url}')
+                    async with session.get(self.enever_tomorrow_url) as resp:
+                        parsed = await resp.json()
+                        if len(parsed['data']) == 0:  # empty data list indicates data for tomorrow is not available yet
+                            self.log.debug(f'tomorrow\'s data not yet available')
+                        else:
+                            for p in parsed['data']:
+                                ts = dt.strptime(p['datum'], TIME_FMT).astimezone(self.tz)  # ensure configured timezone
+                                new_prices[ts] = float(p['prijs'])
+
+                try:
+                    resolution_str = {15: '15min', 60: '1hour'}.get(self.resolution, '15min')
+                    if resolution_str is None:
+                        self.log.info(f'night price predictor: unsupported resolution {self.resolution}min, skipping prediction')
+                    else:
+                        prev_date = max(new_prices).date()
+                        prediction_date = prev_date + timedelta(days=1)
+                        prev_hourly = self._get_hourly_prices(prev_date)
+                        self.log.debug(f'predicting additional prices for {prediction_date} based on prices of {prev_date}')
+                        if prev_hourly is not None:
+                            night_predictions = predict_night_price(prediction_date, prev_hourly, resolution_str)
+                            pred_times = []
+                            for pred in night_predictions:
+                                h, m = map(int, pred['time'].split(':'))
+                                pred_ts = dt(prediction_date.year, prediction_date.month, prediction_date.day, h, m, tzinfo=self.tz)
+                                pred_times.append(pred_ts)
+                                new_prices[pred_ts] = pred['price']
+                            self.log.debug(f'added {len(night_predictions)} predicted night prices for {prediction_date} [{min(pred_times)} - {max(pred_times)}]')
+                except Exception as e:
+                    self.log.error(f'error predicting night prices: {e}')  # just a log message, no further escalation
+
+                self.prices = new_prices
+                self.prices_ts = dt.now(self.tz)
+                self.save_prices()
+                self.log.info(f'fetched and stored prices for [{min(self.prices)} - {max(self.prices)}]')
+                return
+
             except Exception as e:
-                self.log.error(f'error predicting night prices: {e}')
+                self.log.error(f'error while fetching, parsing or storing prices (attempt #{attempt_no}): {e}')
+                attempt_no += 1
 
-            self.prices_ts = dt.now(self.tz)
-
-            self.save_prices()
-            self.log.info(f'fetched and stored prices for [{min(self.prices)} - {max(self.prices)}]')
-
-        except Exception as e:
-            self.log.error(f'error while fetching, parsing or storing prices: {e}')
-            # TODO send a push message when this happens - preferably through HA
-            # exponential backoff
-            # raise exception to trigger fallback after x attempts
+        raise Exception(f'unable to fetch prices - exhausted all attempts')
+        # TODO send a push message when this happens - preferably through HA
 
     def _get_hourly_prices(self, target_date) -> Optional[list[float]]:
         '''Extract 24 hourly average prices from self.prices for target_date. Returns None if any hour is missing.'''

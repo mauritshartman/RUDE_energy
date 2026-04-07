@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Fix for the mode 4 fallback setting
+- Integration with Home Assistant push notifications
+
+## [1.0.25] - 2026-04-07
+
+### Added
+
 - Moved Enever API token its own config setting
 
 ## [1.0.24d] - 2026-03-31

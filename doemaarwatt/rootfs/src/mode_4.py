@@ -58,16 +58,20 @@ class Mode4Controller(BaseController):
 
     async def loop(self):
         self.log.info(f'Mode 4 (dynamic schedule mode) started')
+        await self.send_ha_notification('Mode 4 execution', 'Mode 4 started')
 
         while self.running:  # outer, reconnect loop:
             exception_occurred = False
+            exception_msg = ''
+
             try:
+                self.inverters = ModbusManager(client_configs=self.inv_cfg, log=self.log) # initial assignment, ensures inverters and dm are set
+                self.dm = ModbusManager(client_configs=[self.dm_cfg], log=self.log) # in case initial fetch_price raises an exception
+
                 await self.pm.fetch_prices()
                 self.price_task = asyncio.create_task(self.price_loop())
                 self.log.info('fetched initial prices and started price update loop')
 
-                self.inverters = ModbusManager(client_configs=self.inv_cfg, log=self.log)
-                self.dm = ModbusManager(client_configs=[self.dm_cfg], log=self.log)
                 await self.inverters.connect()
                 await self.dm.connect()
                 self.log.info(f'(re)connected to data manager and inverters')
@@ -80,9 +84,9 @@ class Mode4Controller(BaseController):
                 self._stop_price_loop_task()
             except Exception as e:
                 exception_occurred = True
-                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-                message = template.format(type(e).__name__, e.args)
-                self.log.error(message)
+                template = "An exception of type {0} occurred. Arguments: {1!r}"
+                exception_msg = template.format(type(e).__name__, e.args)
+                self.log.error(exception_msg)
                 self._stop_price_loop_task()  # price task will be restarted on reconnect
 
             # an error or cancellation occurred: make sure to relinquish control:
@@ -96,15 +100,18 @@ class Mode4Controller(BaseController):
                 self.dm.close()
             self.log.info(f'closed modbus connections')
 
-            # TODO trigger push notification (eg. using HA)
+            if exception_occurred:
+                await self.send_ha_notification('Mode 4 control error', exception_msg)
 
-            # check if we need to fallback to a different mode:
-            if exception_occurred and self.dyn_cfg['fallback_mode'] != self.config.mode:
-                self.config.mode = self.config.get_mode_dynamic_config()['fallback_mode']
-                return
-            # otherwise we remain in mode 4 and try to reconnect:
-            if self.running:
-                await asyncio.sleep(10)  # wait 10 seconds before reconnecting
+                # check if we need to fallback to a different mode:
+                if self.dyn_cfg['fallback_mode'] != self.config.mode:
+                    self.log.error(f'falling back to mode {self.dyn_cfg["fallback_mode"]}')
+                    self.config.mode = self.dyn_cfg['fallback_mode']
+                    return
+
+                # otherwise we remain in mode 4 and try to reconnect:
+                if self.running:
+                    await asyncio.sleep(10)  # wait 10 seconds before reconnecting
 
     async def control_loop(self):
         # inner, control loop
@@ -158,6 +165,7 @@ class Mode4Controller(BaseController):
         '''Loop that performs daily price updates, synchronized to the configured `price_update_time` from the dynamic schedule mode configuration
         setting.'''
         loop_id = id(asyncio.current_task())
+
         while self.running:
             h, m = map(int, self.config.get_mode_dynamic_config()['price_update_time'].split(':'))
 
@@ -172,14 +180,17 @@ class Mode4Controller(BaseController):
 
             try:
                 await asyncio.sleep(sleep_seconds)
+                if not self.running:
+                    return
+
+                self.log.info(f'price_loop [{loop_id}]: fetching updated prices')
+                await self.pm.fetch_prices()
             except asyncio.CancelledError:
                 self.log.info(f'price_loop [{loop_id}]: cancelled')
                 return
-            if not self.running:
-                break
-
-            self.log.info(f'price_loop [{loop_id}]: fetching updated prices')
-            await self.pm.fetch_prices()
+            except Exception as e:
+                self.log.error(f'price_loop [{loop_id}]: {e}')
+                await self.send_ha_notification('Mode 4 price error', f'There was an error while fetching prices: {e}')
 
     def handle_status(self, request):
         price_info = self.pm.to_dict()

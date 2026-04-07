@@ -1,5 +1,5 @@
 name: "DoeMaarWatt"
-version: "1.0.24d"
+version: "1.0.25"
 slug: "doemaarwatt"
 description: "Manage charge cycles for home batteries based on dynamic energy prices"
 url: "https://github.com/mauritshartman/RUDE_energy"
@@ -10,8 +10,15 @@ arch:
   - armv7
   - i386
 init: false
+
+# Needed for the push notification API:
+hassio_api: true
+hassio_role: default
+
 homeassistant_api: true
 map:
   - share:rw
+
+# Needed for the web UI of this app
 ingress: true
 ingress_entry: index.html

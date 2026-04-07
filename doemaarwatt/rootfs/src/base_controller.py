@@ -2,8 +2,10 @@ from abc import ABC, abstractmethod
 import time
 from datetime import datetime as dt, timezone, timedelta
 from typing import Any
+import os
 
 from aiohttp import web
+import aiohttp
 
 from config import DoeMaarWattConfig, ControlMode
 from modbus import ModbusManager, to_s32_list
@@ -143,3 +145,20 @@ class BaseController(ABC):
             'schedule': None,
             'schedule_ts': None,
         })
+
+    async def send_ha_notification(self, title: str, message: str):
+        # prime method: use the SUPERVISOR_TOKEN (only available in production setup)
+        token = os.environ.get('SUPERVISOR_TOKEN')
+        url = 'http://supervisor/core/api/services/notify/persistent_notification'
+        if not token:
+            self.log.info(f'SUPERVISOR_TOKEN unavailable: falling back to manually created token')
+            token = self.config.get_general_config()['supervisor_token']
+            url = 'http://homeassistant:8123/api/services/notify/persistent_notification'
+
+            if not token:
+                self.log.error(f'No long-lived access token defined: unable to send push notification')
+                return
+
+        headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
+        async with aiohttp.ClientSession() as session:
+            await session.post(url, json={'title': title, 'message': message}, headers=headers)

@@ -3,6 +3,7 @@ import signal
 import tempfile
 from pathlib import Path
 import json
+import os
 from typing import Callable, Awaitable, Optional
 
 from aiohttp import web
@@ -132,6 +133,7 @@ class DoeMaarWattServer:
         site = web.TCPSite(runner, host=None, port=API_SERVER_PORT)  # None for all interfaces (see https://docs.aiohttp.org/en/stable/web_reference.html#aiohttp.web.TCPSite)
         await site.start()
         self.log.info(f'backend webserver started on {API_SERVER_PORT}')
+        self.log.info(f'SUPERVISOR_TOKEN set: {bool(os.environ.get("SUPERVISOR_TOKEN"))}')
 
         while self.running:  # will only be stopped by a stop() / SIGINT
             try:
