@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix for battery inverter control loss when commanding a standby power of zero watts
 
+## [1.0.31] - 2026-04-07
+
+### Added
+
+- Fix for battery inverter control loss when commanding a standby power of zero watts
+
 ## [1.0.30] - 2026-04-07
 
 ### Added

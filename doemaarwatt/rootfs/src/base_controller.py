@@ -108,9 +108,6 @@ class BaseController(ABC):
         self.stats['inv_control'] = {}  # type: ignore
         for phi in ['L1', 'L2', 'L3']:
             PBapp = PBapp_phases[phi]
-            if PBapp == 0:
-                continue
-
             PGnow = self.stats['data_manager'][phi]['P']  # type: ignore | negative value: drawing power from the grid
             VGnow = self.stats['data_manager'][phi]['V']  # type: ignore
             Imax =  self.stats['data_manager'][phi]['Amax']  # type: ignore | eg. 25A main fuse
