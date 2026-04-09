@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Extended the night price predictor to 12 hours
+
+## [1.0.29] - 2026-04-07
+
+### Added
+
 - Added fix for crash when disabling inverters
 
 ## [1.0.28] - 2026-04-07
