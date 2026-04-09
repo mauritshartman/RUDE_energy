@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Fix for battery inverter control loss when commanding a standby power of zero watts
+
+## [1.0.30] - 2026-04-07
+
+### Added
+
 - Extended the night price predictor to 12 hours
 
 ## [1.0.29] - 2026-04-07

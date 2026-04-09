@@ -15,6 +15,11 @@ from pbsent import calc_PBsent
 from stats import battery_stats, data_manager_stats
 
 
+# Commanding a zero charge/discharge power does not seem to work and relinquishes control of the battery inverter
+# So instead when the schedule / user dictates that the battery inverter should remain standby, we command a very small charging power of 10 W
+STANDBY_CHARGE = -10
+
+
 class BaseController(ABC):
     def __init__(self,
         cfg: DoeMaarWattConfig,
@@ -129,10 +134,14 @@ class BaseController(ABC):
                 for inv_name in self.inv_phase_map[phi]:
                     self.log.info(f'commanding {inv_name} to charge at {PBsent:.0f} W')
                     await self.inverters.write_register(inv_name, 40149, to_s32_list(PBsent))
-            else:  # zero or positive: so discharge
+            elif PBsent > 0:  # positive: so discharge
                 for inv_name in self.inv_phase_map[phi]:
                     self.log.info(f'commanding {inv_name} to discharge at {PBsent:.0f} W')
                     await self.inverters.write_register(inv_name, 40149, to_s32_list(PBsent))
+            else:  # zero: so ensure the battery remains standby (perform a very small charge of 10 Watts)
+                for inv_name in self.inv_phase_map[phi]:
+                    self.log.info(f'commanding {inv_name} to do a standby charge at {STANDBY_CHARGE:.0f} W')
+                    await self.inverters.write_register(inv_name, 40149, to_s32_list(STANDBY_CHARGE))
 
     def handle_status(self, request):
         return web.json_response({

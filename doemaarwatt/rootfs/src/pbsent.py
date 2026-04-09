@@ -41,8 +41,10 @@ def calc_PBsent(
 
     if PBapp < 0:  # negative so a desire to charge the battery
         PBsent = int(max(PBapp, PBlim_min))
-    else:  # positive so a desire to charge the battery
+    elif PBapp > 0:  # positive so a desire to discharge the battery
         PBsent = int(min(PBapp, PBlim_max))
+    else:  # exactly zero so a desire to remain standby
+        PBsent = 0.0
 
     if table is not None:
         table.add_column(col_header, [
