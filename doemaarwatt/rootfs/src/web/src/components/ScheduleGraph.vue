@@ -17,6 +17,7 @@ import 'chartjs-adapter-luxon';
 import { Line } from 'vue-chartjs'
 import { DateTime } from 'luxon'
 import { computed, ref, onMounted, onBeforeUnmount } from "vue";
+import { useTimezone } from '../composables/useTimezone'
 
 ChartJS.register(
     CategoryScale,
@@ -39,15 +40,16 @@ const COLORS = [
 
 const control = useControlStore();
 const { schedule } = storeToRefs(control)
+const { tz, now } = useTimezone()
 
-const current_time = ref(DateTime.now())
+const current_time = ref(now())
 
 const schedule_ts = computed(() => {
     if (!control.schedule_ts) return null
-    return DateTime.fromISO(control.schedule_ts)
+    return DateTime.fromISO(control.schedule_ts).setZone(tz.value)
 })
 
-const options = ref({
+const options = computed(() => ({
     responsive: true,
     aspectRatio: 4,
     interaction: { intersect: false, mode: 'index' },
@@ -58,7 +60,7 @@ const options = ref({
             enabled: true,
             callbacks: {
                 title: (context) => {
-                    const dt = DateTime.fromMillis(context[0].parsed.x)
+                    const dt = DateTime.fromMillis(context[0].parsed.x).setZone(tz.value)
                     return dt.toFormat('ccc dd MMM HH:mm')
                 },
                 label: (context) => {
@@ -76,6 +78,7 @@ const options = ref({
     scales: {
         x: {
             type: 'time',
+            adapters: { date: { zone: tz.value } },
             time: { unit: 'hour', displayFormats: { hour: 'HH:mm' } },
             grid: { color: '#303030', borderColor: 'grey', tickColor: 'grey' }
         },
@@ -91,7 +94,7 @@ const options = ref({
             grid: { color: (ctx) => ctx.tick.value === 0 ? '#606060' : 'transparent' },
         },
     }
-})
+}))
 
 const schedule_chart_config = computed(() => {
     if (!schedule.value || schedule.value.length === 0) return { datasets: [] }
@@ -102,11 +105,11 @@ const schedule_chart_config = computed(() => {
     // Build one dataset per inverter (left y-axis)
     const inv_datasets = inv_names.map((inv, idx) => {
         const data = slots.map(slot => ({
-            x: DateTime.fromISO(slot.start_ts),
+            x: DateTime.fromISO(slot.start_ts).setZone(tz.value),
             y: slot.start_charge[inv],
         }))
         const last = slots[slots.length - 1]
-        data.push({ x: DateTime.fromISO(last.end_ts), y: last.end_charge[inv] })
+        data.push({ x: DateTime.fromISO(last.end_ts).setZone(tz.value), y: last.end_charge[inv] })
 
         return {
             label: inv,
@@ -122,11 +125,11 @@ const schedule_chart_config = computed(() => {
     const cost_data = []
     let cum_cost = 0
     for (const slot of slots) {
-        cost_data.push({ x: DateTime.fromISO(slot.start_ts), y: cum_cost })
+        cost_data.push({ x: DateTime.fromISO(slot.start_ts).setZone(tz.value), y: cum_cost })
         cum_cost += slot.cost
     }
     const last = slots[slots.length - 1]
-    cost_data.push({ x: DateTime.fromISO(last.end_ts), y: cum_cost })
+    cost_data.push({ x: DateTime.fromISO(last.end_ts).setZone(tz.value), y: cum_cost })
 
     const cost_dataset = {
         label: 'Cumulative cost',
@@ -163,7 +166,7 @@ const schedule_chart_config = computed(() => {
 const timer = ref(null)
 onMounted(() => {
     timer.value = setInterval(() => {
-        current_time.value = DateTime.now()
+        current_time.value = now()
     }, 10 * 1000)
 })
 onBeforeUnmount(() => {

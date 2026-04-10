@@ -42,9 +42,9 @@ export const useControlStore = defineStore('control', {
             }
 
             // local development fetch line:
-            // const resp = await fetch(`http://localhost:8099/api${path}`, options)
+            const resp = await fetch(`http://localhost:8099/api${path}`, options)
             // production build fetch line:
-            const resp = await fetch("/api"+path, options)
+            // const resp = await fetch("/api"+path, options)
             if (!resp.ok) { throw new Error(`response status: ${resp.status}`) }
             const ret = await resp.json()
             return ret
@@ -58,9 +58,9 @@ export const useControlStore = defineStore('control', {
             }
             try {
                 // local development fetch line:
-                // const resp = await fetch(`http://localhost:8099/api/log`, options)
+                const resp = await fetch(`http://localhost:8099/api/log`, options)
                 // production build fetch line:
-                const resp = await fetch("/api/log", options)
+                // const resp = await fetch("/api/log", options)
 
                 if (!resp.ok) { throw new Error(`response status: ${resp.status}`) }
                 const ret = await resp.text()

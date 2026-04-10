@@ -3,6 +3,11 @@ from typing import Union
 from prettytable import PrettyTable
 
 
+# Commanding a zero charge/discharge power does not seem to work and relinquishes control of the battery inverter
+# So instead when the schedule / user dictates that the battery inverter should remain standby, we command a very small charging power of 10 W
+STANDBY_CHARGE = -10
+
+
 def calc_PBsent(
     PBapp: Union[int, float],
     PBnow: float,
@@ -43,8 +48,8 @@ def calc_PBsent(
         PBsent = int(max(PBapp, PBlim_min))
     elif PBapp > 0:  # positive so a desire to discharge the battery
         PBsent = int(min(PBapp, PBlim_max))
-    else:  # exactly zero so a desire to remain standby
-        PBsent = 0.0
+    else:  # exactly zero so a desire to remain standby. To maintain inverter control we command a small standby charge power
+        PBsent = STANDBY_CHARGE
 
     if table is not None:
         table.add_column(col_header, [

@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import time
 from datetime import datetime as dt, timezone, timedelta
 from typing import Any
+from zoneinfo import ZoneInfo
 import os
 
 from aiohttp import web
@@ -11,13 +12,8 @@ from config import DoeMaarWattConfig, ControlMode
 from modbus import ModbusManager, to_s32_list
 from logger import Logger
 from stats import DM
-from pbsent import calc_PBsent
+from pbsent import calc_PBsent, STANDBY_CHARGE
 from stats import battery_stats, data_manager_stats
-
-
-# Commanding a zero charge/discharge power does not seem to work and relinquishes control of the battery inverter
-# So instead when the schedule / user dictates that the battery inverter should remain standby, we command a very small charging power of 10 W
-STANDBY_CHARGE = -10
 
 
 class BaseController(ABC):
@@ -40,7 +36,7 @@ class BaseController(ABC):
 
         self.inv_phase_map: dict[str, list[str]] = None  # type: ignore
 
-        self.tz : timezone = None  # type: ignore
+        self.tz : ZoneInfo = None  # type: ignore
 
     def reset_stats(self) -> None:
         self.start_ts = None
@@ -70,7 +66,7 @@ class BaseController(ABC):
 
         self.inv_phase_map = self.config.get_phase_inverters_map()
 
-        self.tz = timezone(timedelta(hours=self.config.timezone_offset))
+        self.tz = ZoneInfo(self.config.timezone)
 
     async def run(self) -> None:
         self.running = True
@@ -127,7 +123,11 @@ class BaseController(ABC):
 
         self.log.info(f'sending charge/discharge amount (PBsent) to enabled inverters:')
         for phi, PBsent in PBsent_phases.items():
-            if PBsent < 0:  # negative: so charge
+            if PBsent == STANDBY_CHARGE:  # standby charge
+                for inv_name in self.inv_phase_map[phi]:
+                    self.log.info(f'commanding {inv_name} to do a standby charge at {PBsent:.0f} W')
+                    await self.inverters.write_register(inv_name, 40149, to_s32_list(PBsent))
+            elif PBsent < 0:  # negative: so charge
                 for inv_name in self.inv_phase_map[phi]:
                     self.log.info(f'commanding {inv_name} to charge at {PBsent:.0f} W')
                     await self.inverters.write_register(inv_name, 40149, to_s32_list(PBsent))
@@ -135,10 +135,8 @@ class BaseController(ABC):
                 for inv_name in self.inv_phase_map[phi]:
                     self.log.info(f'commanding {inv_name} to discharge at {PBsent:.0f} W')
                     await self.inverters.write_register(inv_name, 40149, to_s32_list(PBsent))
-            else:  # zero: so ensure the battery remains standby (perform a very small charge of 10 Watts)
-                for inv_name in self.inv_phase_map[phi]:
-                    self.log.info(f'commanding {inv_name} to do a standby charge at {STANDBY_CHARGE:.0f} W')
-                    await self.inverters.write_register(inv_name, 40149, to_s32_list(STANDBY_CHARGE))
+            else:
+                raise ValueError(f'PBsent for phase {phi} is zero Watts which should not be possible')
 
     def handle_status(self, request):
         return web.json_response({

@@ -1,4 +1,5 @@
 from datetime import datetime as dt, timedelta, timezone
+from zoneinfo import ZoneInfo
 import math
 import json
 
@@ -29,7 +30,7 @@ class DynamicScheduler:
 
         # The schedule is a sorted list of SchedulePeriods
         self.schedule: list[SchedulePeriod] = []
-        self.tz = timezone(timedelta(hours=self.cfg.timezone_offset))
+        self.tz = ZoneInfo(self.cfg.timezone)
         self.schedule_ts: dt = dt.now(tz=self.tz)
 
     def schedule_available_for(self, t: dt) -> bool:
@@ -317,7 +318,6 @@ class SchedulePeriodEncoder(json.JSONEncoder):
 
 if __name__ == '__main__':
     import asyncio
-    from datetime import timezone
     from prettytable import PrettyTable
     from logger import Logger, LogLevel
 
@@ -325,7 +325,7 @@ if __name__ == '__main__':
         log = Logger(loglevel=LogLevel.DEBUG, filedir='logs', rotate=10)
         cfg = DoeMaarWattConfig(log)
 
-        tz = timezone(timedelta(hours=cfg.timezone_offset))
+        tz = ZoneInfo(cfg.timezone)
         now = dt.now(tz)
         start_ts = now
         end_ts   = now + timedelta(hours=27)

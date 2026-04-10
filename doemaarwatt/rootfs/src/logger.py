@@ -1,6 +1,6 @@
 # LOGGER.PY
 #
-# Class Logger the is general Blocktraders logger and currently support logging to screen, file and SMS.
+# Class Logger the is a general logger and currently support logging to screen and file.
 # Supported loglevels: DEBUG, INFO, ERROR, FATAL (and OFF)
 #
 import enum
@@ -9,6 +9,7 @@ import json
 from datetime import date, datetime as dt, timedelta, timezone
 from typing import Optional, Union
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from aiohttp import web
 
 from singleton import Singleton
@@ -55,7 +56,7 @@ class Logger(metaclass=Singleton):
         filedir: Optional[Union[Path, str]] = None,
         rotate: Optional[int] = None,
         suffix: Optional[str] = None,
-        timezone_offset: Optional[int] = None,
+        tz_name: Optional[str] = None,
     ):
         self.setup(
             message_prefix=message_prefix,
@@ -63,7 +64,7 @@ class Logger(metaclass=Singleton):
             filedir=filedir,
             rotate=rotate,
             suffix=suffix,
-            timezone_offset=timezone_offset
+            tz_name=tz_name,
         )
 
     def setup(self,
@@ -72,7 +73,7 @@ class Logger(metaclass=Singleton):
         filedir: Optional[str] = None,
         rotate: Optional[int] = None,
         suffix: Optional[str] = None,
-        timezone_offset: Optional[int] = None,
+        tz_name: Optional[str] = None,
     ):
         """Rules for the logdir:
         - If it starts with ~ expand to the user directory
@@ -83,10 +84,7 @@ class Logger(metaclass=Singleton):
             raise ConfigurationException(f"Invalid screen loglevel {loglevel}")
 
         # timezone
-        if timezone_offset is None:
-            self.tz = timezone(timedelta(hours=0))
-        else:
-            self.tz = timezone(timedelta(hours=timezone_offset))
+        self.tz = ZoneInfo(tz_name) if tz_name is not None else ZoneInfo('UTC')
 
         # Loglevels
         self.loglevel = loglevel
@@ -118,8 +116,8 @@ class Logger(metaclass=Singleton):
         # Only rotate every now and then so count number of logs
         self._num_logs = 0
 
-    def set_timezone(self, offset: int):
-        self.tz = timezone(timedelta(hours=offset))
+    def set_timezone(self, tz_name: str):
+        self.tz = ZoneInfo(tz_name)
         self.debug(f'setting logging timezone to {self.tz}')
 
     def set_loglevel(self, loglevel: LogLevel):

@@ -7,9 +7,11 @@ import StatusTables from './StatusTables.vue';
 import PricesGraph from "./PricesGraph.vue";
 import ScheduleGraph from "./ScheduleGraph.vue";
 import { DateTime } from "luxon";
+import { useTimezone } from '../composables/useTimezone'
 
 const control = useControlStore()
 const config = useConfigStore();
+const { tz } = useTimezone()
 
 const { general } = storeToRefs(config);
 
@@ -44,7 +46,7 @@ onBeforeUnmount(() => {
         <template v-if="control.running">Currently running in mode {{ control.mode }} ({{ control.mode_name }})</template>
         <template v-else>Not running</template>
 
-        as of {{ control.update_time.toLocaleString(DateTime.TIME_WITH_SECONDS) }}.
+        as of {{ control.update_time.setZone(tz).toLocaleString(DateTime.TIME_WITH_SECONDS) }}.
     </p>
 
     <ScheduleGraph v-if="control.schedule?.length" />

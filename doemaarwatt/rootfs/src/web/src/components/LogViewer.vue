@@ -3,17 +3,19 @@ import { ref, onMounted, computed, onBeforeUnmount, nextTick, useTemplateRef } f
 import { DateTime } from 'luxon'
 import { NScrollbar, NButton, NH4 } from 'naive-ui'
 import { useControlStore } from '../stores/control'
+import { useTimezone } from '../composables/useTimezone'
 
 const control = useControlStore()
+const { now } = useTimezone()
 
-const today = DateTime.now().startOf('day')
-const d = ref(DateTime.now().startOf('day'))
+const today = computed(() => now().startOf('day'))
+const d = ref(now().startOf('day'))
 const log = ref('')
 const timer = ref(null)
 const scrollbarRef = useTemplateRef('scrollbarRef')
 const autoScroll = ref(true)
 
-const at_today = computed(() => d.value.equals(today))
+const at_today = computed(() => d.value.equals(today.value))
 
 const scrollToBottom = () => {
     if (scrollbarRef.value) {
@@ -51,7 +53,7 @@ const to_prev = async () => {
 }
 
 const to_today = async () => {
-    d.value = today
+    d.value = today.value
     await fetchLog()
 }
 

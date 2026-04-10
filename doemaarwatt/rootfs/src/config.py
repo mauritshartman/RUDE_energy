@@ -1,7 +1,8 @@
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable, Optional
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from aiohttp import web
 
@@ -28,7 +29,7 @@ DYN_CONFIG_DEFAULT = {
         'autostart': False,
         'debug': False,
         'loop_delay': 5,
-        'timezone_offset': 2,
+        'timezone': 'Europe/Amsterdam',
         'supervisor_token': '',
     },
     'inverters': [],
@@ -49,7 +50,7 @@ GEN_CONFIG = {
     'autostart': bool,
     'debug': bool,
     'loop_delay': int,
-    'timezone_offset': int,
+    'timezone': str,
     'supervisor_token': str,
 }
 INV_CONFIG = {
@@ -93,17 +94,24 @@ MODE_DYNAMIC_CONFIG = {
 class DoeMaarWattConfig:
     def __init__(self, logger: Logger):
         self.log = logger
+        self.on_general_config_change: Optional[Callable[[], None]] = None  # called when set_general_config() saves
 
         # read dynamic config (stored at /data/dyn_config.json)
         self._dyn_config = DYN_CONFIG_DEFAULT  # dynamic addon configuration
         if DYN_CONFIG_PATH.exists():  # check for save dynamic config from an earlier session
             with DYN_CONFIG_PATH.open() as f:
                 self._dyn_config = json.load(f)
-                self.log.set_timezone(self.timezone_offset)
+                # migrate old integer timezone_offset to timezone string
+                gen = self._dyn_config['general']
+                if 'timezone_offset' in gen and 'timezone' not in gen:
+                    gen['timezone'] = 'Europe/Amsterdam'
+                    del gen['timezone_offset']
+                    self.save_dyn_config()
+                self.log.set_timezone(self.timezone)
                 self.log.debug(f'DoeMaarWatt backend server: loaded existing config:\n{self._dyn_config}')
         else:  # no file exists, so create one with default settings
             self.save_dyn_config()
-            self.log.set_timezone(self.timezone_offset)
+            self.log.set_timezone(self.timezone)
             self.log.debug(f'DoeMaarWatt backend server: loaded new default config:\n{self._dyn_config}')
 
         self.log.debug(f'DoeMaarWatt backend server: config stored in {DYN_CONFIG_PATH}')
@@ -146,13 +154,14 @@ class DoeMaarWattConfig:
         self.save_dyn_config()
 
     @property
-    def timezone_offset(self) -> int:
-        return int(self._dyn_config['general']['timezone_offset'])
-    @timezone_offset.setter
-    def timezone_offset(self, tz_offset):
-        self.log.info(f'config: setting timezone_offset to {tz_offset}')
-        self._dyn_config['general']['timezone_offset'] = int(tz_offset)
+    def timezone(self) -> str:
+        return str(self._dyn_config['general']['timezone'])
+    @timezone.setter
+    def timezone(self, tz_name: str):
+        self.log.info(f'config: setting timezone to {tz_name}')
+        self._dyn_config['general']['timezone'] = str(tz_name)
         self.save_dyn_config()
+        self.log.set_timezone(tz_name)
 
     def get_general_config(self) -> dict:
         return self._dyn_config['general']
@@ -208,12 +217,20 @@ class DoeMaarWattConfig:
                 raise Exception(f'invalid general config: field {k} has invalid value: {v}')
             if k == 'mode' and (v < MIN_MODE_VALUE or v > MAX_MODE_VALUE):
                 raise Exception(f'invalid general config: field {k} has invalid value: {v}')
+            if k == 'timezone':
+                try:
+                    ZoneInfo(v)
+                except ZoneInfoNotFoundError:
+                    raise Exception(f'invalid general config: field {k} has invalid value: {v}')
 
         self.log.info(f'config: setting general config to {cfg}')
         self._dyn_config['general'] = cfg
         self.save_dyn_config()
 
         self.log.set_loglevel(LogLevel.DEBUG if cfg['debug'] else LogLevel.INFO)
+        self.log.set_timezone(cfg['timezone'])
+        if self.on_general_config_change is not None:
+            self.on_general_config_change()
 
     def set_bart_home_setup(self):
         self.set_data_manager_config({

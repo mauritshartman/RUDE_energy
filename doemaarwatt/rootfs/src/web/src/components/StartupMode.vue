@@ -1,12 +1,21 @@
 <script setup>
 import { onMounted } from 'vue';
-import { NDivider, NForm, NGrid, NFormItemGi, NSelect, NGridItem, NSwitch, NInput, NInputNumber, NFlex, NButton } from 'naive-ui'
+import { NDivider, NForm, NGrid, NFormItemGi, NSelect, NGridItem, NSwitch, NInput, NInputNumber, NFlex, NButton, NAlert } from 'naive-ui'
 import { useConfigStore } from '../stores/config';
+import { useControlStore } from '../stores/control';
 import { storeToRefs } from 'pinia'
 
 const config = useConfigStore()
+const control = useControlStore()
 
 const { general } = storeToRefs(config)
+const { running } = storeToRefs(control)
+
+const _all_timezones = Intl.supportedValuesOf('timeZone').filter(tz => tz !== 'Europe/Amsterdam')
+const timezone_options = [
+    { label: 'Europe/Amsterdam', value: 'Europe/Amsterdam' },
+    ..._all_timezones.map(tz => ({ label: tz, value: tz })),
+]
 
 const mode_options = [
     { label: 'idle', value: 1 },
@@ -17,6 +26,7 @@ const mode_options = [
 
 const on_save = async () => {
   await config.sync_general_config(general.value)
+  await control.fetch_status()
 }
 
 const on_bart = async () => {
@@ -74,13 +84,15 @@ onMounted(async () => { await config.fetch_config() })
             <p>DoeMaarWatt operates in a loop. The loop_delay sets the delay in seconds between control actions.</p>
         </n-grid-item>
 
-        <n-form-item-gi span="0 m:4" label="Timezone offset (UTC):" path="timezone_offset">
-            <n-input-number v-model:value="general.timezone_offset" min="-12" max="12" :show-button="false">
-                <template #suffix>hours</template>
-            </n-input-number>
+        <n-form-item-gi span="0 m:4" label="Timezone:" path="timezone">
+            <n-select
+                v-model:value="general.timezone"
+                :options="timezone_options"
+                filterable
+            />
         </n-form-item-gi>
         <n-grid-item span="0 m:4">
-            <p>Indicate your local timezone offset with respect to UTC (Universal Time Coordinated).</p>
+            <p>Your local IANA timezone name. DST is handled automatically.</p>
         </n-grid-item>
 
         <n-form-item-gi span="0 m:4" label="Long-lived access token:" path="supervisor_token">
@@ -97,6 +109,10 @@ onMounted(async () => { await config.fetch_config() })
 
     </n-grid>
 </n-form>
+
+    <n-alert v-if="running" type="warning" style="margin-bottom: 12px">
+        The controller is currently running. Saving will stop it.
+    </n-alert>
 
     <n-flex justify="space-between">
         <div>&nbsp;</div>

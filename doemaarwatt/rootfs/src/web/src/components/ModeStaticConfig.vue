@@ -3,6 +3,7 @@ import { onMounted, ref, computed } from 'vue';
 import { NDivider, NFlex, NButton } from 'naive-ui'
 import { useConfigStore } from '../stores/config';
 import { storeToRefs } from 'pinia'
+import { useTimezone } from '../composables/useTimezone'
 import { AddCircleOutline } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui';
 import {
@@ -34,6 +35,7 @@ ChartJS.register(
 )
 
 const config = useConfigStore()
+const { tz, now } = useTimezone()
 
 const { mode_static } = storeToRefs(config)
 
@@ -53,12 +55,13 @@ const fca = (amount, direction) => {
 }
 
 const loaded = ref(false)
-const options = ref({
+const options = computed(() => ({
     responsive: true,
     aspectRatio: 4,
     scales: {
         x: {
             type: 'time',
+            adapters: { date: { zone: tz.value } },
             time: { unit: 'hour', displayFormats: { hour: 'HH:mm' } },
             grid: { color: '#303030', borderColor: 'grey', tickColor: 'grey' }
         },
@@ -67,10 +70,10 @@ const options = ref({
             ticks: { callback: (val, idx, ticks) => `${Math.round(val * 10) / 10} kW`}, // round to 1 decimal
         },
     }
-})
+}))
 
 const schedule_chart_data = computed(() => {
-    const start_ts = DateTime.now().startOf('day')
+    const start_ts = now().startOf('day')
 
     if (mode_static.value.schedule.length === 0) {
         return [{ x: start_ts, y: 0 }, { x: start_ts.plus({ days: 1 }), y: 0 }]

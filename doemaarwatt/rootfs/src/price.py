@@ -1,5 +1,6 @@
 from datetime import datetime as dt, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 import asyncio
 import json
 from typing import Optional, Union
@@ -31,7 +32,7 @@ class PriceManager:
 
         self.enever_token = cfg.get_mode_dynamic_config()['api_token']
 
-        self.tz = timezone(timedelta(hours=cfg.timezone_offset))
+        self.tz = ZoneInfo(cfg.timezone)
 
         self.resolution: int = int(cfg.get_mode_dynamic_config()['resolution'])
         self.price_update_time = cfg.get_mode_dynamic_config()['price_update_time']

@@ -18,6 +18,7 @@ import 'chartjs-adapter-luxon';
 import { Line } from 'vue-chartjs'
 import { DateTime } from 'luxon'
 import { computed, ref, onMounted, onBeforeUnmount } from "vue";
+import { useTimezone } from '../composables/useTimezone'
 
 ChartJS.register(
     CategoryScale,
@@ -32,12 +33,13 @@ ChartJS.register(
 
 const control = useControlStore();
 const { prices } = storeToRefs(control)
+const { tz, now } = useTimezone()
 
-const current_time = ref(DateTime.now())
+const current_time = ref(now())
 
-const price_update_ts = computed(() => DateTime.fromFormat(prices.value.update_ts, "yyyy-MM-dd'T'HH:mm:ssZZZ"))
+const price_update_ts = computed(() => DateTime.fromFormat(prices.value.update_ts, "yyyy-MM-dd'T'HH:mm:ssZZZ").setZone(tz.value))
 
-const options = ref({
+const options = computed(() => ({
     responsive: true,
     aspectRatio: 4,
     interaction: { intersect: false, mode: 'index' },
@@ -48,7 +50,7 @@ const options = ref({
             enabled: true,
             callbacks: {
                 title: (context) => {
-                    const dt = DateTime.fromMillis(context[0].parsed.x)
+                    const dt = DateTime.fromMillis(context[0].parsed.x).setZone(tz.value)
                     return dt.toFormat('ccc dd MMM HH:mm')
                 },
                 label: (context) => {
@@ -61,6 +63,7 @@ const options = ref({
     scales: {
         x: {
             type: 'time',
+            adapters: { date: { zone: tz.value } },
             time: { unit: 'hour', displayFormats: { hour: 'HH:mm' } },
             grid: { color: '#303030', borderColor: 'grey', tickColor: 'grey' }
         },
@@ -69,7 +72,7 @@ const options = ref({
             ticks: { callback: (val, idx, ticks) => `€ ${val.toFixed(3)}`}, // round to 3 decimals
         }
     }
-})
+}))
 
 const price_chart_data = computed(() => {
     const ret = []
@@ -80,7 +83,7 @@ const price_chart_data = computed(() => {
     // Find the index of the current slot: the last entry whose timestamp <= current_time
     let start_idx = 0
     for (let i = 0; i < entries.length; i++) {
-        const t = DateTime.fromFormat(entries[i][0], "yyyy-MM-dd'T'HH:mm:ssZZZ")
+        const t = DateTime.fromFormat(entries[i][0], "yyyy-MM-dd'T'HH:mm:ssZZZ").setZone(tz.value)
         if (t <= current_time.value) { start_idx = i } else { break }
     }
 
@@ -89,7 +92,7 @@ const price_chart_data = computed(() => {
     let interval = null
    for (let i = start_idx; i < entries.length; i++) {
         const [ts, p] = entries[i]
-        const t = DateTime.fromFormat(ts, "yyyy-MM-dd'T'HH:mm:ssZZZ")
+        const t = DateTime.fromFormat(ts, "yyyy-MM-dd'T'HH:mm:ssZZZ").setZone(tz.value)
 
         if (prev_p !== null) { // copy the previous data point
             ret.push({ x: t.minus({ milliseconds: 1 }), y: prev_p })
@@ -146,7 +149,7 @@ const price_chart_config = computed(() => {
 const timer = ref(null)
 onMounted(() => {
     timer.value = setInterval(() => {
-        current_time.value = DateTime.now()
+        current_time.value = now()
     }, 10 * 1000)
 })
 onBeforeUnmount(() => {

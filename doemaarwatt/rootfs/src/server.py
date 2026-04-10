@@ -61,6 +61,7 @@ class DoeMaarWattServer:
         # control related variables
         self.log = Logger(loglevel=LogLevel.DEBUG, filedir=LOG_PATH, rotate=10)
         self.config = DoeMaarWattConfig(logger=self.log)
+        self.config.on_general_config_change = self.stop_sub_task
         self.log.set_loglevel(LogLevel.DEBUG if self.config.debug else LogLevel.INFO)
         self.mode = self.config.mode  # use configured startup mode
 

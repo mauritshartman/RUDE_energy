@@ -124,7 +124,8 @@ const control = useControlStore();
         <n-table :bordered="false" :single-line="false">
           <thead>
             <tr>
-              <th colspan="2">Inverter</th>
+              <th>Inverter</th>
+              <th>Phase</th>
               <th>Current</th>
               <th>Voltage</th>
               <th>Power</th>
@@ -136,9 +137,8 @@ const control = useControlStore();
           <tbody>
             <template v-for="(inv, inv_name) in control.active_stats.inverters">
               <tr>
-                <td rowspan="2">
-                  {{ inv_name }}<br /><em>(connected to {{ inv.phase }})</em>
-                </td>
+                <td rowspan="2">{{ inv_name }}</td>
+                <td rowspan="2">{{ inv.phase }}</td>
                 <td>Battery</td>
                 <td>{{ Math.round(inv.battery.A) }} A</td>
                 <td>{{ Math.round(inv.battery.V) }} V</td>
