@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Increasing the standby charge to 50W to prevent inverter idling
+
+## [1.0.33] - 2026-04-07
+
+### Added
+
 - Extended the safe range to [0 - 105] when determining battery charge percentage
 
 ## [1.0.32] - 2026-04-07

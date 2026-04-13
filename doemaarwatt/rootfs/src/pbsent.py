@@ -4,8 +4,9 @@ from prettytable import PrettyTable
 
 
 # Commanding a zero charge/discharge power does not seem to work and relinquishes control of the battery inverter
-# So instead when the schedule / user dictates that the battery inverter should remain standby, we command a very small charging power of 10 W
-STANDBY_CHARGE = -10
+# So instead when the schedule / user dictates that the battery inverter should remain standby, we command
+# a very small charging power of 50 W
+STANDBY_CHARGE = -50
 
 
 def calc_PBsent(
