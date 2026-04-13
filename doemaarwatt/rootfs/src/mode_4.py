@@ -149,7 +149,7 @@ class Mode4Controller(BaseController):
         ret = {}
         for inv_name, inv_stat in self.stats['inverters'].items():  # type: ignore
             charge_pct = inv_stat['battery']['charge']
-            if charge_pct < 0 or charge_pct > 100:
+            if charge_pct < 0 or charge_pct > 105:
                 raise ValueError(f'charge percentage for inverter {inv_name} outside range: {charge_pct}')
 
             charge_wh = self.inv_capacities[inv_name] * charge_pct / 100.0
