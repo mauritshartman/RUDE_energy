@@ -1,9 +1,11 @@
-from typing import Any
+from typing import Any, Optional
 from prettytable import PrettyTable
 from modbus import ModbusManager
+from logger import Logger
 
 
 DM = 'Data Manager'
+SI = 'Solar Inverter'
 
 REG_MAP = {
     'L1': { 'p': 30777, 'v': 30783, 'a': 30977 },
@@ -14,9 +16,11 @@ REG_MAP = {
 async def battery_stats(
     inverters: ModbusManager,
     phase_map: dict[str, str],
+    log: Optional[Logger] = None,
 ) -> dict[str, Any]:
-    print(f'reading enabled inverter properties:')
-    print(phase_map)
+    if log:
+        log.debug(f'reading enabled inverter properties:\n{phase_map}')
+
     ret = {}
 
     temps_high = await inverters.read_registers_parallel(32221, 'S32', device_id=3, sma_format='TEMP')
@@ -44,9 +48,10 @@ async def battery_stats(
         elif ac_pow > 0:
             bat_stat = 'discharging'
 
-        print(f'{inv_name} (connected to {phi}):')
-        print(f'\tbattery:\t{current:.2f} A\t{voltage:.1f} V\t{bat_stat}\t{charge:.1f} %\t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
-        print(f'\tAC side:\t{ac_amp:.2f} A\t{ac_vol:.1f} V\t{ac_pow:.0f} W')
+        if log:
+            log.debug(f'{inv_name} (connected to {phi}):')
+            log.debug(f'\tbattery:\t{current:.2f} A\t{voltage:.1f} V\t{bat_stat}\t{charge:.1f} %\t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
+            log.debug(f'\tAC side:\t{ac_amp:.2f} A\t{ac_vol:.1f} V\t{ac_pow:.0f} W')
 
         ret[inv_name] = {
             'phase': phi,
@@ -56,11 +61,51 @@ async def battery_stats(
     return ret
 
 
+async def solar_inverter_stats(
+    si: ModbusManager,
+    device_id: int = 3,
+    log: Optional[Logger] = None,
+) -> dict[str, Any]:
+    if log:
+        log.debug(f'reading solar inverter properties:')
+
+    total_power = await si.read_register(SI, 30775, 'S32', device_id=device_id, sma_format='FIX0')
+    l1_power = await si.read_register(SI, 30777, 'S32', device_id=device_id, sma_format='FIX0')
+    l2_power = await si.read_register(SI, 30779, 'S32', device_id=device_id, sma_format='FIX0')
+    l3_power = await si.read_register(SI, 30781, 'S32', device_id=device_id, sma_format='FIX0')
+    current_setpoint_limit = await si.read_register(SI, 31405, 'U32', device_id=device_id, sma_format='FIX0')
+
+    if log:
+        table = PrettyTable()
+        table.add_column('', ['Power'])
+        table.add_column('L1', [f'{l1_power:.0f} W'])
+        table.add_column('L2', [f'{l2_power:.0f} W'])
+        table.add_column('L3', [f'{l3_power:.0f} W'])
+        table.add_column('total', [f'{total_power:.0f} W'])
+        table.add_column('setpoint limit', [f'{current_setpoint_limit:.0f} W'])
+        table.align['L1'] = 'r'
+        table.align['L2'] = 'r'
+        table.align['L3'] = 'r'
+        table.align['total'] = 'r'
+        table.align['setpoint limit'] = 'r'
+        log.debug(str(table))
+
+    return {
+        'L1': { 'P': l1_power },
+        'L2': { 'P': l2_power },
+        'L3': { 'P': l3_power },
+        'total_power': total_power,
+        'setpoint_limit': current_setpoint_limit,
+    }
+
+
 async def data_manager_stats(
     dm: ModbusManager,
     max_fuse: int,
+    log: Optional[Logger] = None,
 ) -> dict[str, Any]:
-    print(f'reading data manager properties:')
+    if log:
+        log.debug(f'reading data manager properties:')
     l1_current = await dm.read_register(DM, 31535, 'S32', device_id=2, sma_format='FIX3')
     l2_current = await dm.read_register(DM, 31537, 'S32', device_id=2, sma_format='FIX3')
     l3_current = await dm.read_register(DM, 31539, 'S32', device_id=2, sma_format='FIX3')
@@ -79,15 +124,16 @@ async def data_manager_stats(
 
     mf = max_fuse
 
-    table = PrettyTable()
-    table.add_column('', ['Current', 'Max Current', 'Voltage', 'Power', 'Status'])
-    table.add_column('L1', [f'{l1_current:.2f}', f'{mf} A', f'{l1_voltage:.1f} V', f'{l1_power:.0f} W', l1_stat])
-    table.add_column('L2', [f'{l2_current:.2f}', f'{mf} A', f'{l2_voltage:.1f} V', f'{l2_power:.0f} W', l2_stat])
-    table.add_column('L3', [f'{l3_current:.2f}', f'{mf} A', f'{l3_voltage:.1f} V', f'{l3_power:.0f} W', l3_stat])
-    table.align['L1'] = 'r'
-    table.align['L2'] = 'r'
-    table.align['L3'] = 'r'
-    print(table)
+    if log:
+        table = PrettyTable()
+        table.add_column('', ['Current', 'Max Current', 'Voltage', 'Power', 'Status'])
+        table.add_column('L1', [f'{l1_current:.2f}', f'{mf} A', f'{l1_voltage:.1f} V', f'{l1_power:.0f} W', l1_stat])
+        table.add_column('L2', [f'{l2_current:.2f}', f'{mf} A', f'{l2_voltage:.1f} V', f'{l2_power:.0f} W', l2_stat])
+        table.add_column('L3', [f'{l3_current:.2f}', f'{mf} A', f'{l3_voltage:.1f} V', f'{l3_power:.0f} W', l3_stat])
+        table.align['L1'] = 'r'
+        table.align['L2'] = 'r'
+        table.align['L3'] = 'r'
+        log.debug(str(table))
 
     return {
         'L1': { 'A': l1_current, 'Amax': mf, 'V': l1_voltage, 'P': l1_power, 'status': l1_stat },

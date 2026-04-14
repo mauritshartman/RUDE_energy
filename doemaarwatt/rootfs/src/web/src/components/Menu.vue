@@ -11,6 +11,7 @@ import {
   BarChartOutline,
   AppsOutline,
   FileTrayFullOutline,
+  SunnyOutline,
 } from "@vicons/ionicons5";
 import { NIcon, NMenu, NButton, NGrid, NGi } from "naive-ui";
 import { RouterLink } from "vue-router";
@@ -65,6 +66,16 @@ const menu_options = ref([
           ),
         key: "go-inverters",
         icon: render_icon(BatteryChargingOutline),
+      },
+      {
+        label: () =>
+          h(
+            RouterLink,
+            { to: { name: "solar_inverter_config" } },
+            { default: () => "Solar Inverter" }
+          ),
+        key: "go-solar-inverter",
+        icon: render_icon(SunnyOutline),
       },
     ],
   },

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added initial read support for an SMA solar inverter
+
+## [1.0.34] - 2026-04-07
+
+### Added
+
 - Increasing the standby charge to 50W to prevent inverter idling
 
 ## [1.0.33] - 2026-04-07

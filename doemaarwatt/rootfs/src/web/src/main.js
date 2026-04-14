@@ -7,6 +7,7 @@ import App from './App.vue'
 import Main from './components/Main.vue'
 import InverterConfig from './components/InverterConfig.vue'
 import DataManagerConfig from './components/DataManagerConfig.vue'
+import SolarInverterConfig from './components/SolarInverterConfig.vue'
 import ModeManualConfig from './components/ModeManualConfig.vue'
 import ModeStaticConfig from './components/ModeStaticConfig.vue'
 import ModeDynamicConfig from './components/ModeDynamicConfig.vue'
@@ -19,6 +20,7 @@ const app = createApp(App)
 const routes = [
     { name: 'home', path: '/', component: Main },
     { name: 'data_manager_config', path: '/config/data_manager', component: DataManagerConfig },
+    { name: 'solar_inverter_config', path: '/config/solar_inverter', component: SolarInverterConfig },
     { name: 'inverter_config', path: '/config/inverters', component: InverterConfig },
     { name: 'general_config', path: '/config/general', component: StartupMode },
     { name: 'manual_config', path: '/config/manual', component: ModeManualConfig },

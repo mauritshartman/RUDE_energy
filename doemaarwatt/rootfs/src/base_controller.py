@@ -11,9 +11,9 @@ import aiohttp
 from config import DoeMaarWattConfig, ControlMode
 from modbus import ModbusManager, to_s32_list
 from logger import Logger
-from stats import DM
+from stats import DM, SI
 from pbsent import calc_PBsent, STANDBY_CHARGE
-from stats import battery_stats, data_manager_stats
+from stats import battery_stats, data_manager_stats, solar_inverter_stats
 
 
 class BaseController(ABC):
@@ -31,8 +31,10 @@ class BaseController(ABC):
         # data manager and inverter config: will be updated by setup()
         self.inverters: ModbusManager
         self.dm: ModbusManager
+        self.si: ModbusManager
         self.inv_cfg: list[dict[str, Any]] = None  # type: ignore
         self.dm_cfg: dict[str, Any] = None  # type: ignore
+        self.si_cfg: dict[str, Any] = None  # type: ignore
 
         self.inv_phase_map: dict[str, list[str]] = None  # type: ignore
 
@@ -41,9 +43,10 @@ class BaseController(ABC):
     def reset_stats(self) -> None:
         self.start_ts = None
         self.stats = {
-            'inverters':    None,
-            'data_manager': None,
-            'inv_control':  None,
+            'inverters':        None,
+            'data_manager':     None,
+            'solar_inverter':   None,
+            'inv_control':      None,
         }
 
     @property
@@ -61,8 +64,11 @@ class BaseController(ABC):
     def setup(self) -> None:
         self.inv_cfg = self.config.get_inverters_config()
         self.dm_cfg = self.config.get_data_manager_config()
+        self.si_cfg = self.config.get_solar_inverter_config()
         if len(self.dm_cfg) > 0:
             self.dm_cfg['name'] = DM
+        if len(self.si_cfg) > 0:
+            self.si_cfg['name'] = SI
 
         self.inv_phase_map = self.config.get_phase_inverters_map()
 
@@ -94,8 +100,9 @@ class BaseController(ABC):
         raise NotImplementedError
 
     async def get_stats(self):
-        self.stats['inverters'] = await battery_stats(self.inverters, self.config.get_inverter_phase_map())  # type: ignore
-        self.stats['data_manager'] = await data_manager_stats(self.dm, self.dm_cfg.get('max_fuse_current', 25))  # type: ignore
+        self.stats['inverters'] = await battery_stats(self.inverters, self.config.get_inverter_phase_map(), log=self.log)  # type: ignore
+        self.stats['data_manager'] = await data_manager_stats(self.dm, self.dm_cfg.get('max_fuse_current', 25), log=self.log)  # type: ignore
+        self.stats['solar_inverter'] = await solar_inverter_stats(self.si, device_id=self.si_cfg['modbus_device_id'], log=self.log)  # type: ignore
 
     async def command_PBsent(self, now: dt) -> None:
         self.log.info(f'computing safe charge/discharge amount (PBsent) for each phase:')

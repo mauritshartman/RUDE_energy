@@ -119,7 +119,7 @@ const control = useControlStore();
     <n-collapse arrow-placement="right">
       <n-collapse-item>
         <template #header>
-          <n-h4 prefix="bar"> Inverter Status </n-h4>
+          <n-h4 prefix="bar"> Battery Inverters </n-h4>
         </template>
         <n-table :bordered="false" :single-line="false">
           <thead>
@@ -173,7 +173,42 @@ const control = useControlStore();
     <n-collapse arrow-placement="right">
       <n-collapse-item>
         <template #header>
-          <n-h4 prefix="bar"> Data Manager Status </n-h4>
+          <n-h4 prefix="bar"> Solar Inverter </n-h4>
+        </template>
+
+        <n-table :bordered="false" :single-line="false">
+          <thead>
+            <tr>
+              <th></th>
+              <th>L1</th>
+              <th>L2</th>
+              <th>L3</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Power</td>
+              <td>{{ Math.round(control.active_stats.solar_inverter.L1.P) }} W</td>
+              <td>{{ Math.round(control.active_stats.solar_inverter.L2.P) }} W</td>
+              <td>{{ Math.round(control.active_stats.solar_inverter.L3.P) }} W</td>
+              <td>{{ Math.round(control.active_stats.solar_inverter.total_power) }} W</td>
+            </tr>
+            <tr>
+              <td>Setpoint Limit</td>
+              <td colspan="4">{{ Math.round(control.active_stats.solar_inverter.setpoint_limit) }} W</td>
+            </tr>
+          </tbody>
+        </n-table>
+      </n-collapse-item>
+    </n-collapse>
+  </template>
+
+  <template v-if="control.active_stats">
+    <n-collapse arrow-placement="right">
+      <n-collapse-item>
+        <template #header>
+          <n-h4 prefix="bar"> Data Manager </n-h4>
         </template>
 
         <n-table :bordered="false" :single-line="false">

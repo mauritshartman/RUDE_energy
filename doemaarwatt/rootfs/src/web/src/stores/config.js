@@ -11,6 +11,7 @@ export const useConfigStore = defineStore('configuration', {
         loaded:         (state) => state.config !== null,
         general:        (state) => (state.config === null) ? [] : state.config.general,
         inverters:      (state) => (state.config === null) ? [] : state.config.inverters,
+        solar_inverter: (state) => (state.config === null) ? -1 : state.config.solar_inverter,
         data_manager:   (state) => (state.config === null) ? -1 : state.config.data_manager,
         mode_manual:    (state) => (state.config === null) ? -1 : state.config.mode_manual,
         mode_static:    (state) => (state.config === null) ? [] : state.config.mode_static,
@@ -60,6 +61,14 @@ export const useConfigStore = defineStore('configuration', {
             } catch (err) {
                 this.config = null
                 this.error_status = `config store: error while updating inverter config: ${err.msg}`
+            }
+        },
+        async sync_solar_inverter_config(cfg) {
+            try {
+                const resp = await this._make_fetch(`/config/solar_inverter`, 'POST', cfg)
+            } catch (err) {
+                this.config = null
+                this.error_status = `config store: error while updating solar inverter config: ${err.msg}`
             }
         },
         async sync_data_manager_config(cfg) {

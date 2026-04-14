@@ -50,8 +50,10 @@ class Mode2Controller(BaseController):
             try:
                 self.inverters = ModbusManager(client_configs=self.inv_cfg, log=self.log)
                 self.dm = ModbusManager(client_configs=[self.dm_cfg], log=self.log)
+                self.si = ModbusManager(client_configs=[self.si_cfg], log=self.log)
                 await self.inverters.connect()
                 await self.dm.connect()
+                await self.si.connect()
                 self.log.info(f'(re)connected to data manager and inverters')
 
                 await self.control_loop()
@@ -72,6 +74,7 @@ class Mode2Controller(BaseController):
             finally:
                 self.inverters.close()
                 self.dm.close()
+                self.si.close()
             self.log.info(f'closed modbus connections')
 
             if self.running:

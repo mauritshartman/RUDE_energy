@@ -34,6 +34,7 @@ DYN_CONFIG_DEFAULT = {
     },
     'inverters': [],
     'data_manager': {},
+    'solar_inverter': {},
     'mode_manual': { 'amount': 0, 'direction': 'standby' },
     'mode_static': { 'schedule': [] },
     'mode_dynamic': {
@@ -67,6 +68,11 @@ DM_CONFIG = {
     'host': str,
     'port': int,
     'max_fuse_current': int,
+}
+SI_CONFIG = {
+    'host': str,
+    'port': int,
+    'modbus_device_id': int,
 }
 VALID_DIRECTION = { 'standby', 'charge', 'discharge' }
 MODE_MANUAL_CONFIG = {
@@ -167,6 +173,8 @@ class DoeMaarWattConfig:
         return self._dyn_config['general']
     def get_inverters_config(self) -> list:
         return self._dyn_config['inverters']
+    def get_solar_inverter_config(self) -> dict:
+        return self._dyn_config['solar_inverter']
     def get_data_manager_config(self) -> dict:
         return self._dyn_config['data_manager']
     def get_mode_manual_config(self) -> dict[str, Any]:
@@ -270,6 +278,11 @@ class DoeMaarWattConfig:
                 'connected_phase': 'L3',
             },
         ])
+        self.set_solar_inverter_config({
+            'host': '192.168.1.223',
+            'port': 502,
+            'modbus_device_id': 3,
+        })
         dyn_cfg = self.get_mode_dynamic_config()
         dyn_cfg['api_token'] = NEKOT
         self.set_mode_dynamic_config(dyn_cfg)
@@ -297,6 +310,19 @@ class DoeMaarWattConfig:
             self._dyn_config['inverters'].append(c)
 
         self.log.info(f'config: setting inverters config to:\n{"\n".join(str(s) for s in self._dyn_config["inverters"])}')
+        self.save_dyn_config()
+
+    def set_solar_inverter_config(self, cfg: dict):
+        if not isinstance(cfg, dict):
+            raise Exception(f'solar inverter config requires a dict, passed: {cfg}')
+        if len(set(cfg.keys()) ^ set(SI_CONFIG.keys())) != 0:
+            raise Exception(f'invalid solar inverter config (missing or extraneous fields): {cfg}')
+        for k, v in cfg.items():
+            if not isinstance(v, SI_CONFIG[k]):
+                raise Exception(f'invalid solar inverter config: field {k} has invalid value: {v}')
+
+        self.log.info(f'config: setting solar inverter config to {cfg}')
+        self._dyn_config['solar_inverter'] = cfg
         self.save_dyn_config()
 
     def set_data_manager_config(self, cfg: dict):
@@ -352,20 +378,22 @@ class DoeMaarWattConfig:
 
     # web handlers
     def setup_config_endpoints(self, router):
-        router.add_get('/api/config',               self.handle_get_config)
-        router.add_get('/api/config/general',       self.handle_get_general_config)
-        router.add_post('/api/config/general',      self.handle_post_general_config)
-        router.add_get('/api/config/inverters',     self.handle_get_inverter_config)
-        router.add_post('/api/config/inverters',    self.handle_post_inverter_config)
-        router.add_get('/api/config/data_manager',  self.handle_get_data_manager_config)
-        router.add_post('/api/config/data_manager', self.handle_post_data_manager_config)
-        router.add_get('/api/config/mode/manual',   self.handle_get_mode_manual_config)
-        router.add_post('/api/config/mode/manual',  self.handle_post_mode_manual_config)
-        router.add_get('/api/config/mode/static',   self.handle_get_mode_static_config)
-        router.add_post('/api/config/mode/static',  self.handle_post_mode_static_config)
-        router.add_get('/api/config/mode/dynamic',  self.handle_get_mode_dynamic_config)
-        router.add_post('/api/config/mode/dynamic', self.handle_post_mode_dynamic_config)
-        router.add_post('/api/config/bart_setup',   self.handle_post_bart_setup)
+        router.add_get('/api/config',                   self.handle_get_config)
+        router.add_get('/api/config/general',           self.handle_get_general_config)
+        router.add_post('/api/config/general',          self.handle_post_general_config)
+        router.add_get('/api/config/inverters',         self.handle_get_inverter_config)
+        router.add_post('/api/config/inverters',        self.handle_post_inverter_config)
+        router.add_get('/api/config/solar_inverter',    self.handle_get_solar_inverter_config)
+        router.add_post('/api/config/solar_inverter',   self.handle_post_solar_inverter_config)
+        router.add_get('/api/config/data_manager',      self.handle_get_data_manager_config)
+        router.add_post('/api/config/data_manager',     self.handle_post_data_manager_config)
+        router.add_get('/api/config/mode/manual',       self.handle_get_mode_manual_config)
+        router.add_post('/api/config/mode/manual',      self.handle_post_mode_manual_config)
+        router.add_get('/api/config/mode/static',       self.handle_get_mode_static_config)
+        router.add_post('/api/config/mode/static',      self.handle_post_mode_static_config)
+        router.add_get('/api/config/mode/dynamic',      self.handle_get_mode_dynamic_config)
+        router.add_post('/api/config/mode/dynamic',     self.handle_post_mode_dynamic_config)
+        router.add_post('/api/config/bart_setup',       self.handle_post_bart_setup)
 
     async def handle_get_config(self, req: web.Request) -> web.Response:
         return web.json_response(self._dyn_config)
@@ -375,6 +403,9 @@ class DoeMaarWattConfig:
 
     async def handle_get_inverter_config(self, req: web.Request) -> web.Response:
         return web.json_response(self.get_inverters_config())
+
+    async def handle_get_solar_inverter_config(self, req: web.Request) -> web.Response:
+        return web.json_response(self.get_solar_inverter_config())
 
     async def handle_get_data_manager_config(self, req: web.Request) -> web.Response:
         return web.json_response(self.get_data_manager_config())
@@ -400,6 +431,14 @@ class DoeMaarWattConfig:
         try:
             parsed = await req.json()
             self.set_inverters_config(parsed)
+            return web.json_response({'status': 'ok'})
+        except Exception as e:
+            raise web.HTTPBadRequest(text=json.dumps({'status': 'error', 'msg': str(e)}))
+
+    async def handle_post_solar_inverter_config(self, req: web.Request) -> web.Response:
+        try:
+            parsed = await req.json()
+            self.set_solar_inverter_config(parsed)
             return web.json_response({'status': 'ok'})
         except Exception as e:
             raise web.HTTPBadRequest(text=json.dumps({'status': 'error', 'msg': str(e)}))
