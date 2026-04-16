@@ -196,7 +196,7 @@ const control = useControlStore();
             </tr>
             <tr>
               <td>Setpoint Limit</td>
-              <td colspan="4">{{ Math.round(control.active_stats.solar_inverter.setpoint_limit) }} W</td>
+              <td colspan="4">{{ control.active_stats.solar_inverter.setpoint_limit === null ? 'not set' : Math.round(control.active_stats.solar_inverter.setpoint_limit) + ' W' }}</td>
             </tr>
           </tbody>
         </n-table>
