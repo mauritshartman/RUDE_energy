@@ -18,6 +18,24 @@ _modbus_exception_codes = {
     0x0B: "Gateway Target Failed - Target not responding"
 }
 
+# For each data type, SMA Modbus defines specific NaN values. Taken from 'SMAModbus-ennexOS-TI-en-13.pdf'
+_modbus_nan_values = {
+    'S16': 32768,
+    'S32': 2147483648,
+    'STR32': 0,
+    'U16': 65535,
+    'U32': 4294967295,
+    'U32-status': 16777213,
+    'U64': 18446744073709551615,
+}
+
+
+def value_is_nan(val: Any, dtype: str) -> bool:
+    try:
+        return val == _modbus_nan_values[dtype]
+    except KeyError:
+        return False
+
 
 def to_s32_list(v: int) -> list[int]:
     '''Convert a signed 32-bit integer into a list of two unsigned 16-bit shorts'''
@@ -222,6 +240,7 @@ class ModbusManager():
 
         return ret
 
+
     def _dtype_to_word_count(self, dtype: str) -> int:
         dtype = dtype.upper()
         if dtype == 'U16':
@@ -230,6 +249,8 @@ class ModbusManager():
             return 1
         elif dtype == 'U32':
             return 2
+        elif dtype == 'U32-status':
+            return 2
         elif dtype == 'S32':
             return 2
         elif dtype == 'U64':
@@ -237,6 +258,7 @@ class ModbusManager():
         elif dtype == 'S64':
             return 4
         raise Exception(f'unrecognized Modbus datatype: {dtype}')
+
 
     def _decode_response(self,
         client_name: str,
@@ -261,6 +283,9 @@ class ModbusManager():
             value = MBClient.convert_from_registers(resp.registers, MBClient.DATATYPE.UINT64, 'big')
         else:  # TODO expand for STR32 type and variable length strings
             return resp
+
+        if value_is_nan(value, dtype):
+            return None  # we use None as NaN
 
         if sma_format is not None:
             if isinstance(sma_format, str):

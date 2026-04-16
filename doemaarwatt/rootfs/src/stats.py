@@ -32,7 +32,9 @@ async def battery_stats(
     for inv_name in temps_high.keys() & temps_low.keys() & charges.keys() & voltages.keys() & currents.keys():
         temp_h = temps_high[inv_name]
         temp_l = temps_low[inv_name]
-        charge = charges[inv_name] * 10  # fix for now
+        charge = charges[inv_name]
+        if not charge is None:
+            charge *= 10  # fix for now
         voltage = voltages[inv_name]
         current = currents[inv_name]
 
@@ -43,14 +45,19 @@ async def battery_stats(
         ac_amp = await inverters.read_register(inv_name, REG_MAP[phi]['a'], 'S32', device_id=3, sma_format='FIX3')
 
         bat_stat = 'standby'
-        if ac_pow < 0:
+        if charge is None:
+            bat_stat = 'disconnected'
+        elif ac_pow < 0:
             bat_stat = 'charging'
         elif ac_pow > 0:
             bat_stat = 'discharging'
 
         if log:
             log.debug(f'{inv_name} (connected to {phi}):')
-            log.debug(f'\tbattery:\t{current:.2f} A\t{voltage:.1f} V\t{bat_stat}\t{charge:.1f} %\t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
+            if charge is None:
+                log.debug(f'\tbattery:\t{current:.2f} A\t{voltage:.1f} V\t{bat_stat}\t - \t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
+            else:
+                log.debug(f'\tbattery:\t{current:.2f} A\t{voltage:.1f} V\t{bat_stat}\t{charge:.1f} %\t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
             log.debug(f'\tAC side:\t{ac_amp:.2f} A\t{ac_vol:.1f} V\t{ac_pow:.0f} W')
 
         ret[inv_name] = {
@@ -82,7 +89,12 @@ async def solar_inverter_stats(
         table.add_column('L2', [f'{l2_power:.0f} W'])
         table.add_column('L3', [f'{l3_power:.0f} W'])
         table.add_column('total', [f'{total_power:.0f} W'])
-        table.add_column('setpoint limit', [f'{current_setpoint_limit:.0f} W'])
+
+        if current_setpoint_limit is None:
+            table.add_column('setpoint limit', [f'not set'])
+        else:
+            table.add_column('setpoint limit', [f'{current_setpoint_limit:.0f} W'])
+
         table.align['L1'] = 'r'
         table.align['L2'] = 'r'
         table.align['L3'] = 'r'

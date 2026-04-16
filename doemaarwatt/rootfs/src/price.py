@@ -146,7 +146,6 @@ class PriceManager:
                 attempt_no += 1
 
         raise Exception(f'unable to fetch prices - exhausted all attempts')
-        # TODO send a push message when this happens - preferably through HA
 
     def _get_hourly_prices(self, target_date) -> Optional[list[float]]:
         '''Extract 24 hourly average prices from self.prices for target_date. Returns None if any hour is missing.'''

@@ -45,11 +45,13 @@ def calc_PBsent(
     PBlim_min = PGmin - Pother  # lower limit for battery inverter power value when charging/discharging
     PBlim_max = PGmax - Pother  # upper limit for battery inverter power value when charging/discharging
 
-    if PBapp < 0:  # negative so a desire to charge the battery
+    if PBapp <= 0:  # negative so a desire to charge the battery
         PBsent = int(max(PBapp, PBlim_min))
-    elif PBapp > 0:  # positive so a desire to discharge the battery
+    else:   # PBapp > 0, positive so a desire to discharge the battery
         PBsent = int(min(PBapp, PBlim_max))
-    else:  # exactly zero so a desire to remain standby. To maintain inverter control we command a small standby charge power
+
+    # check for a PBsent of zero (which implies a standby). To maintain inverter control we command a small standby charge power
+    if PBsent == 0:
         PBsent = STANDBY_CHARGE
 
     if table is not None:
