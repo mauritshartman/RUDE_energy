@@ -169,7 +169,7 @@ const control = useControlStore();
     </n-collapse>
   </template>
 
-  <template v-if="control.active_stats">
+  <template v-if="control.active_stats?.solar_inverter">
     <n-collapse arrow-placement="right">
       <n-collapse-item>
         <template #header>

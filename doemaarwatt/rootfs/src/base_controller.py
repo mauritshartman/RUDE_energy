@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import time
-from datetime import datetime as dt, timezone, timedelta
+from datetime import datetime as dt
 from typing import Any
 from zoneinfo import ZoneInfo
 import os
@@ -100,9 +100,12 @@ class BaseController(ABC):
         raise NotImplementedError
 
     async def get_stats(self):
-        self.stats['inverters'] = await battery_stats(self.inverters, self.config.get_inverter_phase_map(), log=self.log)  # type: ignore
-        self.stats['data_manager'] = await data_manager_stats(self.dm, self.dm_cfg.get('max_fuse_current', 25), log=self.log)  # type: ignore
-        self.stats['solar_inverter'] = await solar_inverter_stats(self.si, device_id=self.si_cfg['modbus_device_id'], log=self.log)  # type: ignore
+        if len(self.inv_cfg) > 0:
+            self.stats['inverters'] = await battery_stats(self.inverters, self.config.get_inverter_phase_map(), log=self.log)  # type: ignore
+        if len(self.dm_cfg) > 0:
+            self.stats['data_manager'] = await data_manager_stats(self.dm, self.dm_cfg.get('max_fuse_current', 25), log=self.log)  # type: ignore
+        if len(self.si_cfg) > 0:
+            self.stats['solar_inverter'] = await solar_inverter_stats(self.si, device_id=self.si_cfg['modbus_device_id'], log=self.log)  # type: ignore
 
     async def command_PBsent(self, now: dt) -> None:
         self.log.info(f'computing safe charge/discharge amount (PBsent) for each phase:')

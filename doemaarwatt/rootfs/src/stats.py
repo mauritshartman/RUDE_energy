@@ -54,11 +54,15 @@ async def battery_stats(
 
         if log:
             log.debug(f'{inv_name} (connected to {phi}):')
-            if charge is None:
-                log.debug(f'\tbattery:\t{current:.2f} A\t{voltage:.1f} V\t{bat_stat}\t - \t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
+            if current is None or voltage is None or ac_amp is None or ac_vol is None or ac_pow is None:
+                log.error(f'\tbattery:\t{current} A\t{voltage} V\t{bat_stat}\t - \t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
+                log.error(f'\tAC side:\t{ac_amp} A\t{ac_vol} V\t{ac_pow} W')
             else:
-                log.debug(f'\tbattery:\t{current:.2f} A\t{voltage:.1f} V\t{bat_stat}\t{charge:.1f} %\t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
-            log.debug(f'\tAC side:\t{ac_amp:.2f} A\t{ac_vol:.1f} V\t{ac_pow:.0f} W')
+                if charge is None:
+                    log.debug(f'\tbattery:\t{current:.2f} A\t{voltage:.1f} V\t{bat_stat}\t - \t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
+                else:
+                    log.debug(f'\tbattery:\t{current:.2f} A\t{voltage:.1f} V\t{bat_stat}\t{charge:.1f} %\t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
+                log.debug(f'\tAC side:\t{ac_amp:.2f} A\t{ac_vol:.1f} V\t{ac_pow:.0f} W')
 
         ret[inv_name] = {
             'phase': phi,
@@ -85,10 +89,17 @@ async def solar_inverter_stats(
     if log:
         table = PrettyTable()
         table.add_column('', ['Power'])
-        table.add_column('L1', [f'{l1_power:.0f} W'])
-        table.add_column('L2', [f'{l2_power:.0f} W'])
-        table.add_column('L3', [f'{l3_power:.0f} W'])
-        table.add_column('total', [f'{total_power:.0f} W'])
+
+        if l1_power is None or l2_power is None or l3_power is None or total_power is None:
+            table.add_column('L1', [f'{l1_power} W'])
+            table.add_column('L2', [f'{l2_power} W'])
+            table.add_column('L3', [f'{l3_power} W'])
+            table.add_column('total', [f'{total_power} W'])
+        else:
+            table.add_column('L1', [f'{l1_power:.0f} W'])
+            table.add_column('L2', [f'{l2_power:.0f} W'])
+            table.add_column('L3', [f'{l3_power:.0f} W'])
+            table.add_column('total', [f'{total_power:.0f} W'])
 
         if current_setpoint_limit is None:
             table.add_column('setpoint limit', [f'not set'])
@@ -130,18 +141,31 @@ async def data_manager_stats(
     l2_power =   await dm.read_register(DM, 31505, 'S32', device_id=2, sma_format='FIX0')
     l3_power =   await dm.read_register(DM, 31507, 'S32', device_id=2, sma_format='FIX0')
 
-    l1_stat = ('no flow' if l1_power == 0 else ('drawing from grid' if l1_power < 0 else 'supplying to grid'))
-    l2_stat = ('no flow' if l2_power == 0 else ('drawing from grid' if l2_power < 0 else 'supplying to grid'))
-    l3_stat = ('no flow' if l3_power == 0 else ('drawing from grid' if l3_power < 0 else 'supplying to grid'))
+    l1_stat = ('no flow / disconnected' if l1_power == 0 or l1_power is None else ('drawing from grid' if l1_power < 0 else 'supplying to grid'))
+    l2_stat = ('no flow / disconnected' if l2_power == 0 or l2_power is None else ('drawing from grid' if l2_power < 0 else 'supplying to grid'))
+    l3_stat = ('no flow / disconnected' if l3_power == 0 or l3_power is None else ('drawing from grid' if l3_power < 0 else 'supplying to grid'))
 
     mf = max_fuse
 
     if log:
         table = PrettyTable()
         table.add_column('', ['Current', 'Max Current', 'Voltage', 'Power', 'Status'])
-        table.add_column('L1', [f'{l1_current:.2f}', f'{mf} A', f'{l1_voltage:.1f} V', f'{l1_power:.0f} W', l1_stat])
-        table.add_column('L2', [f'{l2_current:.2f}', f'{mf} A', f'{l2_voltage:.1f} V', f'{l2_power:.0f} W', l2_stat])
-        table.add_column('L3', [f'{l3_current:.2f}', f'{mf} A', f'{l3_voltage:.1f} V', f'{l3_power:.0f} W', l3_stat])
+
+        if l1_current is None or l1_voltage is None or l1_power is None:
+            table.add_column('L1', [f'{l1_current}', f'{mf} A', f'{l1_voltage}', f'{l1_power}', l1_stat])
+        else:
+            table.add_column('L1', [f'{l1_current:.2f}', f'{mf} A', f'{l1_voltage:.1f} V', f'{l1_power:.0f} W', l1_stat])
+
+        if l2_current is None or l2_voltage is None or l2_power is None:
+            table.add_column('L2', [f'{l2_current}', f'{mf} A', f'{l2_voltage}', f'{l2_power}', l2_stat])
+        else:
+            table.add_column('L2', [f'{l2_current:.2f}', f'{mf} A', f'{l2_voltage:.1f} V', f'{l2_power:.0f} W', l2_stat])
+
+        if l3_current is None or l3_voltage is None or l3_power is None:
+            table.add_column('L3', [f'{l3_current}', f'{mf} A', f'{l3_voltage}', f'{l3_power}', l3_stat])
+        else:
+            table.add_column('L3', [f'{l3_current:.2f}', f'{mf} A', f'{l3_voltage:.1f} V', f'{l3_power:.0f} W', l3_stat])
+
         table.align['L1'] = 'r'
         table.align['L2'] = 'r'
         table.align['L3'] = 'r'
