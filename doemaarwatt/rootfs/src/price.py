@@ -108,7 +108,7 @@ class PriceManager:
                     async with session.get(self.enever_tomorrow_url) as resp:
                         parsed = await resp.json()
                         if len(parsed['data']) == 0:  # empty data list indicates data for tomorrow is not available yet
-                            self.log.debug(f'tomorrow\'s data not yet available')
+                            self.log.error(f'tomorrow\'s data not yet available')
                         else:
                             for p in parsed['data']:
                                 ts = dt.strptime(p['datum'], TIME_FMT).astimezone(self.tz)  # ensure configured timezone
@@ -121,7 +121,7 @@ class PriceManager:
                     else:
                         prev_date = max(new_prices).date()
                         prediction_date = prev_date + timedelta(days=1)
-                        prev_hourly = self._get_hourly_prices(prev_date)
+                        prev_hourly = self._get_hourly_prices(prev_date, new_prices)
                         self.log.debug(f'predicting additional prices for {prediction_date} based on prices of {prev_date}')
                         if prev_hourly is not None:
                             night_predictions = predict_night_price(prediction_date, prev_hourly, resolution_str)
@@ -147,13 +147,13 @@ class PriceManager:
 
         raise Exception(f'unable to fetch prices - exhausted all attempts')
 
-    def _get_hourly_prices(self, target_date) -> Optional[list[float]]:
+    def _get_hourly_prices(self, target_date, prices: dict[dt, float]) -> Optional[list[float]]:
         '''Extract 24 hourly average prices from self.prices for target_date. Returns None if any hour is missing.'''
         hourly = []
         for hour in range(24):
             hour_start = dt(target_date.year, target_date.month, target_date.day, hour, 0, tzinfo=self.tz)
             hour_end = hour_start + timedelta(hours=1)
-            slot_prices = [v for k, v in self.prices.items() if hour_start <= k < hour_end]
+            slot_prices = [v for k, v in prices.items() if hour_start <= k < hour_end]
             if not slot_prices:
                 self.log.info(f'night price predictor: no prices for {target_date} hour {hour}, skipping prediction')
                 return None

@@ -1,4 +1,6 @@
 from typing import Any, Optional
+from enum import StrEnum
+
 from prettytable import PrettyTable
 from modbus import ModbusManager
 from logger import Logger
@@ -12,6 +14,13 @@ REG_MAP = {
     'L2': { 'p': 30779, 'v': 30785, 'a': 30979 },
     'L3': { 'p': 30781, 'v': 30787, 'a': 30981 },
 }
+
+
+class ControlStatus(StrEnum):
+    UNCONTROLLED = 'UNCONTROLLED' # battery inverter, solar inverter or data manager is currently not being controlled
+    NOMINAL = 'NOMINAL' # inverter or data manager is fully controlled
+    DEGRADED = 'DEGRADED' # inverter or data manager is only partially being controlled: only some registers could be read/written and/or a NaN value is returned
+
 
 async def battery_stats(
     inverters: ModbusManager,
@@ -64,8 +73,13 @@ async def battery_stats(
                     log.debug(f'\tbattery:\t{current:.2f} A\t{voltage:.1f} V\t{bat_stat}\t{charge:.1f} %\t{temp_l} {chr(176)}C - {temp_h} {chr(176)}C')
                 log.debug(f'\tAC side:\t{ac_amp:.2f} A\t{ac_vol:.1f} V\t{ac_pow:.0f} W')
 
+        control_status = ControlStatus.NOMINAL
+        if any(v is None for v in [temp_h, temp_l, charge, voltage, current, ac_pow, ac_vol, ac_amp]):
+            control_status = ControlStatus.DEGRADED
+
         ret[inv_name] = {
             'phase': phi,
+            'control_status': control_status,
             'battery': { 'A': current, 'V': voltage, 'status': bat_stat, 'charge': charge, 'temp_l': temp_l, 'temp_h': temp_h },
             'ac_side': { 'A': ac_amp, 'V': ac_vol, 'P': ac_pow },
         }
@@ -113,10 +127,15 @@ async def solar_inverter_stats(
         table.align['setpoint limit'] = 'r'
         log.debug(str(table))
 
+    control_status = ControlStatus.NOMINAL
+    if any(v is None for v in [total_power, l1_power, l2_power, l3_power, current_setpoint_limit]):
+        control_status = ControlStatus.DEGRADED
+
     return {
         'L1': { 'P': l1_power },
         'L2': { 'P': l2_power },
         'L3': { 'P': l3_power },
+        'control_status': control_status,
         'total_power': total_power,
         'setpoint_limit': current_setpoint_limit,
     }
@@ -171,7 +190,16 @@ async def data_manager_stats(
         table.align['L3'] = 'r'
         log.debug(str(table))
 
+    control_status = ControlStatus.NOMINAL
+    if any(v is None for v in [
+        l1_current, l2_current, l3_current,
+        l1_voltage, l2_voltage, l3_voltage,
+        l1_power, l2_power, l3_power,
+        l1_stat, l2_stat, l3_stat]):
+        control_status = ControlStatus.DEGRADED
+
     return {
+        'control_status': control_status,
         'L1': { 'A': l1_current, 'Amax': mf, 'V': l1_voltage, 'P': l1_power, 'status': l1_stat },
         'L2': { 'A': l2_current, 'Amax': mf, 'V': l2_voltage, 'P': l2_power, 'status': l2_stat },
         'L3': { 'A': l3_current, 'Amax': mf, 'V': l3_voltage, 'P': l3_power, 'status': l3_stat },

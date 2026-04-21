@@ -11,7 +11,7 @@ import aiohttp
 from config import DoeMaarWattConfig, ControlMode
 from modbus import ModbusManager, to_s32_list
 from logger import Logger
-from stats import DM, SI
+from stats import DM, SI, ControlStatus
 from pbsent import calc_PBsent, STANDBY_CHARGE
 from stats import battery_stats, data_manager_stats, solar_inverter_stats
 

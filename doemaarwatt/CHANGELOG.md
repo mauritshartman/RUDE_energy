@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Fix for issue https://github.com/mauritshartman/RUDE_energy/issues/22
+
+## [1.0.38] - 2026-04-20
+
+### Added
+
 - Fix for issue https://github.com/mauritshartman/RUDE_energy/issues/24
 
 ## [1.0.37] - 2026-04-20

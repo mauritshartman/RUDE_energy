@@ -3,6 +3,7 @@ import struct
 from typing import Any, Optional
 from pymodbus.client import AsyncModbusTcpClient as MBClient
 from pymodbus import ModbusException
+from pymodbus.pdu.pdu import ModbusPDU
 from logger import Logger
 
 
@@ -20,8 +21,8 @@ _modbus_exception_codes = {
 
 # For each data type, SMA Modbus defines specific NaN values. Taken from 'SMAModbus-ennexOS-TI-en-13.pdf'
 _modbus_nan_values = {
-    'S16': 32768,
-    'S32': 2147483648,
+    'S16': -32768,
+    'S32': -2147483648,
     'STR32': 0,
     'U16': 65535,
     'U32': 4294967295,
@@ -151,12 +152,13 @@ class ModbusManager():
             cnt = self._dtype_to_word_count(dtype)
             self.log.debug(f'modbus[{client_name}]: trying to read register {address} (count: {cnt})')
 
+            resp: Optional[ModbusPDU] = None
             if str(address)[0] == '4':
                 resp = await client.read_holding_registers(address, count=cnt, device_id=device_id)
             elif str(address)[0] == '3':
                 resp = await client.read_input_registers(address, count=cnt, device_id=device_id)
             else:
-                raise Exception(f'unable to handle address {address}')
+                raise Exception(f'this method only supports reading input and holding registers')
 
             if resp.isError():
                 code = getattr(resp, 'exception_code', None)
@@ -200,13 +202,15 @@ class ModbusManager():
             elif str(address)[0] == '3':
                 resp = await client.read_input_registers(address, count=cnt, device_id=device_id)
             else:
-                raise Exception(f'unable to handle address {address}')
+                raise ValueError(f'this method only support reading input and holding registers')
 
             if resp.isError():
                 code = getattr(resp, 'exception_code', None)
                 if code:
                     exc_descr = _modbus_exception_codes.get(resp.exception_code, '<unknown exception>')
                     raise Exception(f'modbus error while reading from {client_name}: ({code}) {exc_descr}')
+                else:
+                    raise Exception(f'modbus error while reading from {client_name}: (code absent) {resp}')
 
             value = self._decode_response(client_name, dtype, resp, sma_format=sma_format)
             result_dict[client_name] = value
@@ -220,26 +224,39 @@ class ModbusManager():
         dtype: str,
         device_id: int = 3,
         sma_format: str | dict[int, str] | None = None,
+        raise_exceptions: bool = True,
     ) -> dict[str, Any]:
         '''Perform a parallel register read operation across all clients'''
         ret = {}  # collect results here
 
         tasks = []
+        task_names = []
         for name, client in self._clients.items():
             if client is None:
                 ret[name] = 1.2345  # dummy value
                 continue
             tasks.append(self._read_registers(name, address, dtype, ret, device_id=device_id, sma_format=sma_format))
+            task_names.append(name)
 
-        try:
-            await asyncio.gather(*tasks)  # exceptions raised within a task will propagate
-        except Exception as e:
-            self.log.error(f'modbus: Modbus parallel read failed: {e}')
-            self.close()
-            raise
+        if raise_exceptions:
+            # default behavior: propagate any exceptions
+            try:
+                await asyncio.gather(*tasks)
+            except Exception as e:
+                self.log.error(f'modbus: Modbus parallel read failed: {e}')
+                self.close()
+                raise
+
+        else:
+            # figure out which modbus reads failed and mark those with a None value
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            for i, result in enumerate(results):
+                if isinstance(result, Exception): # mark a None value in the return dict
+                    name = task_names[i]
+                    self.log.error(f'modbus[{name}]: exception while reading {address}: {result}')
+                    ret[name] = None
 
         return ret
-
 
     def _dtype_to_word_count(self, dtype: str) -> int:
         dtype = dtype.upper()
@@ -258,7 +275,6 @@ class ModbusManager():
         elif dtype == 'S64':
             return 4
         raise Exception(f'unrecognized Modbus datatype: {dtype}')
-
 
     def _decode_response(self,
         client_name: str,
@@ -285,6 +301,7 @@ class ModbusManager():
             return resp
 
         if value_is_nan(value, dtype):
+            self.log.info(f'modbus[{client_name}]: decoded modbus response {value} into a NaN-value')
             return None  # we use None as NaN
 
         if sma_format is not None:
