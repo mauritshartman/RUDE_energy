@@ -18,6 +18,8 @@ const port = defineModel('port')
 const battery_capacity = defineModel('battery_capacity')
 const battery_charge_limit = defineModel('battery_charge_limit')
 const battery_discharge_limit = defineModel('battery_discharge_limit')
+const battery_charge_max_pct = defineModel('battery_charge_max_pct')
+const battery_charge_min_pct = defineModel('battery_charge_min_pct')
 const connected_phase = defineModel('connected_phase')
 
 
@@ -44,7 +46,7 @@ const phase_options = [
         size="medium"
         label-placement="top"
     >
-        <n-grid cols="4 s:4 m:8 l:22 xl:22" x-gap="10" responsive="screen">
+        <n-grid cols="4 s:4 m:8 l:26 xl:26" x-gap="10" responsive="screen">
             <n-form-item-gi span="5" label="Name" path="name">
                 <n-input v-model:value="name" placeholder="inverter name" />
             </n-form-item-gi>
@@ -80,6 +82,18 @@ const phase_options = [
             <n-form-item-gi  span="2" label="Discharge limit" path="battery_discharge_limit">
                 <n-input-number v-model:value="battery_discharge_limit" min="0" max="100000" :show-button="false">
                     <template #suffix>W</template>
+                </n-input-number>
+            </n-form-item-gi>
+
+            <n-form-item-gi  span="2" label="Max charge" path="battery_charge_max_pct">
+                <n-input-number v-model:value="battery_charge_max_pct" min="0" max="100" :show-button="false">
+                    <template #suffix>%</template>
+                </n-input-number>
+            </n-form-item-gi>
+
+            <n-form-item-gi  span="2" label="Min charge" path="battery_charge_min_pct">
+                <n-input-number v-model:value="battery_charge_min_pct" min="0" max="100" :show-button="false">
+                    <template #suffix>%</template>
                 </n-input-number>
             </n-form-item-gi>
 

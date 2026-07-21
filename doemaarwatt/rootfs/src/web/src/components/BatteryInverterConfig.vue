@@ -20,6 +20,7 @@ const on_add = async () => {
   battery_inverters.value.push({
     name: '', host: '', port: 502,
     battery_capacity: 0, battery_charge_limit: 0, battery_discharge_limit: 0,
+    battery_charge_max_pct: 95, battery_charge_min_pct: 10,
     connected_phase: 'ALL', enable: true,
   })
 }
@@ -49,6 +50,8 @@ onMounted(async () => {
       v-model:battery_capacity="inv_cfg.battery_capacity"
       v-model:battery_charge_limit="inv_cfg.battery_charge_limit"
       v-model:battery_discharge_limit="inv_cfg.battery_discharge_limit"
+      v-model:battery_charge_max_pct="inv_cfg.battery_charge_max_pct"
+      v-model:battery_charge_min_pct="inv_cfg.battery_charge_min_pct"
       v-model:connected_phase="inv_cfg.connected_phase"
       @removed="on_removed"
     />
