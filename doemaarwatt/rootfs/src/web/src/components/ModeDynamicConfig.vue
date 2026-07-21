@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from 'vue'
-import { NDivider, NForm, NGrid, NFormItemGi, NSelect, NInputNumber, NInput, NFlex, NButton } from 'naive-ui'
+import { NDivider, NForm, NGrid, NFormItemGi, NSelect, NInputNumber, NInput, NFlex, NButton, NTimePicker } from 'naive-ui'
 import { useConfigStore } from '../stores/config'
 import { storeToRefs } from 'pinia'
 

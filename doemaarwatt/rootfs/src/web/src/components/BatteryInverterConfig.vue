@@ -1,46 +1,48 @@
 <script setup>
 import { onMounted } from 'vue';
-import { NDivider, NFlex, NButton } from 'naive-ui'
+import { NDivider, NFlex, NButton, NIcon } from 'naive-ui'
 import { useConfigStore } from '../stores/config';
 import { storeToRefs } from 'pinia'
 import { AddCircleOutline } from '@vicons/ionicons5'
-import { NIcon } from 'naive-ui';
-import InverterConfigItem from './InverterConfigItem.vue';
+import BatteryInverterConfigItem from './BatteryInverterConfigItem.vue';
 
 
 const config = useConfigStore()
-
-const { inverters } = storeToRefs(config)
+const { battery_inverters } = storeToRefs(config)
 
 const on_removed = async (idx) => {
   console.log(`removing config ${idx}`)
-  inverters.value.splice(idx, 1)
+  battery_inverters.value.splice(idx, 1)
 }
 
 const on_add = async () => {
   console.log(`appending a new config`)
-  inverters.value.push({
+  battery_inverters.value.push({
     name: '', host: '', port: 502,
     battery_capacity: 0, battery_charge_limit: 0, battery_discharge_limit: 0,
-    connected_phase: 'L1', enable: true,
+    connected_phase: 'ALL', enable: true,
   })
 }
 
 const on_save = async () => {
-  await config.sync_inverter_config(inverters.value)
+  await config.sync_battery_inverters_config(battery_inverters.value)
 }
 
-onMounted(async () => { await config.fetch_config() })
+onMounted(async () => {
+  await config.fetch_config()
+  await config.fetch_subsystem_types()
+})
 </script>
 
 <template>
-  <h2>Inverter Config</h2>
+  <h2>Battery Inverter Config</h2>
   <n-divider />
 
-  <template v-for="(inv_cfg, idx) in inverters" :key="idx">
-    <InverterConfigItem
+  <template v-for="(inv_cfg, idx) in battery_inverters" :key="idx">
+    <BatteryInverterConfigItem
       :idx="idx"
       v-model:name="inv_cfg.name"
+      v-model:type="inv_cfg.type"
       v-model:enable="inv_cfg.enable"
       v-model:host="inv_cfg.host"
       v-model:port="inv_cfg.port"

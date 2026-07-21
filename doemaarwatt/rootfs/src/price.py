@@ -8,9 +8,8 @@ from typing import Optional, Union
 import aiohttp
 
 from config import DoeMaarWattConfig
-from logger import Logger
-from night_price_predictor import init_night_price_predictor, predict_night_price
-from time_functions import datetimerange
+from common import Logger, datetimerange
+from predictor import init_night_price_predictor, predict_night_price
 
 
 ENEVER_TODAY =      'https://enever.nl/apiv3/stroomprijs_vandaag.php?token={TOKEN}&price=prijs'
@@ -37,12 +36,29 @@ class PriceManager:
         self.resolution: int = int(cfg.get_mode_dynamic_config()['resolution'])
         self.price_update_time = cfg.get_mode_dynamic_config()['price_update_time']
 
-        self.prices_ts: Optional[dt] = None
-        self.prices: dict[dt, float] = {}
+        self._prices_ts: Optional[dt] = None
+        self._prices: dict[dt, float] = {}
         if PRICE_PATH.exists():
             self.load_prices()
 
         init_night_price_predictor(log)
+
+    @property
+    def prices(self) -> dict[dt, float]:
+        return self._prices
+
+    @prices.setter
+    def prices(self, new_prices: dict[dt, float]):
+        self._prices = new_prices
+        self._prices_ts = dt.now(self.tz)
+
+    @property
+    def prices_ts(self) -> Optional[dt]:
+        return self._prices_ts
+
+    @prices_ts.setter
+    def prices_ts(self, ts: dt):
+        self._prices_ts = ts
 
     @property
     def enever_today_url(self) -> str:
@@ -70,8 +86,9 @@ class PriceManager:
             raw = raw.decode('utf-8')
 
         parsed = json.loads(raw)
-        self.prices_ts = dt.strptime(parsed['update_ts'], TIME_FMT) if parsed['update_ts'] else None
         self.prices = { dt.strptime(k, TIME_FMT): v for k, v in parsed['prices'].items()}
+        if parsed['update_ts']:
+            self.prices_ts = dt.strptime(parsed['update_ts'], TIME_FMT)
 
     def save_prices(self) -> None:
         '''Save the current prices to a json file'''
@@ -85,9 +102,9 @@ class PriceManager:
             self.from_json(raw)
             self.log.debug(f'loaded prices from {PRICE_PATH}')
 
-    async def fetch_prices(self) -> None:
+    async def fetch_prices(self, initial=False) -> None:
         attempt_no = 1
-        while attempt_no < MAX_ATTEMPTS:
+        while attempt_no <= MAX_ATTEMPTS:
             if attempt_no > 1:
                 await asyncio.sleep(10 * 2**attempt_no) # exponential backoff
 
@@ -108,35 +125,26 @@ class PriceManager:
                     async with session.get(self.enever_tomorrow_url) as resp:
                         parsed = await resp.json()
                         if len(parsed['data']) == 0:  # empty data list indicates data for tomorrow is not available yet
-                            self.log.error(f'tomorrow\'s data not yet available')
+                            # no data yet: make the extrapolation and set what we have as the new prices, so we can run
+                            # based on that, while we are attempting to grab tomorrow's prices
+                            self.extrapolate_prices(new_prices)
+                            self.prices = new_prices
+                            self.save_prices()
+                            self.log.info(f'fetched and stored limited price set for [{min(self.prices)} - {max(self.prices)}]')
+                            if initial:
+                                # the initial startup time might be in the morning, so a retry for tomorrow's prices does not make sense
+                                return
+                            else:
+                                raise Exception(f'tomorrow\'s prices unavailable: {parsed}')
+
                         else:
                             for p in parsed['data']:
                                 ts = dt.strptime(p['datum'], TIME_FMT).astimezone(self.tz)  # ensure configured timezone
                                 new_prices[ts] = float(p['prijs'])
 
-                try:
-                    resolution_str = {15: '15min', 60: '1hour'}.get(self.resolution, '15min')
-                    if resolution_str is None:
-                        self.log.info(f'night price predictor: unsupported resolution {self.resolution}min, skipping prediction')
-                    else:
-                        prev_date = max(new_prices).date()
-                        prediction_date = prev_date + timedelta(days=1)
-                        prev_hourly = self._get_hourly_prices(prev_date, new_prices)
-                        self.log.debug(f'predicting additional prices for {prediction_date} based on prices of {prev_date}')
-                        if prev_hourly is not None:
-                            night_predictions = predict_night_price(prediction_date, prev_hourly, resolution_str)
-                            pred_times = []
-                            for pred in night_predictions:
-                                h, m = map(int, pred['time'].split(':'))
-                                pred_ts = dt(prediction_date.year, prediction_date.month, prediction_date.day, h, m, tzinfo=self.tz)
-                                pred_times.append(pred_ts)
-                                new_prices[pred_ts] = pred['price']
-                            self.log.debug(f'added {len(night_predictions)} predicted night prices for {prediction_date} [{min(pred_times)} - {max(pred_times)}]')
-                except Exception as e:
-                    self.log.error(f'error predicting night prices: {e}')  # just a log message, no further escalation
-
+                # happy flow: today's and tomorrow's prices are available so we can extrapolate them:
+                self.extrapolate_prices(new_prices)
                 self.prices = new_prices
-                self.prices_ts = dt.now(self.tz)
                 self.save_prices()
                 self.log.info(f'fetched and stored prices for [{min(self.prices)} - {max(self.prices)}]')
                 return
@@ -146,6 +154,30 @@ class PriceManager:
                 attempt_no += 1
 
         raise Exception(f'unable to fetch prices - exhausted all attempts')
+
+    def extrapolate_prices(self, prices: dict[dt, float]):
+        try:
+            resolution_str = {15: '15min', 60: '1hour'}.get(self.resolution, '15min')
+            if resolution_str is None:
+                self.log.info(f'night price predictor: unsupported resolution {self.resolution}min, skipping prediction')
+            else:
+                prev_date = max(prices).date()
+                prediction_date = prev_date + timedelta(days=1)
+                prev_hourly = self._get_hourly_prices(prev_date, prices)
+                self.log.debug(f'predicting additional prices for {prediction_date} based on prices of {prev_date}')
+
+                if prev_hourly is not None:
+                    night_predictions = predict_night_price(prediction_date, prev_hourly, resolution_str)
+                    pred_times = []
+                    for pred in night_predictions:
+                        h, m = map(int, pred['time'].split(':'))
+                        pred_ts = dt(prediction_date.year, prediction_date.month, prediction_date.day, h, m, tzinfo=self.tz)
+                        pred_times.append(pred_ts)
+                        prices[pred_ts] = pred['price']
+                    self.log.debug(f'added {len(night_predictions)} predicted night prices for {prediction_date} [{min(pred_times)} - {max(pred_times)}]')
+
+        except Exception as e:
+            self.log.error(f'error predicting night prices: {e}')  # just a log message, no further escalation
 
     def _get_hourly_prices(self, target_date, prices: dict[dt, float]) -> Optional[list[float]]:
         '''Extract 24 hourly average prices from self.prices for target_date. Returns None if any hour is missing.'''
@@ -167,16 +199,17 @@ class PriceManager:
             s_ts = st.astimezone(self.tz)
 
         # check if request time falls within intervals:
-        times = list(sorted(self.prices))
+        prices = self.prices
+        times = list(sorted(prices))
         for t1, t2 in zip(times, times[1:]):
             if t1 <= s_ts and s_ts < t2:
-                return self.prices[t1]
+                return prices[t1]
 
         # check if it falls within the final interval
         if times[-1] <= s_ts and s_ts < times[-1] + timedelta(minutes=self.resolution):
-            return self.prices[times[-1]]
+            return prices[times[-1]]
 
-        raise Exception(f'could not get price for {st} (normalized to {s_ts}) in current prices [{min(self.prices)} - {max(self.prices)}]')
+        raise Exception(f'could not get price for {st} (normalized to {s_ts}) in current prices [{min(prices)} - {max(prices)}]')
 
     def normalize_to_resolution(self, t: dt) -> dt:
         '''Normalize the given time t to the resolution of this price manager'''
@@ -189,21 +222,23 @@ class PriceManager:
         Return all the prices in a list representation, where each interval (of resolution minutes length) is returned as a 3-tuple
         (start_dt, end_dt, price). If start_from is given, only intervals which contain start_from or are later are returned.
         '''
+        prices = self.prices
+
         if start_from is None:
-            start_from = min(self.prices)
+            start_from = min(prices)
         interval_length = timedelta(minutes=self.resolution)
         price_range_start = self.normalize_to_resolution(start_from)
-        price_range_end = self.normalize_to_resolution(max(self.prices)) + interval_length
+        price_range_end = self.normalize_to_resolution(max(prices)) + interval_length
 
         ret = []
-        times = list(sorted(self.prices))  # not yet normalized
+        times = list(sorted(prices))  # not yet normalized
         for iv_start in datetimerange(price_range_start, price_range_end, size=interval_length):
             iv_end = iv_start + interval_length
 
             # find the newest price timestamp which is older than iv_end:
             try:
                 price_key = max(t for t in times if t < iv_end)
-                ret.append((iv_start, iv_end, self.prices[price_key]))
+                ret.append((iv_start, iv_end, prices[price_key]))
             except ValueError as e:  # empty, so likely no starting price
                 raise ValueError(f'cannot determine price for time interval [{iv_start}, {iv_end})')
 

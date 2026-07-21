@@ -1,6 +1,5 @@
 from datetime import date, datetime, timedelta
-from decimal import Decimal as D
-from typing import Any, Generator, Tuple, Optional
+from typing import Generator, Tuple
 
 
 def daterange(start: date, end: date, size: int = 1) -> Generator[date, None, None]:

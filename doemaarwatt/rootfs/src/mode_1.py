@@ -1,61 +1,51 @@
 import asyncio
+import traceback
 from datetime import datetime as dt
 
-from config import DoeMaarWattConfig, ControlMode
-from logger import Logger
+from config import ControlMode
+from common import DMWException, PBSapp
 from base_controller import BaseController
-from modbus import ModbusManager
-from stats import battery_stats, data_manager_stats
 
 
 class Mode1Controller(BaseController):
-    def __init__(self,
-        cfg: DoeMaarWattConfig,
-        log: Logger,
-    ) -> None:
-        super().__init__(cfg, log)
 
     @property
     def mode(self) -> ControlMode:
         return ControlMode.IDLE
 
-    def get_PBapp_phases(self, now: dt) -> dict[str, float]:
-        return {'L1': 0.0, 'L2': 0.0, 'L3': 0.0}
+    def get_PBSapp(self, now: dt) -> PBSapp:
+        # required by base class; unused in IDLE mode as there are no inverters being actively controlled
+        return PBSapp(list(self.inverters.values()))
 
     async def loop(self):
         while self.running:  # outer, reconnect loop
             try:
-                self.inverters = ModbusManager(client_configs=self.inv_cfg, log=self.log)
-                self.dm = ModbusManager(client_configs=[self.dm_cfg], log=self.log)
-                self.si = ModbusManager(client_configs=[self.si_cfg], log=self.log)
-                await self.inverters.connect()
-                await self.dm.connect()
-                await self.si.connect()
-                self.log.info(f'(re)connected to data manager and inverters')
-
+                await self.connect_subsystems()
                 await self.control_loop()
 
             except asyncio.CancelledError:
-                self.log.info(f'mode 1 loop cancelled')
+                self.log.info('mode 1 loop cancelled')
                 self.stop()
+            except DMWException as e:
+                self.log.error(str(e))
+                if e.requires_fallback:
+                    self.stop()
             except Exception as e:
-                self.log.error(f'encountered error: {e}')
+                self.log.fatal(f'encountered fatal error: {type(e).__name__}: {e}\n{traceback.format_exc()}')
                 self.stop()
 
-            self.inverters.close()
-            self.dm.close()
-            self.si.close()
-            self.log.info(f'closed modbus connections')
+            self.close_subsystems()
 
-            if self.running:
-                await asyncio.sleep(10)  # wait 10 seconds before reconnecting
+            await self.reconnect_delay()
 
     async def control_loop(self):
         while self.running:  # inner, control loop
-            self.log.info(f'idle: relinquish control and reset power set point')
-            await self.inverters.write_registers_parallel(40149, [0, 0])  # reset rendement
-            await self.inverters.write_registers_parallel(40151, [0, 803])  # 803 = inactive
+
+            # defensive re-assertion against state drift:
+            self.log.info('idle: relinquish control for all inverters')
+            await asyncio.gather(*[inv.relinquish_control() for inv in self.battery_inverters])
+            await asyncio.gather(*[inv.relinquish_control() for inv in self.solar_inverters])
 
             await self.get_stats()
 
-            await asyncio.sleep(self.config.get_general_config().get('loop_delay', 10))
+            await self.loop_delay()

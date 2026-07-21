@@ -1,6 +1,5 @@
 import asyncio
 from server import DoeMaarWattServer
-from datetime import datetime as dt
 
 
 async def main():

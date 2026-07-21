@@ -29,17 +29,23 @@ onMounted(async () => { await config.fetch_config() })
   size="medium"
   label-placement="top"
   >
-  <n-grid cols="4 s:4 m:8 l:16 xl:16" x-gap="10" responsive="screen">
+  <n-grid cols="4 s:4 m:8 l:12 xl:12" x-gap="10" responsive="screen">
     <n-form-item-gi span="4" label="Direction" path="direction">
       <n-select
-      v-model:value="mode_manual.direction"
-      placeholder="Select direction"
-      :options="direction_options"
+        v-model:value="mode_manual.direction"
+        placeholder="Select direction"
+        :options="direction_options"
       />
     </n-form-item-gi>
 
-    <n-form-item-gi span="4" label="Charge/discharge amount" path="amount">
-      <n-input-number v-model:value="mode_manual.amount" min="0" max="10000" :show-button="false">
+    <n-form-item-gi span="4" label="Battery charge/discharge amount (per phase)" path="battery_amount">
+      <n-input-number v-model:value="mode_manual.battery_amount" min="0" max="10000" :show-button="false">
+        <template #suffix>W</template>
+      </n-input-number>
+    </n-form-item-gi>
+
+    <n-form-item-gi span="4" label="Solar max power (per pahse)" path="solar_amount">
+      <n-input-number v-model:value="mode_manual.solar_amount" min="0" max="10000" :show-button="false">
         <template #suffix>W</template>
       </n-input-number>
     </n-form-item-gi>
@@ -53,5 +59,7 @@ onMounted(async () => { await config.fetch_config() })
 
   <p>
     Define the direction (charge or discharge) and the amount of power while operating in <em>manual mode</em>.
+    The charge/discharge power is commanded to each individual battery inverter, while a maximum setpoint power limit
+    is commanded to each solar inverter. Note that the setpoint power limit is per phase.
   </p>
 </template>

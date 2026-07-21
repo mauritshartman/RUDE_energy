@@ -2,7 +2,6 @@
 import { h, ref } from "vue";
 import {
   HomeOutline,
-  HardwareChipOutline,
   SettingsOutline,
   BatteryChargingOutline,
   CalendarOutline,
@@ -12,6 +11,7 @@ import {
   AppsOutline,
   FileTrayFullOutline,
   SunnyOutline,
+  SpeedometerOutline,
 } from "@vicons/ionicons5";
 import { NIcon, NMenu, NButton, NGrid, NGi } from "naive-ui";
 import { RouterLink } from "vue-router";
@@ -43,7 +43,7 @@ const menu_options = ref([
     icon: render_icon(SettingsOutline),
   },
   {
-    label: "Device Configuration",
+    label: "Subsystem Configuration",
     key: "go-config",
     icon: render_icon(AppsOutline),
     children: [
@@ -51,30 +51,30 @@ const menu_options = ref([
         label: () =>
           h(
             RouterLink,
-            { to: { name: "data_manager_config" } },
-            { default: () => "Data Manager" }
+            { to: { name: "energy_meter_config" } },
+            { default: () => "Energy Meter" }
           ),
-        key: "go-data-manager",
-        icon: render_icon(HardwareChipOutline),
+        key: "go-energy-meter",
+        icon: render_icon(SpeedometerOutline),
       },
       {
         label: () =>
           h(
             RouterLink,
-            { to: { name: "inverter_config" } },
-            { default: () => "Inverters" }
+            { to: { name: "battery_inverters_config" } },
+            { default: () => "Battery Inverters" }
           ),
-        key: "go-inverters",
+        key: "go-battery-inverters",
         icon: render_icon(BatteryChargingOutline),
       },
       {
         label: () =>
           h(
             RouterLink,
-            { to: { name: "solar_inverter_config" } },
-            { default: () => "Solar Inverter" }
+            { to: { name: "solar_inverters_config" } },
+            { default: () => "Solar Inverters" }
           ),
-        key: "go-solar-inverter",
+        key: "go-solar-inverters",
         icon: render_icon(SunnyOutline),
       },
     ],

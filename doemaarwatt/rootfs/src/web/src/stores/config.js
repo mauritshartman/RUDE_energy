@@ -1,18 +1,20 @@
 
 import { defineStore } from 'pinia'
+import { API_BASE } from './api'
 
 export const useConfigStore = defineStore('configuration', {
     state: () => ({
         config: null,
+        subsystem_types: null,
         error_status: '',
     }),
 
     getters: {
         loaded:         (state) => state.config !== null,
         general:        (state) => (state.config === null) ? [] : state.config.general,
-        inverters:      (state) => (state.config === null) ? [] : state.config.inverters,
-        solar_inverter: (state) => (state.config === null) ? -1 : state.config.solar_inverter,
-        data_manager:   (state) => (state.config === null) ? -1 : state.config.data_manager,
+        battery_inverters:      (state) => (state.config === null) ? [] : state.config.battery_inverters,
+        solar_inverters: (state) => (state.config === null) ? [] : state.config.solar_inverters,
+        energy_meter:   (state) => (state.config === null) ? -1 : state.config.energy_meter,
         mode_manual:    (state) => (state.config === null) ? -1 : state.config.mode_manual,
         mode_static:    (state) => (state.config === null) ? [] : state.config.mode_static,
         mode_dynamic:   (state) => (state.config === null) ? -1 : state.config.mode_dynamic,
@@ -31,10 +33,7 @@ export const useConfigStore = defineStore('configuration', {
                 options.body = JSON.stringify(post_body)
             }
 
-            // local development fetch line:
-            const resp = await fetch(`http://localhost:8099/api${path}`, options)
-            // production build line:
-            // const resp = await fetch("/api"+path, options)
+            const resp = await fetch(`${API_BASE}${path}`, options)
             if (!resp.ok) { throw new Error(`response status: ${resp.status}`) }
             const ret = await resp.json()
             return ret
@@ -55,28 +54,28 @@ export const useConfigStore = defineStore('configuration', {
                 this.error_status = `config store: error while updating general config: ${err.msg}`
             }
         },
-        async sync_inverter_config(cfg) {
+        async sync_battery_inverters_config(cfg) {
             try {
-                const resp = await this._make_fetch(`/config/inverters`, 'POST', cfg)
+                const resp = await this._make_fetch(`/config/battery_inverters`, 'POST', cfg)
             } catch (err) {
                 this.config = null
                 this.error_status = `config store: error while updating inverter config: ${err.msg}`
             }
         },
-        async sync_solar_inverter_config(cfg) {
+        async sync_solar_inverters_config(cfg) {
             try {
-                const resp = await this._make_fetch(`/config/solar_inverter`, 'POST', cfg)
+                const resp = await this._make_fetch(`/config/solar_inverters`, 'POST', cfg)
             } catch (err) {
                 this.config = null
                 this.error_status = `config store: error while updating solar inverter config: ${err.msg}`
             }
         },
-        async sync_data_manager_config(cfg) {
+        async sync_energy_meter_config(cfg) {
             try {
-                const resp = await this._make_fetch(`/config/data_manager`, 'POST', cfg)
+                const resp = await this._make_fetch(`/config/energy_meter`, 'POST', cfg)
             } catch (err) {
                 this.config = null
-                this.error_status = `config store: error while updating data manager config: ${err.msg}`
+                this.error_status = `config store: error while updating energy meter config: ${err.msg}`
             }
         },
         async sync_mode_manual_config(cfg) {
@@ -109,6 +108,16 @@ export const useConfigStore = defineStore('configuration', {
             } catch (err) {
                 this.config = null
                 this.error_status = `config store: error while applying Bart home setup: ${err.msg}`
+            }
+        },
+        async fetch_subsystem_types(cfg) {
+            if (!this.subsystem_types) {
+                try {
+                    this.subsystem_types = await this._make_fetch(`/config/subsystem_types`)
+                } catch (err) {
+                    this.subsystem_types = null
+                    this.error_status = `config store: error while fetching subsystem types: ${err.msg}`
+                }
             }
         },
     }

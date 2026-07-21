@@ -78,7 +78,7 @@ const schedule_chart_data = computed(() => {
     if (mode_static.value.schedule.length === 0) {
         return [{ x: start_ts, y: 0 }, { x: start_ts.plus({ days: 1 }), y: 0 }]
     } else if (mode_static.value.schedule.length === 1) {
-        const amount = fca(mode_static.value.schedule[0].amount, mode_static.value.schedule[0].direction)
+        const amount = fca(mode_static.value.schedule[0].battery_amount, mode_static.value.schedule[0].direction)
         return [{ x: start_ts, y: amount }, { x: start_ts.plus({ days: 1 }), y: amount }]
     } else {
         const ret = []
@@ -86,7 +86,7 @@ const schedule_chart_data = computed(() => {
         // ensure a data point at the start:
         if (mode_static.value.schedule[0].time !== '00:00') {
             const last_entry = mode_static.value.schedule[mode_static.value.schedule.length - 1]
-            ret.push({ x: start_ts, y: fca(last_entry.amount, last_entry.direction) })
+            ret.push({ x: start_ts, y: fca(last_entry.battery_amount, last_entry.direction) })
         }
 
         for (const c of mode_static.value.schedule) {
@@ -99,7 +99,44 @@ const schedule_chart_data = computed(() => {
                     y: ret[ret.length - 1].y
                 })
             }
-            ret.push({ x: change_ts, y: fca(c.amount, c.direction) })
+            ret.push({ x: change_ts, y: fca(c.battery_amount, c.direction) })
+        }
+
+        // ensure a data point at the end:
+        ret.push({ x: start_ts.plus({ days: 1 }), y: ret[ret.length - 1].y })
+
+        return ret
+    }
+})
+
+const solar_chart_data = computed(() => {
+    const start_ts = now().startOf('day')
+
+    if (mode_static.value.schedule.length === 0) {
+        return [{ x: start_ts, y: 0 }, { x: start_ts.plus({ days: 1 }), y: 0 }]
+    } else if (mode_static.value.schedule.length === 1) {
+        const amount = (mode_static.value.schedule[0].solar_amount || 0) / 1000
+        return [{ x: start_ts, y: amount }, { x: start_ts.plus({ days: 1 }), y: amount }]
+    } else {
+        const ret = []
+
+        // ensure a data point at the start:
+        if (mode_static.value.schedule[0].time !== '00:00') {
+            const last_entry = mode_static.value.schedule[mode_static.value.schedule.length - 1]
+            ret.push({ x: start_ts, y: (last_entry.solar_amount || 0) / 1000 })
+        }
+
+        for (const c of mode_static.value.schedule) {
+            const [hours, minutes] = c.time.split(':').map(Number)
+            const change_ts = start_ts.plus({ hours: hours, minutes: minutes })
+
+            if (ret.length > 0) { // copy the previous data point
+                ret.push({
+                    x: change_ts.minus({ seconds: 1 }),
+                    y: ret[ret.length - 1].y
+                })
+            }
+            ret.push({ x: change_ts, y: (c.solar_amount || 0) / 1000 })
         }
 
         // ensure a data point at the end:
@@ -121,6 +158,15 @@ const schedule_chart_config = computed(() => {
             },
             borderColor: 'rgb(99, 226, 183)',
             tension: 0.0,
+        }, {
+            label: 'Solar amount (kW)',
+            data: solar_chart_data.value,
+            fill: {
+                target: 'origin',
+                above: 'rgba(255, 193, 7, 0.2)',
+            },
+            borderColor: 'rgb(255, 193, 7)',
+            tension: 0.0,
         }]
     }
 })
@@ -136,7 +182,10 @@ const on_add = async () => {
     loaded.value = false
     console.log(`appending a new schedule item`)
     mode_static.value.schedule.push({
-        time: max_schedule_time.value, amount: 0, direction: 'standby'
+        time: max_schedule_time.value,
+        battery_amount: 0,
+        direction: 'standby',
+        solar_amount: 0,
     })
     loaded.value = true
 }
@@ -167,8 +216,9 @@ onMounted(async () => {
         <ScheduleConfigItem
             :idx="idx"
             v-model:time="inv_cfg.time"
-            v-model:amount="inv_cfg.amount"
+            v-model:battery_amount="inv_cfg.battery_amount"
             v-model:direction="inv_cfg.direction"
+            v-model:solar_amount="inv_cfg.solar_amount"
             @removed="on_removed"
         />
     </template>
@@ -189,7 +239,7 @@ onMounted(async () => {
     Define a static charge / discharge schedule that is used in the <em>static schedule</em> mode.
     By clicking the <n-button type="primary" secondary strong circle size="tiny"><NIcon size="16"><AddCircleOutline /></NIcon></n-button> button,
     you can add moments in the schedule on which it changes. Each moment is defined by a time, a <em>direction</em> (being idle, charging or discharging),
-    and an amount in Watts.
+    and an amount in Watts for both the battery inverters as well as the solar inverters. All amounts are interpreted as being per phase.
     </p>
 
     <div>

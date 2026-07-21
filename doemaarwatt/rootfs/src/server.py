@@ -10,7 +10,7 @@ from aiohttp import web
 import aiohttp_cors
 
 from config import DoeMaarWattConfig, ControlMode
-from logger import Logger, LogLevel
+from common import Logger, LogLevel
 from base_controller import BaseController
 from mode_1 import Mode1Controller
 from mode_2 import Mode2Controller

@@ -1,24 +1,36 @@
 <script setup>
 import { NIcon, NForm, NGrid, NFormItemGi, NInput, NInputNumber, NSelect, NSwitch, NButton, NDivider } from 'naive-ui'
 import { CloseCircleOutline } from '@vicons/ionicons5'
+import { storeToRefs } from "pinia";
+import { useConfigStore } from '../stores/config'
+import { computed } from 'vue';
 
 const emit = defineEmits(['removed'])
 
+const config = useConfigStore()
+
 const props = defineProps(['idx'])
 const name = defineModel('name')
+const type = defineModel('type')
 const enable = defineModel('enable')
 const host = defineModel('host')
 const port = defineModel('port')
-const battery_capacity = defineModel('battery_capacity')
-const battery_charge_limit = defineModel('battery_charge_limit')
-const battery_discharge_limit = defineModel('battery_discharge_limit')
+const modbus_device_id = defineModel('modbus_device_id')
 const connected_phase = defineModel('connected_phase')
+
+const solar_inverter_types = computed(() => {
+    const types = config.subsystem_types?.solar_inverters
+    if (!types) { return [] }
+    return Object.entries(types).map(([value, label]) => ({ value, label }))
+})
 
 const phase_options = [
     { label: 'L1', value: 'L1' },
     { label: 'L2', value: 'L2' },
     { label: 'L3', value: 'L3' },
+    { label: 'All', value: 'ALL' },
 ]
+
 </script>
 
 <template>
@@ -27,38 +39,33 @@ const phase_options = [
         size="medium"
         label-placement="top"
     >
-        <n-grid cols="4 s:4 m:8 l:16 xl:16" x-gap="10" responsive="screen">
-            <n-form-item-gi span="3" label="Name" path="name">
+        <n-grid cols="4 s:4 m:8 l:20 xl:20" x-gap="10" responsive="screen">
+            <n-form-item-gi span="4" label="Name" path="name">
                 <n-input v-model:value="name" placeholder="inverter name" />
             </n-form-item-gi>
 
-            <n-form-item-gi span="2" label="Host" path="host">
+            <n-form-item-gi span="4" label="Type" path="type">
+                <n-select
+                    v-model:value="type"
+                    placeholder="Select type"
+                    :options="solar_inverter_types"
+                />
+            </n-form-item-gi>
+
+            <n-form-item-gi span="3" label="Host" path="host">
                 <n-input v-model:value="host" placeholder="192.168..." />
             </n-form-item-gi>
 
-            <n-form-item-gi  span="1" label="Port" path="port">
+            <n-form-item-gi span="1" label="Port" path="port">
                 <n-input-number v-model:value="port" min="1" max="65535" :show-button="false" />
             </n-form-item-gi>
 
-            <n-form-item-gi  span="2" label="Battery capacity" path="battery_capacity">
-                <n-input-number v-model:value="battery_capacity" min="0" max="100000" :show-button="false">
-                    <template #suffix>Wh</template>
-                </n-input-number>
+            <n-form-item-gi span="3" label="Modbus Device ID" path="device_id">
+                <n-input-number v-model:value="modbus_device_id" min="1" max="65535" :show-button="false" />
             </n-form-item-gi>
 
-            <n-form-item-gi  span="2" label="Battery charge limit" path="battery_charge_limit">
-                <n-input-number v-model:value="battery_charge_limit" min="0" max="100000" :show-button="false">
-                    <template #suffix>W</template>
-                </n-input-number>
-            </n-form-item-gi>
 
-            <n-form-item-gi  span="2" label="Battery discharge limit" path="battery_discharge_limit">
-                <n-input-number v-model:value="battery_discharge_limit" min="0" max="100000" :show-button="false">
-                    <template #suffix>W</template>
-                </n-input-number>
-            </n-form-item-gi>
-
-            <n-form-item-gi span="2" label="Connected Phase" path="connected_phase">
+            <n-form-item-gi span="3" label="Phase" path="connected_phase">
                 <n-select
                     v-model:value="connected_phase"
                     placeholder="Select phase"
@@ -84,6 +91,5 @@ const phase_options = [
                 <n-divider />
             </n-form-item-gi>
         </n-grid>
-
     </n-form>
 </template>

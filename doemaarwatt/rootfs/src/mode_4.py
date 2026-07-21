@@ -1,16 +1,21 @@
 import asyncio
 import json
+import traceback
 from typing import Any, Optional, Union
 from datetime import datetime as dt, timedelta
 
 from aiohttp import web
 
 from config import DoeMaarWattConfig, ControlMode
-from logger import Logger
+from common import Logger, DMWException, PBSapp
 from base_controller import BaseController
-from modbus import ModbusManager
 from price import PriceManager
 from dyn_schedule import DynamicScheduler, SchedulePeriodEncoder
+
+
+# Price (€/kWh) at or below which solar is fully curtailed: exporting at a negative price costs money,
+# so there is no economic reason to generate. (TODO: promote to a mode-dynamic config setting.)
+SOLAR_CURTAIL_PRICE = 0.0
 
 
 class Mode4Controller(BaseController):
@@ -40,25 +45,60 @@ class Mode4Controller(BaseController):
         self.pm = PriceManager(self.config, self.log)
         self.scheduler = DynamicScheduler(self.config, self.pm)
 
-        self.inv_capacities = self.config.get_inverter_field_map('battery_capacity')
-        self.battery_present = { i: True for i in self.inv_capacities }  # whether battery is connected to inverter or not
+        self.bat_capacities = {inv.name: inv.capacity_wh for inv in self.battery_inverters}
+        self.battery_present = {inv.name: True for inv in self.battery_inverters}
 
     def _stop_price_loop_task(self):
         if self.price_task is not None:
             self.price_task.cancel()
             self.price_task = None
 
-    def get_PBapp_phases(self, now: dt) -> dict[str, float]:
-        '''Return a mapping of each phase (L1, L2, L3) to its associated PBapp. In mode 4 this entails using the computed schedule'''
+    def get_PBSapp(self, now: dt) -> PBSapp:
+        '''Return the desired power level (PBSapp) for each controlled inverter. Battery inverters follow the
+        computed schedule (disconnected batteries are commanded to zero). Each solar inverter is registered at
+        its per-phase maximum generation; calc_PBSsent then curtails solar (solar first, preserving the
+        scheduled battery discharge) to keep every phase within the applicable export limit. When no
+        curtailment is needed the commanded setpoint equals the max, leaving the inverter effectively uncapped.'''
         PBapp_inverters = self.scheduler.get_PBapp_inverters(now)  # inv -> PBapp
 
         # set PBapp to zero for disconnected batteries:
         PBapp_inverters = { i: p if self.battery_present[i] else 0 for i, p in PBapp_inverters.items() }
 
-        ret = {}
-        for phi, inverter_names in self.inv_phase_map.items():
-            ret[phi] = sum(PBapp_inverters[inv] for inv in inverter_names)
-        return ret
+        pbsapp = PBSapp(list(self.inverters.values()))
+        for inv in self.battery_inverters:
+            pbsapp.set(inv.connected_phase, inv.name, PBapp_inverters[inv.name])
+        for inv in self.solar_inverters:
+            pbsapp.set(inv.connected_phase, inv.name, inv.power_limits_phase[1])  # per-phase max generation
+
+        return pbsapp
+
+    def get_export_limit(self, now: dt) -> Optional[float]:
+        '''Economic curtailment: when the current price is <= the curtailment threshold, exporting to the grid
+        costs money, so tighten the export ceiling to 0. Solar is then curtailed (by calc_PBSsent) only down to
+        what is self-consumed locally (house load + battery charging) rather than being switched off entirely,
+        so negative-price battery charging can still absorb the available solar.'''
+        try:
+            price = self.pm.get_price(now)
+        except Exception as e:
+            self.log.error(f'could not determine price for export-limit decision, allowing normal export: {e}')
+            return None
+
+        if price <= SOLAR_CURTAIL_PRICE:
+            self.log.info(f'price {price:.4f} <= {SOLAR_CURTAIL_PRICE:.4f} EUR/kWh: limiting grid export to 0 W (solar self-consumption only)')
+            return 0.0
+        return None
+
+    async def _try_relinquish_control(self):
+        results = await asyncio.gather(*[inv.relinquish_control() for inv in self.battery_inverters],
+                                           return_exceptions=True)
+        for inv, result in zip(self.battery_inverters, results):
+            if isinstance(result, Exception):
+                self.log.error(f'error relinquishing control of {inv.name}: {result}')
+        results = await asyncio.gather(*[inv.relinquish_control() for inv in self.solar_inverters],
+                                        return_exceptions=True)
+        for inv, result in zip(self.solar_inverters, results):
+            if isinstance(result, Exception):
+                self.log.error(f'error relinquishing control of {inv.name}: {result}')
 
     async def loop(self):
         self.log.info(f'Mode 4 (dynamic schedule mode) started')
@@ -67,58 +107,47 @@ class Mode4Controller(BaseController):
         # Fetch initial prices and start the price update loop once, before the reconnect loop.
         # price_loop runs independently and must not be cancelled on control_loop errors,
         # otherwise a reconnect after price_update_time would push the next fetch to tomorrow.
-        await self.pm.fetch_prices()
+        await self.pm.fetch_prices(initial=True)
         self.price_task = asyncio.create_task(self.price_loop())
         self.log.info('fetched initial prices and started price update loop')
 
         while self.running:  # outer, reconnect loop:
-            exception_occurred = False
+            fatal_exception_occurred = False
             exception_msg = ''
 
             try:
-                self.inverters = ModbusManager(client_configs=self.inv_cfg, log=self.log) # initial assignment, ensures inverters and dm are set
-                self.dm = ModbusManager(client_configs=[self.dm_cfg], log=self.log) # in case initial fetch_price raises an exception
-                self.si = ModbusManager(client_configs=[self.si_cfg], log=self.log)
-
                 # Refresh prices on each (re)connect as a safety net; price_loop handles daily updates.
-                await self.pm.fetch_prices()
+                await self.pm.fetch_prices(initial=True)
 
                 # Restart price_loop if it stopped unexpectedly (e.g. unhandled exception outside its try/except).
                 if self.price_task is None or self.price_task.done():
                     self.log.info('price_loop task is not running, restarting it')
                     self.price_task = asyncio.create_task(self.price_loop())
 
-                await self.inverters.connect()
-                await self.dm.connect()
-                await self.si.connect()
-                self.log.info(f'(re)connected to data manager and inverters')
-
+                await self.connect_subsystems()
                 await self.control_loop()
 
             except asyncio.CancelledError:
                 self.log.debug(f'mode 4 (dynamic schedule mode) loop cancelled')
                 self.stop()  # running to false so outer loop exits cleanly
                 self._stop_price_loop_task()
+            except DMWException as e:
+                self.log.error(str(e))
+                if e.requires_fallback:
+                    self.stop()
+                    self._stop_price_loop_task()
+                    fatal_exception_occurred = True
             except Exception as e:
-                exception_occurred = True
-                template = "An exception of type {0} occurred. Arguments: {1!r}"
-                exception_msg = template.format(type(e).__name__, e.args)
-                self.log.error(exception_msg)
+                fatal_exception_occurred = True
+                exception_msg = f'{type(e).__name__}: {e}'  # concise message for the HA notification
+                self.log.error(f'encountered fatal error: {exception_msg}\n{traceback.format_exc()}')
 
-            # an error or cancellation occurred: make sure to relinquish control:
-            try:
-                await self.inverters.write_registers_parallel(40149, [0, 0])  # reset rendement
-                await self.inverters.write_registers_parallel(40151, [0, 803])  # 803 = inactive
-            except Exception as e:
-                self.log.error(f'encountered error while trying to send 803: {e}')
-            finally:
-                self.inverters.close()
-                self.dm.close()
-                self.si.close()
-            self.log.info(f'closed modbus connections')
+            # if we reach here an error or cancellation occurred: make sure to relinquish control:
+            await self._try_relinquish_control()
+            self.close_subsystems()
 
-            if exception_occurred:
-                await self.send_ha_notification('Mode 4 control error', exception_msg)
+            if fatal_exception_occurred: # apply fallback mode
+                await self.send_ha_notification('Mode 4 control fatal error', exception_msg)
 
                 # check if we need to fallback to a different mode:
                 if self.dyn_cfg['fallback_mode'] != self.config.mode:
@@ -126,17 +155,17 @@ class Mode4Controller(BaseController):
                     self.config.mode = self.dyn_cfg['fallback_mode']
                     return
 
-                # otherwise we remain in mode 4 and try to reconnect:
-                if self.running:
-                    await asyncio.sleep(10)  # wait 10 seconds before reconnecting
+            await self.reconnect_delay()
 
     async def control_loop(self):
         # inner, control loop
         while self.running:
-            self.log.debug(f'mode 4 (dynamic schedule mode) control loop iteration started')
+            self.log.debug('mode 4 (dynamic schedule mode) control loop iteration started')
 
             # fetch current charge
-            await self.inverters.write_registers_parallel(40151, [0, 802])  # 802 = active control
+            await asyncio.gather(*[inv.enable_control() for inv in self.battery_inverters])
+            await asyncio.gather(*[inv.enable_control() for inv in self.solar_inverters])
+
             current_charge = await self.get_current_charge()
 
             # determine if a schedule update is in order, and compute it if necessary based on currently available prices:
@@ -145,12 +174,15 @@ class Mode4Controller(BaseController):
                 self.update_schedule(now, current_charge)
 
             # schedule in place, so execute it by determing PBsent for each inverter:
-            await self.command_PBsent(now)
+            await self.command_PBSsent(now)
 
-            await asyncio.sleep(self.config.get_general_config().get('loop_delay', 10))
+            await self.loop_delay()
 
     def update_schedule(self, now: dt, current_charge: dict[str, Union[float, None]]):
-        self.log.info(f'schedule update required (schedule age {now - self.scheduler.schedule_ts})')
+        if not self.scheduler.schedule_available_for(now):
+            self.log.info(f'schedule update required (no schedule available for {now})')
+        else:
+            self.log.info(f'schedule update required (schedule age {now - self.scheduler.schedule_ts})')
         price_range = self.pm.get_price_range(now)
         self.log.info(f'updated prices: {len(price_range)} slots [{price_range[0][0].strftime("%H:%M")} — {price_range[-1][1].strftime("%H:%M")}]')
 
@@ -172,8 +204,8 @@ class Mode4Controller(BaseController):
         self.log.debug(f'gathered stats - determining battery charges')
 
         ret = {}
-        for inv_name, inv_stat in self.stats['inverters'].items():  # type: ignore
-            charge_pct = inv_stat['battery']['charge']
+        for inv_name, inv_stat in self._stats.battery_inverters.items():
+            charge_pct = inv_stat.battery.battery_charge_pct
             if charge_pct is None:
                 self.log.error(f'battery for inverter {inv_name} seems disconnected')
                 self.battery_present[inv_name] = False
@@ -182,13 +214,13 @@ class Mode4Controller(BaseController):
 
             if charge_pct < 0 or charge_pct > 105:
                 self.battery_present[inv_name] = False
-                raise ValueError(f'charge percentage for inverter {inv_name} outside range: {charge_pct}')
+                raise ValueError(f'charge percentage for battery inverter {inv_name} outside range: {charge_pct}')
 
             # if we reach here, we consider the battery present
             self.battery_present[inv_name] = True
-            charge_wh = self.inv_capacities[inv_name] * charge_pct / 100.0
+            charge_wh = self.bat_capacities[inv_name] * charge_pct / 100.0
             if charge_pct < 1:
-                self.log.debug(f'capacity for inverter {inv_name} indicated as {charge_pct:.1f} %, which implies a charge of {charge_wh} Wh')
+                self.log.debug(f'capacity for battery inverter {inv_name} indicated as {charge_pct:.1f} %, which implies a charge of {charge_wh} Wh')
 
             ret[inv_name] = charge_wh
 
@@ -222,8 +254,8 @@ class Mode4Controller(BaseController):
                 self.log.info(f'price_loop [{loop_id}]: cancelled')
                 return
             except Exception as e:
-                self.log.error(f'price_loop [{loop_id}]: {e}')
-                await self.send_ha_notification('Mode 4 price error', f'There was an error while fetching prices: {e}')
+                self.log.error(f'price_loop [{loop_id}]: {type(e).__name__}: {e}\n{traceback.format_exc()}')
+                await self.send_ha_notification('Mode 4 price error', f'There was an error while fetching prices: {type(e).__name__}: {e}')
 
     def handle_status(self, request):
         price_info = self.pm.to_dict()
@@ -232,9 +264,9 @@ class Mode4Controller(BaseController):
         return web.json_response({
             'status': 'ok',
             'running': self.running,
-            'running_start': self.start_ts,
             'mode': self.mode.value,
-            'stats': self.stats,
+            'running_start': self._stats.start_ts,
+            'stats': self._stats.serialize(),
             'prices': price_info,
             'schedule': self.scheduler.schedule,
             'schedule_ts': self.scheduler.schedule_ts,

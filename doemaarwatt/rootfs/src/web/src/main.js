@@ -1,32 +1,25 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { createPinia } from 'pinia'
-import naive from 'naive-ui'
 // import './style.css'
 import App from './App.vue'
-import Main from './components/Main.vue'
-import InverterConfig from './components/InverterConfig.vue'
-import DataManagerConfig from './components/DataManagerConfig.vue'
-import SolarInverterConfig from './components/SolarInverterConfig.vue'
-import ModeManualConfig from './components/ModeManualConfig.vue'
-import ModeStaticConfig from './components/ModeStaticConfig.vue'
-import ModeDynamicConfig from './components/ModeDynamicConfig.vue'
-import StartupMode from './components/StartupMode.vue'
-import LogViewer from './components/LogViewer.vue'
 
 const pinia = createPinia()
 const app = createApp(App)
 
+// Routes are lazy-loaded so each view (and its dependencies, e.g. the chart
+// libraries used on the home view) ships as a separate chunk instead of
+// bloating the initial bundle.
 const routes = [
-    { name: 'home', path: '/', component: Main },
-    { name: 'data_manager_config', path: '/config/data_manager', component: DataManagerConfig },
-    { name: 'solar_inverter_config', path: '/config/solar_inverter', component: SolarInverterConfig },
-    { name: 'inverter_config', path: '/config/inverters', component: InverterConfig },
-    { name: 'general_config', path: '/config/general', component: StartupMode },
-    { name: 'manual_config', path: '/config/manual', component: ModeManualConfig },
-    { name: 'static_schedule_config', path: '/config/static', component: ModeStaticConfig },
-    { name: 'dynamic_schedule_config', path: '/config/dynamic', component: ModeDynamicConfig },
-    { name: 'logfiles', path: '/logfiles', component: LogViewer },
+    { name: 'home', path: '/', component: () => import('./components/Main.vue') },
+    { name: 'energy_meter_config', path: '/config/energy_meter', component: () => import('./components/EnergyMeterConfig.vue') },
+    { name: 'solar_inverters_config', path: '/config/solar_inverters', component: () => import('./components/SolarInverterConfig.vue') },
+    { name: 'battery_inverters_config', path: '/config/battery_inverters', component: () => import('./components/BatteryInverterConfig.vue') },
+    { name: 'general_config', path: '/config/general', component: () => import('./components/StartupMode.vue') },
+    { name: 'manual_config', path: '/config/manual', component: () => import('./components/ModeManualConfig.vue') },
+    { name: 'static_schedule_config', path: '/config/static', component: () => import('./components/ModeStaticConfig.vue') },
+    { name: 'dynamic_schedule_config', path: '/config/dynamic', component: () => import('./components/ModeDynamicConfig.vue') },
+    { name: 'logfiles', path: '/logfiles', component: () => import('./components/LogViewer.vue') },
 ]
 
 const router = createRouter({
@@ -36,6 +29,5 @@ const router = createRouter({
 
 app.use(pinia)
 app.use(router)
-app.use(naive);
 
 app.mount('#app')

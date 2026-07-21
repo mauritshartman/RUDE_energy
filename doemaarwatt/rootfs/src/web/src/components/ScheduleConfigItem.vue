@@ -6,8 +6,9 @@ const emit = defineEmits(['removed'])
 
 const props = defineProps(['idx'])
 const time = defineModel('time')
-const amount = defineModel('amount')
+const battery_amount = defineModel('battery_amount')
 const direction = defineModel('direction')
+const solar_amount = defineModel('solar_amount')
 
 const hours = [...Array(24).keys()]
 const minutes = [0, 15, 30, 45]
@@ -36,18 +37,24 @@ const direction_options = [
                 />
             </n-form-item-gi>
 
-            <n-form-item-gi  span="2" label="Amount:" path="amount">
-                <n-input-number v-model:value="amount" min="0" max="100000" :show-button="false">
+            <n-form-item-gi  span="4" label="Battery Amount:" path="battery_amount">
+                <n-input-number v-model:value="battery_amount" min="0" max="10000" :show-button="false">
                     <template #suffix>W</template>
                 </n-input-number>
             </n-form-item-gi>
 
             <n-form-item-gi span="3" label="Direction:" path="direction">
                 <n-select
-                    v-model:value="direction"
-                    placeholder="Select direction"
-                    :options="direction_options"
+                v-model:value="direction"
+                placeholder="Select direction"
+                :options="direction_options"
                 />
+            </n-form-item-gi>
+
+            <n-form-item-gi  span="4" label="Solar max power:" path="solar_amount">
+                <n-input-number v-model:value="solar_amount" min="0" max="10000" :show-button="false">
+                    <template #suffix>W</template>
+                </n-input-number>
             </n-form-item-gi>
 
             <n-form-item-gi>

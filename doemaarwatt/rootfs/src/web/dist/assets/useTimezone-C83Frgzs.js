@@ -1,0 +1,1 @@
+import{D as n}from"./luxon-BDx6lZXm.js";import{u as t}from"./config-Djf-pMko.js";import{n as m}from"./index-B9aBYp8I.js";function a(){const e=t(),o=m(()=>e.timezone);return{tz:o,now:()=>n.now().setZone(o.value)}}export{a as u};

@@ -16,7 +16,7 @@ from datetime import date
 
 import joblib
 
-from logger import Logger
+from common import Logger, ProgrammingError
 
 # ---------------------------------------------------------------------------
 # Internal state
@@ -62,11 +62,11 @@ def predict_night_price(prediction_date: date, prev_day_hourly_prices: list[floa
         List of dicts with keys "time" (str, e.g. "00:15") and "price" (float, €/kWh).
     """
     if not _artifacts:
-        raise RuntimeError("Call init() before predict().")
+        raise ProgrammingError("call init() before predict().", source='predictor')
     if resolution not in _artifacts:
-        raise ValueError(f"Unknown resolution '{resolution}'. Choose '1hour' or '15min'.")
+        raise ProgrammingError(f"Unknown resolution '{resolution}'. Choose '1hour' or '15min'.", source='predictor')
     if len(prev_day_hourly_prices) != 24:
-        raise ValueError(f"Expected 24 hourly prices, got {len(prev_day_hourly_prices)}.")
+        raise ProgrammingError(f"Expected 24 hourly prices, got {len(prev_day_hourly_prices)}.", source='predictor')
 
     model, scaler = _artifacts[resolution]["model"], _artifacts[resolution]["scaler"]
     features = _build_features(prediction_date, prev_day_hourly_prices)

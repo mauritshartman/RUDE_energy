@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { DateTime } from 'luxon'
+import { API_BASE } from './api'
 
 export const useControlStore = defineStore('control', {
     state: () => ({
@@ -15,14 +16,24 @@ export const useControlStore = defineStore('control', {
     }),
 
     getters: {
-        active_stats: (state) => {
-            if (state.stats?.inverters) { return state.stats }
-            else { return null }
-        },
-        active_inv_control: (state) => {
-            if (state.stats?.inv_control) { return state.stats.inv_control }
-            else { return null }
-        },
+        // Backend stats shape: { battery_inverters, solar_inverters, energy_meter }.
+        // Battery inverters are single-phase, so their `ac_side` is keyed by the
+        // connected phase. Flatten each into a row with the phase and its AC data.
+        battery_rows: (state) =>
+            Object.entries(state.stats?.battery_inverters ?? {}).map(([name, inv]) => {
+                const phase = Object.keys(inv.ac_side ?? {})[0] ?? null
+                return {
+                    name,
+                    phase,
+                    control_status: inv.control_status,
+                    battery: inv.battery,
+                    ac: phase ? inv.ac_side[phase] : null,
+                }
+            }),
+        // Solar inverters can span multiple phases; keep the per-phase `ac_side`.
+        solar_rows: (state) =>
+            Object.entries(state.stats?.solar_inverters ?? {}).map(([name, inv]) => ({ name, ...inv })),
+        energy_meter: (state) => state.stats?.energy_meter ?? null,
         mode_name: (state) => {
             if (state.mode === 1) { return 'idle' }
             else if (state.mode === 2) { return 'manual' }
@@ -41,10 +52,7 @@ export const useControlStore = defineStore('control', {
                 options.body = JSON.stringify(post_body)
             }
 
-            // local development fetch line:
-            const resp = await fetch(`http://localhost:8099/api${path}`, options)
-            // production build fetch line:
-            // const resp = await fetch("/api"+path, options)
+            const resp = await fetch(`${API_BASE}${path}`, options)
             if (!resp.ok) { throw new Error(`response status: ${resp.status}`) }
             const ret = await resp.json()
             return ret
@@ -57,11 +65,7 @@ export const useControlStore = defineStore('control', {
                 body: JSON.stringify(d)
             }
             try {
-                // local development fetch line:
-                const resp = await fetch(`http://localhost:8099/api/log`, options)
-                // production build fetch line:
-                // const resp = await fetch("/api/log", options)
-
+                const resp = await fetch(`${API_BASE}/log`, options)
                 if (!resp.ok) { throw new Error(`response status: ${resp.status}`) }
                 const ret = await resp.text()
                 return ret
@@ -100,8 +104,9 @@ export const useControlStore = defineStore('control', {
                 this.config = null
                 this.error_status = `config store: error while updating general config: ${err.msg}`
             }
+            console.log(`set_running(${r}): /run POSTed`)
 
-            await new Promise(resolve => setTimeout(resolve, 1500))
+            await new Promise(resolve => setTimeout(resolve, 3000))
             await this.fetch_status()
         }
     }

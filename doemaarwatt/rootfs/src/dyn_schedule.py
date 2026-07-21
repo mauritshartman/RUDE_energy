@@ -8,6 +8,7 @@ from scipy.optimize import milp, LinearConstraint, Bounds
 from prettytable import PrettyTable
 
 from config import DoeMaarWattConfig
+from common import Phase, DMWException
 from price import PriceManager
 
 
@@ -16,6 +17,13 @@ from price import PriceManager
 # TODO: make these an inverter setting
 BATTERY_EMPTY_THRESHOLD = 0.00
 BATTERY_FULL_THRESHOLD = 1.00
+
+
+class SchedulerException(DMWException):
+    '''Exception raised when the schedule cannot be created. Non-fatal
+    '''
+    def __init__(self, message: str, source: str, requires_fallback: bool = False) -> None:
+        super().__init__(message, source, requires_fallback)
 
 
 class DynamicScheduler:
@@ -67,16 +75,16 @@ class DynamicScheduler:
         # Fetch price data covering the schedule window
         price_range = self.pm.get_price_range(sched_start)[:N]
         if len(price_range) < N:
-            raise Exception(
+            raise SchedulerException(
                 f'DynamicScheduler: insufficient price data to cover schedule window '
                 f'[{sched_start}, {sched_end}] ({len(price_range)} of {N} slots available)'
-            )
+            , source='DynamicScheduler', requires_fallback=True)
         prices = [pr[2] for pr in price_range]
 
         # Inverter parameters (only enabled inverters)
-        inv_capacities       = self.cfg.get_inverter_field_map('battery_capacity')
-        inv_charge_limits    = self.cfg.get_inverter_field_map('battery_charge_limit')
-        inv_discharge_limits = self.cfg.get_inverter_field_map('battery_discharge_limit')
+        inv_capacities       = self.cfg.get_battery_inverter_field_map('battery_capacity')
+        inv_charge_limits    = self.cfg.get_battery_inverter_field_map('battery_charge_limit')
+        inv_discharge_limits = self.cfg.get_battery_inverter_field_map('battery_discharge_limit')
         inverters = list(inv_capacities.keys())
         M = len(inverters)
 
@@ -191,7 +199,8 @@ class DynamicScheduler:
             bounds=Bounds(lb, ub),  # type: ignore[arg-type]
         )
         if not result.success:
-            raise Exception(f'DynamicScheduler: MILP solve failed: {result.message}')
+            raise SchedulerException(f'MILP solve failed: {result.message}',
+                                     source='DynamicScheduler', requires_fallback=True)
 
         x = result.x
 
@@ -219,7 +228,8 @@ class DynamicScheduler:
             if sp.start_ts <= ts and ts < sp.end_ts:
                 return sp.PBapp_inverters
 
-        raise Exception(f'get_PBapp_inverters(): requested time {ts} could not be found in schedule {self.schedule}')
+        raise SchedulerException(f'get_PBapp_inverters(): requested time {ts} could not be found in schedule {self.schedule}',
+                                 source='DynamicScheduler', requires_fallback=True)
 
     def schedule_to_string(self) -> str:
         if not self.schedule:
@@ -319,7 +329,7 @@ class SchedulePeriodEncoder(json.JSONEncoder):
 if __name__ == '__main__':
     import asyncio
     from prettytable import PrettyTable
-    from logger import Logger, LogLevel
+    from common import Logger, LogLevel
 
     async def main():
         log = Logger(loglevel=LogLevel.DEBUG, filedir='logs', rotate=10)
@@ -341,7 +351,7 @@ if __name__ == '__main__':
         print(f'Available prices: {len(price_range)} slots  [{price_range[0][0].strftime("%H:%M")} — {price_range[-1][1].strftime("%H:%M")}]')
 
         # Use 50 % state-of-charge as the starting point for each configured inverter
-        inv_capacities = cfg.get_inverter_field_map('battery_capacity')
+        inv_capacities = cfg.get_battery_inverter_field_map('battery_capacity')
         # current_charge = {inv: cap * 0.5 for inv, cap in inv_capacities.items()}
         current_charge = {
             'inv1': 0.64 * 64000,

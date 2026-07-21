@@ -1,25 +1,27 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, defineAsyncComponent } from "vue";
 import { storeToRefs } from "pinia";
 import { useControlStore } from '../stores/control';
 import { useConfigStore } from "../stores/config";
 import StatusTables from './StatusTables.vue';
-import PricesGraph from "./PricesGraph.vue";
-import ScheduleGraph from "./ScheduleGraph.vue";
+// Graphs pull in chart.js; load them on demand so that dependency splits into
+// its own chunk instead of shipping with the initial bundle.
+const PricesGraph = defineAsyncComponent(() => import("./PricesGraph.vue"));
+const ScheduleGraph = defineAsyncComponent(() => import("./ScheduleGraph.vue"));
 import { DateTime } from "luxon";
 import { useTimezone } from '../composables/useTimezone'
 
 const control = useControlStore()
-const config = useConfigStore();
+const config = useConfigStore()
 const { tz } = useTimezone()
 
-const { general } = storeToRefs(config);
-
+const { general } = storeToRefs(config)
 const timer = ref();
 
 onMounted(async () => {
-  await control.fetch_status();
-  await config.fetch_config();
+  await control.fetch_status()
+  await config.fetch_config()
+  await config.fetch_subsystem_types()
 
   let ld = general.value.loop_delay;
   if (typeof ld === "undefined") {

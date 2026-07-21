@@ -5,11 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [1.1.0] - 2026-07-21
 
 ### Added
 
+- Control support for an SMA solar inverter
+- Solar inverter control in the dynamic schedule mode (mode 4):
+  - Solar is curtailed first (before battery discharge) to keep each phase within the main-fuse limit
+  - Solar export is curtailed at negative prices, limiting it to self-consumption (house load and battery charging) so batteries can still charge from solar
+- Separate configuration screens for battery inverters, solar inverters and the energy meter
+
+### Changed
+
+- Refactored add-on backend into extensible subsystems (battery inverters, solar inverters, energy meter)
+- Reduced the frontend initial load through route and vendor code-splitting, and the API URL is now selected automatically for development and production
+
+### Fixed
+
 - Fix for issue https://github.com/mauritshartman/RUDE_energy/issues/22
+- Status tables now correctly display battery inverter, solar inverter and energy meter readings
+- Simulated battery inverter now reflects the commanded (dis)charge power in its stats
 
 ## [1.0.38] - 2026-04-20
 

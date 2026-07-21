@@ -6,19 +6,14 @@
 import enum
 import os
 import json
-from datetime import date, datetime as dt, timedelta, timezone
+from datetime import date, datetime as dt, timedelta
 from typing import Optional, Union
 from pathlib import Path
 from zoneinfo import ZoneInfo
 from aiohttp import web
 
-from singleton import Singleton
-
-
-class ConfigurationException(Exception):
-    """Exception raised due to configuration issues."""
-
-    pass
+from .singleton import Singleton
+from .exceptions import ConfigException
 
 
 PREFIX_LENGTH = 22
@@ -38,10 +33,10 @@ _nameToLevel = {x.name: x.value for x in LogLevel}
 
 # noinspection PyPep8Naming
 def getLevelName(level: Union[str, int]):
-    result = _levelToName.get(level)
+    result = _levelToName.get(level)  # type: ignore
     if result is not None:
         return result
-    result = _nameToLevel.get(level)
+    result = _nameToLevel.get(level)  # type: ignore
     if result is not None:
         return result
     return f"Level {level}"
@@ -70,7 +65,7 @@ class Logger(metaclass=Singleton):
     def setup(self,
         message_prefix: Optional[str] = None,
         loglevel: LogLevel = LogLevel.INFO,
-        filedir: Optional[str] = None,
+        filedir: Optional[Union[Path, str]] = None,
         rotate: Optional[int] = None,
         suffix: Optional[str] = None,
         tz_name: Optional[str] = None,
@@ -81,7 +76,7 @@ class Logger(metaclass=Singleton):
         - Otherwise expand cwd
         """
         if loglevel is not None and not isinstance(loglevel, LogLevel):
-            raise ConfigurationException(f"Invalid screen loglevel {loglevel}")
+            raise ConfigException(f"invalid screen loglevel {loglevel}", source='logger')
 
         # timezone
         self.tz = ZoneInfo(tz_name) if tz_name is not None else ZoneInfo('UTC')
@@ -90,7 +85,7 @@ class Logger(metaclass=Singleton):
         self.loglevel = loglevel
         if self.loglevel:
             if filedir is None:
-                raise ConfigurationException("Filedir is required when loglevel is not None")
+                raise ConfigException("filedir is required when loglevel is not None", source='logger')
 
             filedir = str(filedir)
             if filedir.startswith("~"):
@@ -102,7 +97,7 @@ class Logger(metaclass=Singleton):
 
             if rotate is not None:
                 if not isinstance(rotate, (float, int)):
-                    raise ConfigurationException("Rotate needs to be float or int")
+                    raise ConfigException("Rotate needs to be float or int", source='logger')
 
             self._rotate_delay = rotate
 
@@ -236,8 +231,8 @@ class Logger(metaclass=Singleton):
                 age = today - log_date
                 if age > delta:
                     to_delete = os.path.join(self.filedir, log_file)
-                    print(f"Deleting old log directory {to_delete}")
+                    print(f"deleting old log directory {to_delete}")
                     os.remove(to_delete)
 
             except ValueError as e:
-                print(f"Cannot parse directory to date: {self.filedir}: {str(e)}")
+                print(f"cannot parse directory to date: {self.filedir}: {str(e)}")

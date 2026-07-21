@@ -1,6 +1,6 @@
 <script setup>
 import Menu from './components/Menu.vue';
-import { darkTheme } from 'naive-ui';
+import { darkTheme, NConfigProvider, NGlobalStyle } from 'naive-ui';
 
 </script>
 
