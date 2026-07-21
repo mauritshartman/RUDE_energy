@@ -49,7 +49,6 @@ def get_ingress_filters(ingress_path: str) -> list:
         ( 'href="/', f'href="{ingress_path}/' ),
         ( 'src="/src/', f'src="{ingress_path}/src/' ),
         ( 'src="/assets/', f'src="{ingress_path}/assets/' ),
-        ( '"assets/', f'{ingress_path}/assets/' ),
         ( 'fetch("/api"+', f'fetch("{ingress_path}/api"+' ),
         ( 'fetch("/api/log"', f'fetch("{ingress_path}/api/log"' ),
         ( '<script src="/', f'<script src="{ingress_path}/' ),
