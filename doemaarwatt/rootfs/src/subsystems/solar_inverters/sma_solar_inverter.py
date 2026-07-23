@@ -1,6 +1,6 @@
 from typing import Any
 
-from common import Logger, ModbusManager, to_u32_list, to_s32_list, ControlStatus, Phase, SPCStats, ProgrammingError, ControlException
+from common import Logger, ModbusManager, to_u32_list, ControlStatus, Phase, SPCStats, ProgrammingError, ControlException
 from .base import BaseSolarInverter, SolarInverterStats
 
 
@@ -60,11 +60,13 @@ class SmaSolarInverter(BaseSolarInverter):
         if not self.is_connected:
             raise ControlException(f'unable to assert control, not connected', source=self.name)
 
-        # Parameter.Inverter.WModCfg.WCtlComCfg.Ena, 308 = ON (potentially needed as enable switch for external control channel
-        await self._modbus.write_register(self.name, 41383, to_u32_list(308), device_id=self._device_id)
-
-        # enable external control
-        await self._modbus.write_register(self.name, 40210, to_u32_list(1079), device_id=self._device_id)
+        # Use the "manual active-power preset in Watts" scheme: WMod (40210) = 1077. The setpoint is then a W
+        # value written to WCnstCfg.W (40212) and read back from 30837 (all in W). This replaces the previous
+        # "External setting" (1079) approach, which expects a normalized-% setpoint over the WCtlComCfg channel
+        # and left the W read-back (31405) at NaN ('not set' in the UI).
+        # First make sure the external-communication setpoint channel is off so only the manual preset is active.
+        await self._modbus.write_register(self.name, 41383, to_u32_list(303), device_id=self._device_id)  # WCtlComCfg.Ena = Off
+        await self._modbus.write_register(self.name, 40210, to_u32_list(1077), device_id=self._device_id)  # WMod = manual W preset
 
         self.is_controlled = True
 
@@ -74,14 +76,16 @@ class SmaSolarInverter(BaseSolarInverter):
 
         self.is_controlled = False
 
-        await self._modbus.write_register(self.name, 40210, to_u32_list(303), device_id=self._device_id) # disable external setpoint control
+        # WMod = 303 (Off): stop the active-power preset so the inverter runs unlimited again
+        await self._modbus.write_register(self.name, 40210, to_u32_list(303), device_id=self._device_id)
 
-        # Parameter.Inverter.WModCfg.WCtlComCfg.Ena, 303 = OFF (potentially needed)
+        # keep the external-communication channel off as well (defensive; it is not used in the manual scheme)
         await self._modbus.write_register(self.name, 41383, to_u32_list(303), device_id=self._device_id)
 
     async def read_stats(self) -> SolarInverterStats:
+        # setpoint is read back from WCnstCfg.W (30837) - the same manual active-power preset set_power() writes
         total_pow, l1_pow, l2_pow, l3_pow, setpoint_limit = await self._modbus.read_register_seq(self.name, [
-            (30775, 'S32', 'FIX0'), (30777, 'S32', 'FIX0'), (30779, 'S32', 'FIX0'), (30781, 'S32', 'FIX0'), (31405, 'U32', 'FIX0'),
+            (30775, 'S32', 'FIX0'), (30777, 'S32', 'FIX0'), (30779, 'S32', 'FIX0'), (30781, 'S32', 'FIX0'), (30837, 'U32', 'FIX0'),
         ], device_id=self._device_id)
 
         control_status = ControlStatus.DEGRADED if any(
@@ -105,12 +109,13 @@ class SmaSolarInverter(BaseSolarInverter):
         )
 
     async def set_power(self, power_w: float) -> None:
-        '''Apply a curtailment setpoint capping total output at `power_w` W across all connected
-        phases. `power_w == 0` means full curtailment (a 0 W limit). Relinquishing control (reg 40210=303)
-        removes the cap and lets the inverter run freely again.'''
+        '''Apply an active-power limit capping total output at `power_w` W across all connected phases.
+        `power_w == 0` means full curtailment (a 0 W limit). The value is written to the manual active-power
+        preset register WCnstCfg.W (40212); relinquishing control (WMod 40210=303) removes the limit and lets
+        the inverter run freely again.'''
         if power_w < 0:
             raise ProgrammingError('solar inverter can only source power, not sink it', source=self.name)
         elif power_w > 25_000:
             raise ProgrammingError('exceeds power set point for this solar inverter', source=self.name)
 
-        await self._modbus.write_register(self.name, 41251, to_s32_list(int(power_w)), device_id=self._device_id)
+        await self._modbus.write_register(self.name, 40212, to_u32_list(int(power_w)), device_id=self._device_id)

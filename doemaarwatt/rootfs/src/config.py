@@ -45,7 +45,7 @@ DYN_CONFIG_DEFAULT = {
         'update_interval': 3600,
         'resolution': 60,
         'fallback_mode': 1,
-        'efficiency': 0.95,
+        'efficiency': 0.93,
         'api_token': '',
     },
 }
@@ -60,7 +60,7 @@ GEN_CONFIG = {
 # Default per-inverter state-of-charge limits (%), see issue #7. Keep charging below the max and
 # discharging above the min so the battery never reaches a full/empty state that puts the inverter to sleep.
 DEFAULT_BATTERY_CHARGE_MAX_PCT = 95
-DEFAULT_BATTERY_CHARGE_MIN_PCT = 10
+DEFAULT_BATTERY_CHARGE_MIN_PCT = 5
 
 BAT_INV_CONFIG = {
     'name': str,
