@@ -12,13 +12,6 @@ from common import Phase, DMWException
 from price import PriceManager
 
 
-# Thresholds for batteries to consider them empty and full
-# For now we trust the BMS reported SoC value
-# TODO: make these an inverter setting
-BATTERY_EMPTY_THRESHOLD = 0.00
-BATTERY_FULL_THRESHOLD = 1.00
-
-
 class SchedulerException(DMWException):
     '''Exception raised when the schedule cannot be created. Non-fatal
     '''
@@ -85,6 +78,8 @@ class DynamicScheduler:
         inv_capacities       = self.cfg.get_battery_inverter_field_map('battery_capacity')
         inv_charge_limits    = self.cfg.get_battery_inverter_field_map('battery_charge_limit')
         inv_discharge_limits = self.cfg.get_battery_inverter_field_map('battery_discharge_limit')
+        inv_charge_min_pct   = self.cfg.get_battery_inverter_field_map('battery_charge_min_pct')
+        inv_charge_max_pct   = self.cfg.get_battery_inverter_field_map('battery_charge_max_pct')
         inverters = list(inv_capacities.keys())
         M = len(inverters)
 
@@ -128,14 +123,22 @@ class DynamicScheduler:
                 obj[d_idx(i, t)] = -prices[t] * mu / 1000.0
 
         # --- Bounds ---
-        e_min = {inv: inv_capacities[inv] * BATTERY_EMPTY_THRESHOLD for inv in inverters}
-        e_max = {inv: inv_capacities[inv] * BATTERY_FULL_THRESHOLD  for inv in inverters}
+        # Keep each battery's planned energy within its configured state-of-charge window (issue #7),
+        # so the schedule never plans to charge above the max or discharge below the min.
+        e_min = {inv: inv_capacities[inv] * inv_charge_min_pct[inv] / 100.0 for inv in inverters}
+        e_max = {inv: inv_capacities[inv] * inv_charge_max_pct[inv] / 100.0 for inv in inverters}
         lb = np.zeros(n_vars)
         ub = np.full(n_vars, np.inf)
         for i, inv in enumerate(inverters):
+            # If the battery currently sits outside its window (e.g. still full on first run), widen the
+            # bound to include the starting charge so the LP stays feasible; the optimiser then moves it
+            # back into range as prices allow instead of failing the whole schedule.
+            e0 = current_charge[inv]
+            e_lo = min(e_min[inv], e0)
+            e_hi = max(e_max[inv], e0)
             for t in range(N):
-                lb[e_idx(i, t)] = e_min[inv]
-                ub[e_idx(i, t)] = e_max[inv]
+                lb[e_idx(i, t)] = e_lo
+                ub[e_idx(i, t)] = e_hi
                 ub[c_idx(i, t)] = inv_charge_limits[inv] * h
                 ub[d_idx(i, t)] = inv_discharge_limits[inv] * h
         for t in range(N):

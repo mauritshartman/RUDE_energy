@@ -8,6 +8,7 @@ from common import Logger, ControlStatus, Phase, SPCStats, SINGLE_PHASES
 
 
 IO_LATENCY = 0.1 # simulated IO delay
+STANDBY_CHARGE = -50  # small standby charge power (W) applied instead of idling at 0 W (mirrors the SMA driver)
 
 
 class SimBatteryInverter(BaseBatteryInverter):
@@ -19,8 +20,11 @@ class SimBatteryInverter(BaseBatteryInverter):
         charge_limit_w: int,
         discharge_limit_w: int,
         log: Logger,
+        charge_max_pct: float = 95.0,
+        charge_min_pct: float = 10.0,
     ) -> None:
-        super().__init__(name, connected_phase, capacity_wh, charge_limit_w, discharge_limit_w, log)
+        super().__init__(name, connected_phase, capacity_wh, charge_limit_w, discharge_limit_w, log,
+                         charge_max_pct=charge_max_pct, charge_min_pct=charge_min_pct)
 
         self.is_connected = False
         self.is_controlled = False
@@ -42,6 +46,8 @@ class SimBatteryInverter(BaseBatteryInverter):
             charge_limit_w=cfg['battery_charge_limit'],
             discharge_limit_w=cfg['battery_discharge_limit'],
             log=log,
+            charge_max_pct=cfg.get('battery_charge_max_pct', 95.0),
+            charge_min_pct=cfg.get('battery_charge_min_pct', 10.0),
         )
 
     async def _io_delay(self):
@@ -166,6 +172,11 @@ class SimBatteryInverter(BaseBatteryInverter):
 
     async def set_power(self, power_w: float) -> None:
         await self._io_delay()
+
+        # mirror the real SMA inverter: commanding exactly 0 W relinquishes control and lets the inverter
+        # idle, so a small standby charge power is applied instead to keep it awake (see sma_sunny_boy_storage)
+        if power_w == 0:
+            power_w = STANDBY_CHARGE
 
         if power_w < 0: # charging
             self.charge_power = max(power_w, self.charge_limit_w)

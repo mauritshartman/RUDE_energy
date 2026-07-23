@@ -57,6 +57,11 @@ GEN_CONFIG = {
     'timezone': str,
     'supervisor_token': str,
 }
+# Default per-inverter state-of-charge limits (%), see issue #7. Keep charging below the max and
+# discharging above the min so the battery never reaches a full/empty state that puts the inverter to sleep.
+DEFAULT_BATTERY_CHARGE_MAX_PCT = 95
+DEFAULT_BATTERY_CHARGE_MIN_PCT = 10
+
 BAT_INV_CONFIG = {
     'name': str,
     'type': str,
@@ -66,6 +71,8 @@ BAT_INV_CONFIG = {
     'battery_capacity': int,  # Capacity in Wh of the battery connected to the inverter
     'battery_charge_limit': int,  # Maximum power when charging the battery connected to the inverter
     'battery_discharge_limit': int,  # Maximum power when discharging the battery connected to the inverter
+    'battery_charge_max_pct': int,  # Upper state-of-charge limit (%): do not charge above this
+    'battery_charge_min_pct': int,  # Lower state-of-charge limit (%): do not discharge below this
     'connected_phase': Phase,  # L1 / L2 / L3
 }
 VALID_BATTERY_INVERTER_TYPES = set(BATTERY_INVERTER_DESCRIPTIONS.keys())
@@ -126,6 +133,17 @@ class DoeMaarWattConfig:
                 if 'timezone_offset' in gen and 'timezone' not in gen:
                     gen['timezone'] = 'Europe/Amsterdam'
                     del gen['timezone_offset']
+                    self.save_dyn_config()
+                # backfill per-inverter state-of-charge limits for configs saved before issue #7
+                migrated = False
+                for inv in self._dyn_config.get('battery_inverters', []):
+                    if 'battery_charge_max_pct' not in inv:
+                        inv['battery_charge_max_pct'] = DEFAULT_BATTERY_CHARGE_MAX_PCT
+                        migrated = True
+                    if 'battery_charge_min_pct' not in inv:
+                        inv['battery_charge_min_pct'] = DEFAULT_BATTERY_CHARGE_MIN_PCT
+                        migrated = True
+                if migrated:
                     self.save_dyn_config()
                 self.log.set_timezone(self.timezone)
                 self.log.debug(f'DoeMaarWatt backend server: loaded existing config:\n{self._dyn_config}')
@@ -279,6 +297,8 @@ class DoeMaarWattConfig:
                 'battery_capacity': 64000,
                 'battery_charge_limit': 6000,
                 'battery_discharge_limit': 6000,
+                'battery_charge_max_pct': DEFAULT_BATTERY_CHARGE_MAX_PCT,
+                'battery_charge_min_pct': DEFAULT_BATTERY_CHARGE_MIN_PCT,
                 'connected_phase': Phase.L1,
             },
             {
@@ -290,6 +310,8 @@ class DoeMaarWattConfig:
                 'battery_capacity': 64000,
                 'battery_charge_limit': 6000,
                 'battery_discharge_limit': 6000,
+                'battery_charge_max_pct': DEFAULT_BATTERY_CHARGE_MAX_PCT,
+                'battery_charge_min_pct': DEFAULT_BATTERY_CHARGE_MIN_PCT,
                 'connected_phase': Phase.L2,
             },
             {
@@ -301,6 +323,8 @@ class DoeMaarWattConfig:
                 'battery_capacity': 64000,
                 'battery_charge_limit': 5000,
                 'battery_discharge_limit': 5000,
+                'battery_charge_max_pct': DEFAULT_BATTERY_CHARGE_MAX_PCT,
+                'battery_charge_min_pct': DEFAULT_BATTERY_CHARGE_MIN_PCT,
                 'connected_phase': Phase.L3,
             },
         ])
@@ -347,6 +371,12 @@ class DoeMaarWattConfig:
                     raise ConfigException(f'invalid battery inverter type: field {k} has invalid value: {v}', source='config')
                 if k == 'name' and v in taken_names:
                     raise ConfigException(f'invalid battery inverter name: there is another inverter named {v}', source='config')
+
+            if not (0 <= c['battery_charge_min_pct'] < c['battery_charge_max_pct'] <= 100):
+                raise ConfigException(
+                    f'invalid battery inverter config: state-of-charge limits must satisfy '
+                    f'0 <= min ({c["battery_charge_min_pct"]}) < max ({c["battery_charge_max_pct"]}) <= 100',
+                    source='config')
 
             taken_names.add(c['name'])  # reserve so no later battery/solar inverter can reuse it
             self._dyn_config['battery_inverters'].append(c)

@@ -27,8 +27,11 @@ class SmaSunnyBoyStorage(BaseBatteryInverter):
         log: Logger,
         host: str,
         port: int = 502,
+        charge_max_pct: float = 95.0,
+        charge_min_pct: float = 10.0,
     ) -> None:
-        super().__init__(name, connected_phase, capacity_wh, charge_limit_w, discharge_limit_w, log)
+        super().__init__(name, connected_phase, capacity_wh, charge_limit_w, discharge_limit_w, log,
+                         charge_max_pct=charge_max_pct, charge_min_pct=charge_min_pct)
 
         assert isinstance(connected_phase, Phase)
         if connected_phase == Phase.ALL:
@@ -50,6 +53,8 @@ class SmaSunnyBoyStorage(BaseBatteryInverter):
             log=log,
             host=cfg['host'],
             port=cfg.get('port', 502),
+            charge_max_pct=cfg.get('battery_charge_max_pct', 95.0),
+            charge_min_pct=cfg.get('battery_charge_min_pct', 10.0),
         )
 
     async def connect(self) -> None:

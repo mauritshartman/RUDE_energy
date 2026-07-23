@@ -57,6 +57,8 @@ class BaseBatteryInverter(BaseInverter):
         charge_limit_w: int,
         discharge_limit_w: int,
         log: Logger,
+        charge_max_pct: float = 95.0,
+        charge_min_pct: float = 10.0,
     ) -> None:
         super().__init__(name, connected_phase, log)
 
@@ -65,6 +67,12 @@ class BaseBatteryInverter(BaseInverter):
 
         self.charge_limit_w = -1 * abs(charge_limit_w) # ensure charging limit is zero or negative
         self.discharge_limit_w = abs(discharge_limit_w) # ensure discharging limit is zero or positive
+
+        # state-of-charge limits (%): do not charge above max, do not discharge below min (see issue #7)
+        assert 0 <= charge_min_pct < charge_max_pct <= 100, \
+            f'state-of-charge limits for {name} must satisfy 0 <= min ({charge_min_pct}) < max ({charge_max_pct}) <= 100'
+        self.charge_max_pct = charge_max_pct
+        self.charge_min_pct = charge_min_pct
 
     @abstractmethod
     async def read_stats(self) -> BatteryInverterStats:
