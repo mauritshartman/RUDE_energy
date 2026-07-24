@@ -130,13 +130,19 @@ class ModbusManager():
     ):
         if not client_name in self._clients:
             raise ConfigException(f'client name {client_name} not configured', source=f'modbus:{client_name}')
-        self.log.debug(f'[modbus:{client_name}]: write register {address} <- {values}')
 
         client = self._clients[client_name]
         if client is None:
             return
 
-        await client.write_registers(address, values, device_id=device_id, no_response_expected=no_response_expected)
+        val_str = '[' + ','.join(str(v) for v in values) + ']'
+
+        try:
+            await client.write_registers(address, values, device_id=device_id, no_response_expected=no_response_expected)
+            self.log.debug(f'[modbus:{client_name}]: write register {address} <- {val_str}')
+        except PymodbusException as e:
+            raise ModbusException(f'exception in Pymodbus library while writing register {address} with {val_str}: {e}',
+                                  source=f'modbus:{client_name}')
 
     async def read_register(self,
         client_name: str,
@@ -166,20 +172,23 @@ class ModbusManager():
             elif str(address)[0] == '3':
                 resp = await client.read_input_registers(address, count=cnt, device_id=device_id)
             else:
-                raise ProgrammingError(f'this method only supports reading input and holding registers', source=f'modbus:{client_name}')
+                raise ProgrammingError(f'this method only supports reading input and holding registers',
+                                       source=f'modbus:{client_name}')
 
             if resp.isError():
                 code = getattr(resp, 'exception_code', None)
                 if code:
                     exc_descr = _modbus_exception_codes.get(resp.exception_code, '<unknown exception>')
-                    raise ModbusException(f'error while reading: ({code}) {exc_descr}', source=f'modbus:{client_name}')
+                    raise ModbusException(f'error while reading register {address}: ({code}) {exc_descr}',
+                                          source=f'modbus:{client_name}')
 
             value = self._decode_response(client_name, dtype, resp, sma_format=sma_format)
             self.log.debug(f'[modbus:{client_name}]: read register {address} -> {value}')
             return value
 
         except PymodbusException as e:
-            raise ModbusException(f'exception in Pymodbus library while reading: {e}', source=f'modbus:{client_name}')
+            raise ModbusException(f'exception in Pymodbus library while reading register {address}: {e}',
+                                  source=f'modbus:{client_name}')
 
     async def read_register_seq(self,
         client_name: str,
@@ -234,16 +243,16 @@ class ModbusManager():
                 code = getattr(resp, 'exception_code', None)
                 if code:
                     exc_descr = _modbus_exception_codes.get(resp.exception_code, '<unknown exception>')
-                    raise ModbusException(f'error while reading: ({code}) {exc_descr}', source=f'modbus:{client_name}')
+                    raise ModbusException(f'error while reading register {address}: ({code}) {exc_descr}', source=f'modbus:{client_name}')
                 else:
-                    raise ModbusException(f'error while reading: (code absent) {resp}', source=f'modbus:{client_name}')
+                    raise ModbusException(f'error while reading register {address}: (code absent) {resp}', source=f'modbus:{client_name}')
 
             value = self._decode_response(client_name, dtype, resp, sma_format=sma_format)
             result_dict[client_name] = value
             self.log.debug(f'[modbus:{client_name}]: read register {address} -> {value}')
 
         except PymodbusException as e:
-            raise ModbusException(f'exception in Pymodbus library while reading: {e}', source=f'modbus:{client_name}')
+            raise ModbusException(f'exception in Pymodbus library while reading register {address}: {e}', source=f'modbus:{client_name}')
 
     async def read_registers_parallel(self,
         address: int,
