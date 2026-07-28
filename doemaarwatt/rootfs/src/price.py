@@ -15,7 +15,7 @@ from predictor import init_night_price_predictor, predict_night_price
 ENEVER_TODAY =      'https://enever.nl/apiv3/stroomprijs_vandaag.php?token={TOKEN}&price=prijs'
 ENEVER_TOMORROW =   'https://enever.nl/apiv3/stroomprijs_morgen.php?token={TOKEN}&price=prijs'
 
-MAX_ATTEMPTS = 5
+MAX_ATTEMPTS = 1000
 
 PRICE_PATH = Path('/data/prices.json')
 PRICE_PATH = Path('prices.json')
@@ -106,7 +106,10 @@ class PriceManager:
         attempt_no = 1
         while attempt_no <= MAX_ATTEMPTS:
             if attempt_no > 1:
-                await asyncio.sleep(10 * 2**attempt_no) # exponential backoff
+                sleep_time = 60 * 10 # 10 minutes
+                if attempt_no < 5:
+                    sleep_time = 2**(attempt_no + 1) # exponential backoff
+                await asyncio.sleep(sleep_time)
 
             try:
                 new_prices = {}
