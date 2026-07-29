@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.9] - 2026-07-29
+
+### Added
+
+- Added a download button for log files, as per https://github.com/mauritshartman/RUDE_energy/issues/32
+- Added filter buttons for log levels and a text search term
+
 ## [1.1.8] - 2026-07-28
 
 ### Fixed

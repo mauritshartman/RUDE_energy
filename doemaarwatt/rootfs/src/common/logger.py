@@ -21,7 +21,6 @@ PREFIX_LENGTH = 22
 
 class LogLevel(enum.IntEnum):
     DEBUG = 500
-    NOTE = 450
     INFO = 400
     ERROR = 200
     FATAL = 100
@@ -124,9 +123,6 @@ class Logger(metaclass=Singleton):
     def debug(self, *msg: str):
         self._log(*msg, loglevel=LogLevel.DEBUG)
 
-    def note(self, *msg: str):
-        self._log(*msg, loglevel=LogLevel.NOTE)
-
     def info(self, *msg: str):
         self._log(*msg, loglevel=LogLevel.INFO)
 
@@ -195,6 +191,35 @@ class Logger(metaclass=Singleton):
                 return web.Response(text='logfile not present')
             else:
                 return web.Response(text=logfile)
+
+        except Exception as e:
+            raise web.HTTPBadRequest(text=json.dumps({'status': 'error', 'msg': str(e)}))
+
+    async def handle_log_download(self, req):
+        '''GET /api/log/download?date=YYYY-MM-DD - serve a day's log file as a downloadable attachment.
+
+        Unlike handle_log() (which returns the raw text for in-page display), this sets a Content-Disposition
+        header so the browser saves it as a file. It is meant as a fallback for a real navigation download when
+        a client-side (Blob) download is unavailable, e.g. when blocked inside the Home Assistant ingress iframe.
+        '''
+        try:
+            date_str = req.query.get('date')
+            if not date_str:
+                raise Exception('missing "date" query parameter')
+            ts = dt.strptime(date_str, '%Y-%m-%d').astimezone(self.tz)  # also validates the format
+            logfile = self.get_log(ts)
+            if logfile is None:
+                return web.Response(text='logfile not present', status=404)
+
+            # build the filename from the parsed date (not the raw query string) to avoid header injection
+            filename = f'doemaarwatt-{ts.strftime("%Y-%m-%d")}.log'
+            return web.Response(
+                text=logfile,
+                headers={
+                    'Content-Type': 'text/plain; charset=utf-8',
+                    'Content-Disposition': f'attachment; filename="{filename}"',
+                },
+            )
 
         except Exception as e:
             raise web.HTTPBadRequest(text=json.dumps({'status': 'error', 'msg': str(e)}))

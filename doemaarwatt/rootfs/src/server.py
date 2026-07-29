@@ -95,6 +95,7 @@ class DoeMaarWattServer:
         self.app.router.add_get('/api/', self.handle_root)
         self.app.router.add_post('/api/run', self.handle_run)
         self.app.router.add_post('/api/log', self.log.handle_log)
+        self.app.router.add_get('/api/log/download', self.log.handle_log_download)
         self.config.setup_config_endpoints(self.app.router)
 
         cors = aiohttp_cors.setup(self.app, defaults={
