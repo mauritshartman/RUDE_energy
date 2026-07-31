@@ -5,7 +5,11 @@
 #
 import enum
 import os
+import io
+import gzip
 import json
+import asyncio
+import zipfile
 from datetime import date, datetime as dt, timedelta
 from typing import Optional, Union
 from pathlib import Path
@@ -144,7 +148,6 @@ class Logger(metaclass=Singleton):
         # Parse message
         combined_msg = ""
         for m in msg:
-            m = str(m)
             combined_msg += str(m)
             combined_msg += " "
         combined_msg = combined_msg[:-1]
@@ -179,6 +182,14 @@ class Logger(metaclass=Singleton):
         return None
 
     async def handle_log(self, req):
+        '''POST /api/log with {"date": "YYYY-MM-DD", "offset": <bytes>} - return the log for that date from
+        byte `offset` to the end of the file, so the UI can fetch only newly-appended lines instead of the
+        whole file on every poll. `offset` defaults to 0 (whole file); an out-of-range offset (e.g. a rotated
+        file) also returns the whole file. Response headers X-Log-Start (byte offset the body begins at) and
+        X-Log-Size (current total size) let the client decide whether to append or replace, and what offset to
+        request next. The body is gzip-compressed when the client accepts it. The file read + compression run
+        in a thread executor: both are blocking and this server shares its event loop with the control loop.
+        '''
         try:
             parsed = await req.json()
             if (
@@ -186,43 +197,92 @@ class Logger(metaclass=Singleton):
             ):
                 raise Exception(f'invalid log request value: {parsed}')
             ts = dt.strptime(parsed['date'], '%Y-%m-%d').astimezone(self.tz)
-            logfile = self.get_log(ts)
-            if logfile is None:
-                return web.Response(text='logfile not present')
-            else:
-                return web.Response(text=logfile)
+            offset = parsed.get('offset')
+            if not isinstance(offset, int) or offset < 0:
+                offset = 0
+            gzip_it = 'gzip' in (req.headers.get('Accept-Encoding') or '')
+
+            result = await asyncio.get_running_loop().run_in_executor(None, self._read_log_range, ts, offset, gzip_it)
+            if result is None:
+                # no log file for this date: empty body, size 0
+                return web.Response(body=b'', content_type='text/plain', charset='utf-8',
+                                    headers={'X-Log-Start': '0', 'X-Log-Size': '0'})
+
+            body, start, size, gzipped = result
+            headers = {'X-Log-Start': str(start), 'X-Log-Size': str(size)}
+            if gzipped:
+                headers['Content-Encoding'] = 'gzip'
+            return web.Response(body=body, content_type='text/plain', charset='utf-8', headers=headers)
 
         except Exception as e:
             raise web.HTTPBadRequest(text=json.dumps({'status': 'error', 'msg': str(e)}))
 
-    async def handle_log_download(self, req):
-        '''GET /api/log/download?date=YYYY-MM-DD - serve a day's log file as a downloadable attachment.
+    def _read_log_range(self, ts: Union[dt, date], offset: int, gzip_it: bool):
+        '''Read a day's log file from byte `offset` to EOF, optionally gzip-compressing the result. Returns
+        (body, start, size, gzipped) where `start` is the byte offset the body begins at (0 - i.e. the whole
+        file - when `offset` is out of range, e.g. a rotated file), `size` is the current total file size, and
+        `gzipped` says whether `body` is compressed. Returns None if the file does not exist. Blocking (file
+        read + compression) - run in a thread executor.'''
+        if isinstance(ts, (dt, date)):
+            logfile = f"{ts.year}-{ts.month:02d}-{ts.day:02d}" + self.suffix + '.log'
+        filepath = os.path.join(self.filedir, logfile)
+        if not os.path.exists(filepath):
+            return None
+        with open(filepath, 'rb') as f:
+            f.seek(0, os.SEEK_END)
+            size = f.tell()
+            start = offset if 0 <= offset <= size else 0
+            f.seek(start)
+            body = f.read()
+        if gzip_it:
+            body = gzip.compress(body)
+        return body, start, size, gzip_it
 
-        Unlike handle_log() (which returns the raw text for in-page display), this sets a Content-Disposition
-        header so the browser saves it as a file. It is meant as a fallback for a real navigation download when
-        a client-side (Blob) download is unavailable, e.g. when blocked inside the Home Assistant ingress iframe.
+    async def handle_log_download(self, req):
+        '''GET /api/log/download?date=YYYY-MM-DD - serve a day's log file as a downloadable zip attachment.
+
+        Log files can be large, so the file is compressed into a zip and served with a Content-Disposition
+        header so the browser saves it. The read + compression is done in a thread executor: both are blocking
+        and this web server shares its event loop with the control loop, so doing that work off the loop keeps
+        the controller responsive. This is the download path used by the UI (works inside the HA ingress iframe).
         '''
         try:
             date_str = req.query.get('date')
             if not date_str:
                 raise Exception('missing "date" query parameter')
             ts = dt.strptime(date_str, '%Y-%m-%d').astimezone(self.tz)  # also validates the format
-            logfile = self.get_log(ts)
-            if logfile is None:
+
+            # build names from the parsed date (not the raw query string) to avoid header injection
+            date_fmt = ts.strftime('%Y-%m-%d')
+            log_name = f'doemaarwatt-{date_fmt}.log'   # name of the file inside the zip
+            zip_name = f'doemaarwatt-{date_fmt}.zip'   # download filename
+
+            # read the (potentially large) log file and zip it off the event loop
+            data = await asyncio.get_running_loop().run_in_executor(None, self._zip_log, ts, log_name)
+            if data is None:
                 return web.Response(text='logfile not present', status=404)
 
-            # build the filename from the parsed date (not the raw query string) to avoid header injection
-            filename = f'doemaarwatt-{ts.strftime("%Y-%m-%d")}.log'
             return web.Response(
-                text=logfile,
+                body=data,
                 headers={
-                    'Content-Type': 'text/plain; charset=utf-8',
-                    'Content-Disposition': f'attachment; filename="{filename}"',
+                    'Content-Type': 'application/zip',
+                    'Content-Disposition': f'attachment; filename="{zip_name}"',
                 },
             )
 
         except Exception as e:
             raise web.HTTPBadRequest(text=json.dumps({'status': 'error', 'msg': str(e)}))
+
+    def _zip_log(self, ts: Union[dt, date], log_name: str) -> Optional[bytes]:
+        '''Read the log file for `ts` and return it as an in-memory zip containing a single `log_name` entry,
+        or None if the log file does not exist. Blocking (file read + compression); run in a thread executor.'''
+        logfile = self.get_log(ts)
+        if logfile is None:
+            return None
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, mode='w', compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr(log_name, logfile)
+        return buf.getvalue()
 
     def _log_to_file(self, msg: str):
         """Save a msg to file"""

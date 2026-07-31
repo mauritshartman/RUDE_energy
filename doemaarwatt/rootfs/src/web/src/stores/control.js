@@ -58,6 +58,10 @@ export const useControlStore = defineStore('control', {
             return ret
         },
         async fetch_log(d) {
+            // d = { date, offset }. Returns { text, start, size } where `text` is the log content from byte
+            // `start` to the end of the file and `size` is the current total size (the next offset to request),
+            // or null on error. `start === requested offset` means an incremental delta; otherwise the whole
+            // file was returned (initial load or a rotated file).
             this.error_status = ''
             const options = {
                 method: 'POST',
@@ -67,11 +71,13 @@ export const useControlStore = defineStore('control', {
             try {
                 const resp = await fetch(`${API_BASE}/log`, options)
                 if (!resp.ok) { throw new Error(`response status: ${resp.status}`) }
-                const ret = await resp.text()
-                return ret
+                const text = await resp.text()
+                const start = parseInt(resp.headers.get('X-Log-Start') ?? '0', 10)
+                const size = parseInt(resp.headers.get('X-Log-Size') ?? '0', 10)
+                return { text, start, size }
             } catch (err) {
                 this.error_status = `config store: error while fetching log: ${err.msg}`
-                return ''
+                return null
             }
         },
         async fetch_status() {

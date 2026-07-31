@@ -12,10 +12,18 @@ const { now } = useTimezone()
 const today = computed(() => now().startOf('day'))
 const d = ref(now().startOf('day'))
 const log = ref('')
+const logOffset = ref(0)   // byte offset into the current day's log file that we already hold in `log`
 const timer = ref(null)
 const scrollbarRef = useTemplateRef('scrollbarRef')
 const autoScroll = ref(true)
-
+// Format a byte count as a rounded MB / KB / bytes string.
+const formatBytes = (bytes) => {
+    if (bytes >= 1024 * 1024) { return `${(bytes / (1024 * 1024)).toFixed(1)} MB` }
+    if (bytes >= 1024) { return `${Math.round(bytes / 1024)} KB` }
+    return `${bytes} bytes`
+}
+// logOffset is the daily log file's total size in bytes (reported by the backend as X-Log-Size)
+const logSize = computed(() => formatBytes(logOffset.value))
 // filter options
 const filter = ref(['INFO', 'ERROR', 'FATAL'])
 const filterTerm = ref('')  // free-text filter term the user types into the input field
@@ -58,13 +66,34 @@ const handleScroll = (e) => {
     autoScroll.value = isAtBottom
 }
 
+// Monotonic token: if a newer fetch starts (e.g. the user changes the date) while an older one is still in
+// flight, the older one's result is discarded instead of corrupting the buffer.
+let fetchGen = 0
+
 const fetchLog = async () => {
-    log.value = await control.fetch_log({ date: d.value.toFormat('yyyy-MM-dd') })
+    const gen = ++fetchGen
+    const date = d.value.toFormat('yyyy-MM-dd')
+    const sentOffset = logOffset.value
+    const r = await control.fetch_log({ date, offset: sentOffset })
+    if (gen !== fetchGen) { return }   // superseded by a newer fetch -> discard this stale result
+    if (!r) { return }                 // fetch error: keep the current buffer, retry on the next tick
+
+    // r.start === sentOffset -> a contiguous delta, so append it; otherwise the server returned the whole file
+    // (initial load, or the file was rotated) -> replace the buffer with it.
+    log.value = (r.start === sentOffset) ? log.value + r.text : r.text
+    logOffset.value = r.size
 
     if (autoScroll.value) {
         await nextTick()
         scrollToBottom()
     }
+}
+
+// Fully reload the selected date's log (used on date changes): reset the incremental state, then fetch.
+const reloadLog = async () => {
+    logOffset.value = 0
+    log.value = ''
+    await fetchLog()
 }
 
 // Return a click handler that toggles `word` in the filter array (add if absent, remove if present).
@@ -84,17 +113,17 @@ const toggle_fatal_filter = toggle_filter('FATAL')
 
 const to_next = async () => {
     d.value = d.value.plus({ days: 1 })
-    await fetchLog()
+    await reloadLog()
 }
 
 const to_prev = async () => {
     d.value = d.value.minus({ days: 1 })
-    await fetchLog()
+    await reloadLog()
 }
 
 const to_today = async () => {
     d.value = today.value
-    await fetchLog()
+    await reloadLog()
 }
 
 const downloadLog = () => {
@@ -157,6 +186,8 @@ onBeforeUnmount(() => {
 >
     <div class="log-content">{{ filtered_log }}</div>
 </n-scrollbar>
+
+<div class="log-size">Total log size: {{ logSize }}</div>
 </template>
 
 <style scoped>
@@ -212,6 +243,14 @@ onBeforeUnmount(() => {
     font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Monaco, Consolas, 'Courier New', monospace;
     font-size: 11px;
     white-space: pre-wrap;
+}
+
+/* Small, muted, right-aligned log-size caption below the scrollbar */
+.log-size {
+    text-align: right;
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 4px;
 }
 
 </style>

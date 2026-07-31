@@ -114,12 +114,19 @@ class ModbusManager():
             if client is None:
                 continue
 
-            await client.write_registers(
-                address,
-                values,
-                device_id=3,  # related to Unit_id
-                no_response_expected=no_response_expected,
-            )
+            val_str = '[' + ','.join(str(v) for v in values) + ']'
+
+            try:
+                await client.write_registers(
+                    address,
+                    values,
+                    device_id=3,  # related to Unit_id
+                    no_response_expected=no_response_expected,
+                )
+                self.log.debug(f'[modbus:{name}]: write register {address} <- {val_str}')
+            except PymodbusException as e:
+                raise ModbusException(f'exception in Pymodbus library while writing register {address} with {val_str}: {e}',
+                                      source=f'modbus:{name}')
 
     async def write_register(self,
         client_name: str,
