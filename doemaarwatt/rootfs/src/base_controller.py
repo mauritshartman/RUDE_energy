@@ -238,6 +238,30 @@ class BaseController(ABC):
         self._soc_hold[name] = hold
         return power
 
+    def apply_battery_charge_limits(self, PBSsent_phases: dict[Phase, PhasePowerMap]):
+        '''Ensure commanded power levels for each battery inverter are kept within charge/discharge limits.
+
+        The earlier stages of the PBSsent computation mutate PhasePowerMap.inv_power directly (calc_PBSsent
+        redistributes a grid-limit overshoot across the charging/generating inverters, and apply_soc_limits
+        injects a trickle power). Neither re-applies the per-inverter power limits, so a battery inverter can end
+        up commanded outside its configured charge (negative) / discharge (positive) range. Clamp each battery
+        inverter's commanded power on every phase it is connected to back into power_limits_phase, which is
+        expressed per phase.
+        '''
+        for inv in self.battery_inverters:
+            low, high = inv.power_limits_phase
+            for phi in SINGLE_PHASES:
+                ppm = PBSsent_phases.get(phi)
+                if ppm is None or inv.name not in ppm.inv_power:
+                    continue
+
+                desired = ppm.inv_power[inv.name]
+                clamped = inv.apply_power_limits(desired)
+                if not math.isclose(desired, clamped, abs_tol=0.5):
+                    self.log.info(f'{phi}: clamping {inv.name} PBSsent from {desired:.0f} W to {clamped:.0f} W '
+                                  f'to stay within charge/discharge limits [{low:.0f}, {high:.0f}] W')
+                    ppm.inv_power[inv.name] = clamped
+
     async def command_PBSsent(self, now: dt) -> None:
         self._inv_control = {} # reset statistics for inverter control:
 
@@ -262,6 +286,9 @@ class BaseController(ABC):
 
             PBSnow = self._stats.get_PBSnow(phi)
             PBSsent_phases[phi] = self.calc_PBSsent(phi, PBSapp, PBSnow, PGnow, VGnow, Imax, export_limit)
+
+        # enforce max charge/discharge limits for battery inverters
+        self.apply_battery_charge_limits(PBSsent_phases)
 
         # second iteration: ensure inverters that are connected to multiple phases, command the same, safest power level
         for inv_name in PBSapp_phases.get_multiphase_inverters():

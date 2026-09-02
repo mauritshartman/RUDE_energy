@@ -43,7 +43,7 @@ DYN_CONFIG_DEFAULT = {
     'mode_dynamic': {
         'price_update_time': '14:00',
         'update_interval': 3600,
-        'resolution': 60,
+        'resolution': 15,
         'fallback_mode': 1,
         'efficiency': 0.93,
         'api_token': '',
