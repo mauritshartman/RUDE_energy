@@ -1,0 +1,280 @@
+INFO:root:CLI: Starting DMS console (as CLI app)
+INFO:root:Settings: Creating DMS setting instance ...
+INFO:root:Settings: Init settings
+INFO:root:Client: Tool Token valid for 599.99 minutes
+INFO:root:Connecting to DMS server dms.sma.dev
+INFO:root:GQL: API Version found: 21.1.0
+INFO:root:Query: Adding project_versions -> 12.0.0
+INFO:root:Query: Adding module_versions -> 12.0.0
+INFO:root:Query: Adding module_feat_versions -> 0.68.0
+INFO:root:Query: Adding project_feat_versions -> 0.68.0
+INFO:root:Query: Adding prj_mod_versions -> 0.68.0
+INFO:root:Query: Adding module_vers_feat_vers -> 0.68.0
+INFO:root:Query: Adding project_vers_feat_vers -> 0.68.0
+INFO:root:Query: Adding proj_vers_mod_vers -> 0.68.0
+INFO:root:Query: Adding module_vers_scope_dps -> 0.68.0
+INFO:root:Query: Adding module_vers_dps -> 0.68.0
+INFO:root:Query: Adding project_vers_scope_dps -> 0.68.0
+INFO:root:Query: Adding project_vers_scope_d2p_dps -> 8.0.0
+INFO:root:Query: Adding project_vers_dps -> 0.68.0
+INFO:root:Query: Adding features -> 0.69.0
+INFO:root:Query: Adding feature_versions -> 0.39.0
+INFO:root:Query: Adding dependencies -> 0.33.0
+INFO:root:Query: Adding dependency_values -> 12.00.0
+INFO:root:Query: Adding dependency_values -> 8.00.0
+INFO:root:Query: Adding enumerations -> 0.33.0
+INFO:root:Query: Adding module_dps -> 0.33.0
+INFO:root:Query: Adding feature_dps -> 0.68.0
+INFO:root:Query: Adding prj_scope_dp -> 0.68.0
+INFO:root:Query: Adding mod_dp_by_name -> 0.44.0
+INFO:root:Query: Adding mod_dp_defaults -> 0.33.0
+INFO:root:Query: Adding get_project -> 0.50.0
+INFO:root:Query: Adding mod_dp_mapping -> 0.33.0
+INFO:root:Query: Adding cont_dps -> 0.53.0
+INFO:root:Query: Adding cont_dps_prj -> 0.53.0
+INFO:root:Query: Adding has_cont_dp_by_name -> 0.55.0
+INFO:root:Query: Adding has_cont_dp_by_name_module -> 0.55.0
+INFO:root:Query: Adding has_cont_dp_by_name_project -> 0.55.0
+INFO:root:Query: Adding has_dp_by_global_id -> 0.55.0
+INFO:root:Query: Adding has_dp_by_global_id_project -> 0.55.0
+INFO:root:Query: Adding has_dp_by_global_id_module -> 0.55.0
+INFO:root:Query: Adding dp_by_name -> 8.0.0
+INFO:root:Query: Adding d2p_dp -> 8.0.0
+INFO:root:Query: Adding lri_search -> 0.57.0
+INFO:root:Query: Adding event -> 0.39.0
+INFO:root:Query: Adding events -> 8.0.0
+INFO:root:Query: Adding event_infos -> 0.39.0
+INFO:root:Query: Adding ev_groups -> 0.39.0
+INFO:root:Query: Adding adj_values -> 0.39.0
+INFO:root:Query: Adding d2p_display_formats -> 0.40.0
+INFO:root:Query: Adding d2p_objects -> 0.40.0
+INFO:root:Query: Adding get_variant_options -> 0.59.0
+INFO:root:Query: Adding get_variant_option_values -> 0.59.0
+INFO:root:Query: Adding get_variant_restrictions -> 21.1.0
+INFO:root:Query: Adding get_prj_variant_restrictions -> 0.59.0
+INFO:root:Query: Adding get_prj_enum_values -> 0.59.0
+INFO:root:Query: Adding get_dp_or_event -> 0.59.0
+INFO:root:Query: Adding dp_to_d2p -> 0.59.0
+INFO:root:Query: Adding meas_max_value_idx -> 0.68.0
+INFO:root:Query: Adding mod_ver_d2p_dps -> 0.68.0
+INFO:root:Query: Adding has_enum_val -> 8.0.0
+INFO:root:Query: Adding next_free_tag_id -> 0.68.0
+INFO:root:Query: Adding pv_scope_enum_values -> 0.68.0
+INFO:root:Query: Adding dependency_value_by_name -> 8.0.0
+INFO:root:Enums: On connect callback
+INFO:root:Deps: On connect callback
+INFO:root:D2p Misc: On connect callback
+INFO:root:VARI: On connect callback
+INFO:root:SWTCH: Creating action runner for modbuslist
+INFO:root:SWTCH: Modbuslist func called with {'file': 'modbus-list/cfg/lynx-3.10.7.R.json', 'folder': 'modbus-list/output/lynx'}
+INFO:root:Caching Modbus DPs: 3137
+INFO:root:Caching tags: 27652
+INFO:root:Caching D2p DPs: 3213
+INFO:root:Modbus: Folder exists, overwrite?
+INFO:root:SQL: Init sqlite and open file: ennexos-csv/package_data/build_info.sqlite
+INFO:root:DB: Starting BuildInfo DB
+INFO:root:Remove dir before
+INFO:root:UTILS: Command called: 'git -C modbus-list\temp clone --depth 1 --branch V_4.12.1 https://oauth2:glpat-FbuGfqxjJvwHxTVnjjQv@git.sma.dev/legacy/uni/dms-data.git dms-data' -> ''/'Cloning into 'dms-data'...
+git: 'credential-manager-core' is not a git command. See 'git --help'.
+Note: switching to 'b283aa368dc549f5ece4d4dd8a5e0f7d1391eb40'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+'
+WARNING:root:No defaults found for {'id': 4602, 'name': 'Battery.HPCmd', 'dataType': 'TAG_ID', 'arraySize': 5, 'timebase': 'M', 'type': 'SetpointContCom', 'targets': ['Master'], 'desc': 'Command to battery', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 4603, 'name': 'Battery.StayOn', 'dataType': 'bool', 'arraySize': 5, 'timebase': 'M', 'type': 'SetpointContCom', 'targets': ['Master'], 'desc': 'Flag to battery: Stay on', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 5500, 'name': 'EvtNumber', 'dataType': 'U16', 'arraySize': 1, 'timebase': 'M', 'type': 'Event', 'targets': ['Master'], 'desc': 'Event number', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 5501, 'name': 'EscLevel', 'dataType': 'U16', 'arraySize': 1, 'timebase': 'M', 'type': 'Event', 'targets': ['Master'], 'desc': 'Event level', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 5502, 'name': 'TimeToWait', 'dataType': 'U16', 'arraySize': 1, 'timebase': 'M', 'type': 'Event', 'targets': ['Master'], 'desc': 'Time to wait for eventmanager after event occured', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 5503, 'name': 'EvtType', 'dataType': 'EVENT_TYPE', 'arraySize': 1, 'timebase': 'M', 'type': 'Event', 'targets': ['Master'], 'desc': 'coming or leaving event', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 5504, 'name': 'EvtData', 'dataType': 'U32', 'arraySize': 4, 'timebase': 'M', 'type': 'Event', 'targets': ['Master'], 'desc': '4x32bit for additional event data (see D2p object details)', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 5505, 'name': 'EvtCategory', 'dataType': 'EVENT_CATEGORY', 'arraySize': 1, 'timebase': 'M', 'type': 'Event', 'targets': ['Master'], 'desc': 'none/info/warning or error event', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20500, 'name': 'AfciDowner', 'dataType': 'F32', 'arraySize': 10, 'timebase': 'M', 'type': 'FlightrecorderAFCI', 'targets': ['Slave'], 'desc': 'Values of AFCI downer', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20501, 'name': 'AfciBuffAvg', 'dataType': 'F32', 'arraySize': 10, 'timebase': 'M', 'type': 'FlightrecorderAFCI', 'targets': ['Slave'], 'desc': 'Values of AFCI average buffer', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20502, 'name': 'AfciFftSelfTst', 'dataType': 'F32', 'arraySize': 2, 'timebase': 'M', 'type': 'FlightrecorderAFCI', 'targets': ['Slave'], 'desc': 'Values of AFCI FFT self-test signal 1kHz and 3kHz', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20504, 'name': 'ACRLY_MsV', 'dataType': 'F32', 'arraySize': 3, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'Grid voltages', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20507, 'name': 'Gri_Lx_Cur', 'dataType': 'F32', 'arraySize': 3, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'Calculated grid currents', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20509, 'name': 'Vol_DCL_Neg', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'DC voltage, negative DCL voltage', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20510, 'name': 'Vol_DCL_Sum', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'DC voltage, total DCL voltage', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20511, 'name': 'PLL_HzCalc_signed', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'Grid frequency (PLL)', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20512, 'name': 'RCMU_MsA', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'RCD current', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20513, 'name': 'HWStatusRgst', 'dataType': 'U32', 'arraySize': 1, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'Hardware status register', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20514, 'name': 'EvntMgmtWords', 'dataType': 'U32', 'arraySize': 3, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'Event reqisters', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20515, 'name': 'EvtNumberFR', 'dataType': 'U32', 'arraySize': 1, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'Event number', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20517, 'name': 'CtrlRgstMaster', 'dataType': 'U32', 'arraySize': 1, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'Control Register Master', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20519, 'name': 'MainStt', 'dataType': 'U32', 'arraySize': 1, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'State of main state machine', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20525, 'name': 'SpntDclVol', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'DCL voltage setpoint', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20527, 'name': 'CtrlRgstSlave', 'dataType': 'U32', 'arraySize': 1, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'Control Register Slave', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20528, 'name': 'AST1_DuCyFR', 'dataType': 'F32', 'arraySize': 3, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'AST Duty Cycle', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20531, 'name': 'SpntGrid_AdqLim', 'dataType': 'F32', 'arraySize': 4, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'SpntGrid_AdqLim', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20532, 'name': 'ACCtrl_Vdq', 'dataType': 'F32', 'arraySize': 2, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'ACCtrl_Vdq', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20533, 'name': 'DST_DuCyFR', 'dataType': 'F32', 'arraySize': 5, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'DST Duty Cycle', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20534, 'name': 'FRT_DeltaVol_dPos', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'FRT monitoring delta voltage norm', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20537, 'name': 'AfciPlcSum', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'M', 'type': 'FlightrecorderAFCI', 'targets': ['Slave'], 'desc': 'Summe of FFT absolute values in PLC frequency band', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20538, 'name': 'AfciClipCount', 'dataType': 'U32', 'arraySize': 1, 'timebase': 'M', 'type': 'FlightrecorderAFCI', 'targets': ['Slave'], 'desc': 'Values of AFCI clipping counters', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20540, 'name': 'StringA.Vol', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'M', 'type': 'FlightrecorderIvCurve', 'targets': ['Slave'], 'desc': 'Flightrecorder IV curve: DC voltage of string A', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20541, 'name': 'StringA.Amp', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'M', 'type': 'FlightrecorderIvCurve', 'targets': ['Slave'], 'desc': 'Flightrecorder IV curve: DC current of string A', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20542, 'name': 'StringB.Vol', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'M', 'type': 'FlightrecorderIvCurve', 'targets': ['Slave'], 'desc': 'Flightrecorder IV curve: DC voltage of string B', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20543, 'name': 'StringB.Amp', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'M', 'type': 'FlightrecorderIvCurve', 'targets': ['Slave'], 'desc': 'Flightrecorder IV curve: DC current of string B', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20544, 'name': 'StringC.Vol', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'M', 'type': 'FlightrecorderIvCurve', 'targets': ['Slave'], 'desc': 'Flightrecorder IV curve: DC voltage of string C', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20545, 'name': 'StringC.Amp', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'M', 'type': 'FlightrecorderIvCurve', 'targets': ['Slave'], 'desc': 'Flightrecorder IV curve: DC current of string C', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20546, 'name': 'StringD.Vol', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'M', 'type': 'FlightrecorderIvCurve', 'targets': ['Slave'], 'desc': 'Flightrecorder IV curve: DC voltage of string D', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20547, 'name': 'StringD.Amp', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'M', 'type': 'FlightrecorderIvCurve', 'targets': ['Slave'], 'desc': 'Flightrecorder IV curve: DC current of string D', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20548, 'name': 'StringE.Vol', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'M', 'type': 'FlightrecorderIvCurve', 'targets': ['Slave'], 'desc': 'Flightrecorder IV curve: DC voltage of string E', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20549, 'name': 'StringE.Amp', 'dataType': 'F32', 'arraySize': 1, 'timebase': 'M', 'type': 'FlightrecorderIvCurve', 'targets': ['Slave'], 'desc': 'Flightrecorder IV curve: DC current of string E', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20551, 'name': 'DC_MsV', 'dataType': 'F32', 'arraySize': 5, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'DC string input voltages', 'strlen': None, 'flags': []}
+WARNING:root:No defaults found for {'id': 20552, 'name': 'DC_MsA', 'dataType': 'F32', 'arraySize': 5, 'timebase': 'J', 'type': 'FlightrecorderError', 'targets': ['Master'], 'desc': 'DC string currents', 'strlen': None, 'flags': []}
+INFO:root:Reading substructures
+INFO:root:Reading device family Lynx
+INFO:root:Adding mapping from DftSMAStop/22 -> DftSMAStop_22
+INFO:root:Adding mapping from DftSMAStop/22a -> DftSMAStop_22a
+INFO:root:Adding mapping from VDEARN4105/18a -> VDEARN4105_18a
+INFO:root:Adding mapping from VDEARN4110/18 -> VDEARN4110_18
+INFO:root:Adding mapping from VDEARN4110/18a -> VDEARN4110_18a
+INFO:root:Adding mapping from EN50549-1/18 -> EN50549-1_18
+INFO:root:Adding mapping from EN50549-2/18 -> EN50549-2_18
+INFO:root:Adding mapping from ENA-G99/1/18 -> ENA-G99_1_18
+INFO:root:Adding mapping from DK1-West/19 -> DK1-West_19
+INFO:root:Adding mapping from DK2-East/19 -> DK2-East_19
+INFO:root:Adding mapping from BE-C10/11/19-09 PV_a -> BE-C10_11_19-09 PV_a
+INFO:root:Adding mapping from BE-C10/11/19-09 PV_b -> BE-C10_11_19-09 PV_b
+INFO:root:Adding mapping from BE-C10/11/19-09 PV_c -> BE-C10_11_19-09 PV_c
+INFO:root:Adding mapping from BE-C10/11/19-09 PV_d -> BE-C10_11_19-09 PV_d
+INFO:root:Adding mapping from IT-CEI0-21/19_c -> IT-CEI0-21_19_c
+INFO:root:Adding mapping from IT-CEI0-16/19 -> IT-CEI0-16_19
+INFO:root:Adding mapping from AT-TOR-Erzeuger-A/19_b -> AT-TOR-Erzeuger-A_19_b
+INFO:root:Adding mapping from AT-TOR-Erzeuger-B/19 -> AT-TOR-Erzeuger-B_19
+INFO:root:Adding mapping from ZA-NRS97-2-1_A1_A2 -> ZA-NRS97-2-1_A1_A2
+INFO:root:Adding mapping from ZA-NRS97-2-1_A3 -> ZA-NRS97-2-1_A3
+INFO:root:Adding mapping from ES-RD647_A -> ES-RD647_A
+INFO:root:Adding mapping from ES-RD647_B -> ES-RD647_B
+INFO:root:Adding mapping from PN-EN_50549-1_2019 -> PN-EN_50549-1_2019
+INFO:root:Adding mapping from PN-EN_50549-2_2019 -> PN-EN_50549-2_2019
+INFO:root:Adding mapping from TH-MEA2016 -> TH-MEA2016
+INFO:root:Adding mapping from TH-PEA2016 -> TH-PEA2016
+INFO:root:Adding mapping from OffGrid_50_Hz -> OffGrid_50_Hz
+INFO:root:Adding mapping from OffGrid_60_Hz -> OffGrid_60_Hz
+INFO:root:Adding mapping from IL_SI4777 -> IL_SI4777
+INFO:root:Adding mapping from IL_SI4777_Pf -> IL_SI4777_Pf
+INFO:root:Adding mapping from CL_NT_Ley20571 -> CL_NT_Ley20571
+INFO:root:Adding mapping from BR_Por140_515_b -> BR_Por140_515_b
+INFO:root:Adding mapping from AS-NZS-4777-2_1 -> AS-NZS-4777-2_1
+INFO:root:Adding mapping from AS-NZS-4777-2_1a -> AS-NZS-4777-2_1a
+INFO:root:Adding mapping from AS-NZS-4777-2_1b -> AS-NZS-4777-2_1b
+INFO:root:Adding mapping from AS-NZS-4777-2_1c -> AS-NZS-4777-2_1c
+INFO:root:Adding mapping from AE-DEWA_b -> AE-DEWA_b
+INFO:root:Adding mapping from JO-IRR-DC-MV_1 -> JO-IRR-DC-MV_1
+INFO:root:Adding mapping from NA-EEA-NE7_1 -> NA-EEA-NE7_1
+INFO:root:Adding mapping from EIFS 2018_a -> EIFS 2018_a
+INFO:root:Adding mapping from Guideline_22_a -> Guideline_22_a
+INFO:root:Adding mapping from Guideline_22_b -> Guideline_22_b
+INFO:root:Adding mapping from NL-Netcode -> NL-Netcode
+INFO:root:Adding mapping from NL-Netcode_a -> NL-Netcode_a
+INFO:root:Adding mapping from UK-G99_NI -> UK-G99_NI
+INFO:root:Adding mapping from DE_EAAV2024_a -> DE_EAAV2024_a
+INFO:root:Adding mapping from DE_EAAV2024_b -> DE_EAAV2024_b
+INFO:root:Adding mapping from DE_EAAV2024_c -> DE_EAAV2024_c
+INFO:root:Adding mapping from DE_EAAV2024_d -> DE_EAAV2024_d
+INFO:root:Adding mapping from US-IEEE 1547/2018-Cat II -> US-IEEE 1547_2018-Cat II
+INFO:root:Adding mapping from US-IEEE 1547/2018-Cat III -> US-IEEE 1547_2018-Cat III
+INFO:root:Adding mapping from HECO-SRD_2.0-Cat III -> HECO-SRD_2.0-Cat III
+INFO:root:Adding mapping from US-CA Rule 21-IEEE 1547/2018-Cat III -> US-CA Rule 21-IEEE 1547_2018-Cat III
+INFO:root:Reading device family LynxHybrid
+INFO:root:Reading device family Uni1ph
+INFO:root:Adding mapping from VDEARN4105/18b -> VDEARN4105_18b
+INFO:root:Adding mapping from VDEARN4105/18c -> VDEARN4105_18c
+INFO:root:Adding mapping from VDEARN4105/18d -> VDEARN4105_18d
+INFO:root:Adding mapping from DfltIguana/19 -> DfltIguana_19
+INFO:root:Adding mapping from BE-C10/11/19-09 St_a -> BE-C10_11_19-09 St_a
+INFO:root:Adding mapping from BE-C10/11/19-09 St_b -> BE-C10_11_19-09 St_b
+INFO:root:Adding mapping from IT-CEI0-21/19_a -> IT-CEI0-21_19_a
+INFO:root:Adding mapping from IT-CEI0-21/19_as -> IT-CEI0-21_19_as
+INFO:root:Adding mapping from IT-CEI0-21/19_cs -> IT-CEI0-21_19_cs
+INFO:root:Adding mapping from VDE126-1-1 -> VDE126-1-1
+INFO:root:Adding mapping from AS-NZS-4777-2_1d -> AS-NZS-4777-2_1d
+INFO:root:Adding mapping from AS-NZS-4777-2_1e -> AS-NZS-4777-2_1e
+INFO:root:Adding mapping from AS-NZS-4777-2_1f -> AS-NZS-4777-2_1f
+INFO:root:Adding mapping from AS-NZS-4777-2_1g -> AS-NZS-4777-2_1g
+INFO:root:Adding mapping from ENA-G98/1/18 -> ENA-G98_1_18
+INFO:root:Adding mapping from BR_Por140_515_a -> BR_Por140_515_a
+INFO:root:Adding mapping from UK-G98_NI -> UK-G98_NI
+INFO:root:Adding mapping from US-IEEE 1547/2018-Cat II_Storage -> US-IEEE 1547_2018-Cat II_Storage
+INFO:root:Adding mapping from US-IEEE 1547/2018-Cat III_Storage -> US-IEEE 1547_2018-Cat III_Storage
+INFO:root:Reading device family Uni3ph
+INFO:root:Reading DMS Data repo in new format without id prefixes
+WARNING:root:Found board-file that has no reference in dependencies: LY-MAIN-20.0.json
+WARNING:root:Found Gridcode-file that has no reference in dependencies: AE-DEWA_a.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: AE-DEWA_c.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: BE-C10_11_19-09 St_c.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: BE-C10_11_19-09 St_d.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: BR_NBR_16149.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: C10_11-LV1_18.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: C10_11-LV2_18.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: C10_11-MV1_18.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: CA-R21_as.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: DftSMA_19.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: DftSMA_19a.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: ES-RD647_CD.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: HECO-SRD_as.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: IT-CEI0-16_19s.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: JO-IRR-DC-MV_2.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: JP50.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: JP60.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: KR-KS C 8565_a.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: KR-KS C 8565_b.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: NA-EEA-NE7_1a.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: NA-EEA-NE7_1b.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: NA-EEA-NE7_1c.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: PN-EN_50549-1_2019_1ph.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: TW-CNS 15382.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: VDE-AR-N4105-HP.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: VDE-AR-N4105-MP.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: VDE-AR-N4105.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: VDEARN4110_18b.json - skipping
+WARNING:root:Found Gridcode-file that has no reference in dependencies: VDEARN4110_18c.json - skipping
+WARNING:root:Found gridtype-file that has no reference in dependencies: GriTyp3P4W_550V_LL.json
+WARNING:root:Found gridtype-file that has no reference in dependencies: GriTyp3P4W_600V_LL.json
+WARNING:root:Found model-file that has no reference in dependencies: SB3.8-US-50.json
+WARNING:root:Found model-file that has no reference in dependencies: SB4.8-US-50.json
+WARNING:root:Found model-file that has no reference in dependencies: SB5.8-US-50.json
+WARNING:root:Found model-file that has no reference in dependencies: SB6.0-50.json
+WARNING:root:Found model-file that has no reference in dependencies: SB7.0-US-50.json
+WARNING:root:Found model-file that has no reference in dependencies: SB7.7-US-50.json
+WARNING:root:Found model-file that has no reference in dependencies: STP 12-US-50.json
+WARNING:root:Found model-file that has no reference in dependencies: STP 12.4-JP-50.json
+WARNING:root:Found model-file that has no reference in dependencies: STP 15-US-50.json
+WARNING:root:Found model-file that has no reference in dependencies: STP 20.0-JP-50.json
+WARNING:root:Found model-file that has no reference in dependencies: STP 24-US-50.json
+WARNING:root:Found model-file that has no reference in dependencies: STP 24.8-JP-50.json
+WARNING:root:Found model-file that has no reference in dependencies: STP 9.9-JP-50.json
+INFO:root:UTILS: Command called: 'git -C modbus-list\temp/dms-data/cont describe --all --long' -> 'tags/V_4.12.1-0-gb283aa3
+'/''
+INFO:root:Change Arraysize due mapping: {'id': 664, 'name': 'Parameter.DcCfg.StrVol', 'indexMapping': {'0': 0, '1': 1, '2': 2}} / 5 / 2
+INFO:root:Change Arraysize due mapping: {'id': 665, 'name': 'Parameter.DcCfg.StopVol', 'indexMapping': {'0': 0, '1': 1, '2': 2}} / 5 / 2
+INFO:root:Change Arraysize due mapping: {'id': 5004, 'name': 'Measurement.Coolsys.Cab.TmpVal', 'indexMapping': {'0': 0}} / 3 / 0
+INFO:root:Change Arraysize due mapping: {'id': 5004, 'name': 'Measurement.Coolsys.Cab.TmpVal', 'indexMapping': {'0': 0}} / 3 / 0
+INFO:root:Change Arraysize due mapping: {'id': 5010, 'name': 'Measurement.DcMs.Amp', 'indexMapping': {'0': 0, '1': 1, '2': 2}} / 5 / 2
+INFO:root:Change Arraysize due mapping: {'id': 5010, 'name': 'Measurement.DcMs.Amp', 'indexMapping': {'0': 0, '1': 1, '2': 2}} / 5 / 2
+INFO:root:Change Arraysize due mapping: {'id': 5011, 'name': 'Measurement.DcMs.Vol', 'indexMapping': {'0': 0, '1': 1, '2': 2}} / 5 / 2
+INFO:root:Change Arraysize due mapping: {'id': 5012, 'name': 'Measurement.DcMs.Watt', 'indexMapping': {'0': 0, '1': 1, '2': 2}} / 5 / 2
+INFO:root:Change Arraysize due mapping: {'id': 5012, 'name': 'Measurement.DcMs.Watt', 'indexMapping': {'0': 0, '1': 1, '2': 2}} / 5 / 2
+INFO:root:Skipping modbus dp because arraysize mismatch: 3 -> [30951]
+INFO:root:Change Arraysize due mapping: {'id': 5604, 'name': 'Measurement.DcMs.TotDcEnCntWh', 'indexMapping': {'0': 0, '1': 1, '2': 2}} / 5 / 2
+INFO:root:Kanallist: Processing file: Lynx_Momentanwerte - My plant - 2024-09-12.csv
+INFO:root:Kanallist: Processing file: Lynx_Momentanwerte - STP X15 Systemmanager - 2024-09-12.csv
+INFO:root:Kanallist: Processing file: Lynx_Parameter - My plant - 2024-09-04.csv
+INFO:root:Kanallist: Processing file: Lynx_Parameter - STP X15 Systemmanager - 2024-09-04.csv
+INFO:root:CLI: Action took 11 sec. - quit
