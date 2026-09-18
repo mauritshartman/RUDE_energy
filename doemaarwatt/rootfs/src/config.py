@@ -62,6 +62,10 @@ GEN_CONFIG = {
 DEFAULT_BATTERY_CHARGE_MAX_PCT = 95
 DEFAULT_BATTERY_CHARGE_MIN_PCT = 5
 
+# Default limit (A) on the current difference between two phases, see issue #18. Too large a difference
+# trips the main circuit breaker.
+DEFAULT_MAX_PHASE_CURRENT_DIFF = 24
+
 BAT_INV_CONFIG = {
     'name': str,
     'type': str,
@@ -81,6 +85,7 @@ EM_CONFIG = {
     'host': str,
     'port': int,
     'max_fuse_current': int,
+    'max_phase_current_diff': int,
 }
 VALID_ENERGY_METER_TYPES = set(ENERGY_METER_DESCRIPTIONS.keys())
 SOL_INV_CONFIG = {
@@ -143,6 +148,11 @@ class DoeMaarWattConfig:
                     if 'battery_charge_min_pct' not in inv:
                         inv['battery_charge_min_pct'] = DEFAULT_BATTERY_CHARGE_MIN_PCT
                         migrated = True
+                # backfill the phase current difference limit for configs saved before issue #18
+                em = self._dyn_config.get('energy_meter', {})
+                if len(em) > 0 and 'max_phase_current_diff' not in em:
+                    em['max_phase_current_diff'] = DEFAULT_MAX_PHASE_CURRENT_DIFF
+                    migrated = True
                 if migrated:
                     self.save_dyn_config()
                 self.log.set_timezone(self.timezone)
@@ -286,6 +296,7 @@ class DoeMaarWattConfig:
             'host': '192.168.1.153',
             'port': 502,
             'max_fuse_current': 24,
+            'max_phase_current_diff': 24,
         })
         self.set_battery_inverters_config([
             {
@@ -428,6 +439,8 @@ class DoeMaarWattConfig:
                 raise ConfigException(f'invalid energy meter config: field {k} has invalid value: {v}', source='config')
             if k == 'type' and v not in VALID_ENERGY_METER_TYPES:
                 raise ConfigException(f'invalid energy meter type: field {k} has invalid value: {v}', source='config')
+            if k == 'max_phase_current_diff' and v < 0:
+                raise ConfigException(f'invalid energy meter config: field {k} cannot be negative: {v}', source='config')
 
         self.log.info(f'config: setting energy meter config to {cfg}')
         self._dyn_config['energy_meter'] = cfg

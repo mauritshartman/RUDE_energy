@@ -39,9 +39,15 @@ class EnergyMeterStats:
 
 class BaseEnergyMeter(ABC):
 
-    def __init__(self, name: str, max_fuse_a: int, log: Logger) -> None:
+    def __init__(self,
+        name: str,
+        max_fuse_a: int,
+        max_phase_current_diff_a: int,
+        log: Logger,
+    ) -> None:
         self.name = name
         self.max_fuse_a = max_fuse_a
+        self.max_phase_current_diff_a = max_phase_current_diff_a
         self.log = log
 
     @abstractmethod

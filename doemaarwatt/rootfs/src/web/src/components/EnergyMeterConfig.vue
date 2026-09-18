@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, computed } from 'vue'
-import { NDivider, NGrid, NForm, NFormItemGi, NInput, NInputNumber, NButton, NFlex, NSelect } from 'naive-ui'
+import { NDivider, NGrid, NForm, NFormItemGi, NInput, NInputNumber, NButton, NFlex, NSelect, NTag } from 'naive-ui'
 import { useConfigStore } from '../stores/config'
 import { storeToRefs } from 'pinia'
 
@@ -46,10 +46,18 @@ onMounted(async () => { await config.fetch_config() })
             <n-input-number v-model:value="energy_meter.port" min="1" max="65535" :show-button="false" />
         </n-form-item-gi>
 
-        <n-form-item-gi span="2" label="Fuse max current" path="max_fuse_current">
-            <n-input-number v-model:value="energy_meter.max_fuse_current" min="1" max="150" :show-button="false">
+        <n-form-item-gi span="4 m:8 l:16" label="Max current per phase at grid fuse" path="max_fuse_current">
+            <n-input-number v-model:value="energy_meter.max_fuse_current" min="0" max="150" :show-button="false">
                 <template #suffix>A</template>
             </n-input-number>
+            <n-tag v-if="energy_meter.max_fuse_current === 0" type="warning" :bordered="false" style="margin: 3px;">(no limit)</n-tag>
+        </n-form-item-gi>
+
+        <n-form-item-gi span="4 m:8 l:16" label="Max current difference between phases at grid fuse" path="max_phase_current_diff">
+            <n-input-number v-model:value="energy_meter.max_phase_current_diff" min="0" max="150" :show-button="false">
+                <template #suffix>A</template>
+            </n-input-number>
+            <n-tag v-if="energy_meter.max_phase_current_diff === 0" type="warning" :bordered="false" style="margin: 3px;">(no limit)</n-tag>
         </n-form-item-gi>
     </n-grid>
 

@@ -56,9 +56,11 @@ class Mode4Controller(BaseController):
     def get_PBSapp(self, now: dt) -> PBSapp:
         '''Return the desired power level (PBSapp) for each controlled inverter. Battery inverters follow the
         computed schedule (disconnected batteries are commanded to zero). Each solar inverter is registered at
-        its per-phase maximum generation; calc_PBSsent then curtails solar (solar first, preserving the
-        scheduled battery discharge) to keep every phase within the applicable export limit. When no
-        curtailment is needed the commanded setpoint equals the max, leaving the inverter effectively uncapped.'''
+        its per-phase maximum generation. calc_PBSsent caps it to the headroom below the export ceiling: the main
+        fuse limit at a positive price, which only binds when the solar could push a phase past the fuse, and 0 W
+        during negative prices (see get_export_limit) (issues #29, #31). Note that this setpoint is a ceiling and
+        not a prediction of what the inverter actually generates, so it must not be used to decide how much
+        surplus there is to absorb.'''
         PBapp_inverters = self.scheduler.get_PBapp_inverters(now)  # inv -> PBapp
 
         # set PBapp to zero for disconnected batteries:

@@ -11,8 +11,8 @@ DEVICE_ID = 2  # SMA Data Manager Modbus device ID
 
 class SmaDataManager(BaseEnergyMeter):
 
-    def __init__(self, name: str, max_fuse_a: int, host: str, port: int, log: Logger) -> None:
-        super().__init__(name, max_fuse_a, log)
+    def __init__(self, name: str, max_fuse_a: int, max_phase_current_diff_a: int, host: str, port: int, log: Logger) -> None:
+        super().__init__(name, max_fuse_a, max_phase_current_diff_a, log)
         self._modbus = ModbusManager(
             client_configs=[{'name': name, 'host': host, 'port': port, 'enable': True}],
             log=log,
@@ -23,6 +23,7 @@ class SmaDataManager(BaseEnergyMeter):
         return cls(
             name=cfg.get('name', 'Data Manager'),
             max_fuse_a=cfg.get('max_fuse_current', 25),
+            max_phase_current_diff_a=cfg.get('max_phase_current_diff', 25),
             host=cfg['host'],
             port=cfg.get('port', 502),
             log=log,

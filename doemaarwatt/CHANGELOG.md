@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.12] - 2026-09-07
+
+### Added
+
+- Inverter outputs are restricted when difference between phases becomes too large. Battery inverters are limited before solar inverters are curtailed ([issue #18](https://github.com/mauritshartman/RUDE_energy/issues/18))
+
+### Fixed
+
+- Limit solar inverter output when the current limit of the main fuse is being reached. Battery inverters absorb the measured surplus first, so solar is only curtailed for what cannot be used in the system. A solar inverter is always capped to the room left at the main fuse, so a sudden increase in sunshine can no longer overload the fuse until the next control cycle. This cap only reduces output when the fuse would otherwise be exceeded, which is why a limit is now also shown in the status page at positive prices ([issue #31](https://github.com/mauritshartman/RUDE_energy/issues/31))
+- Solar inverter limiting no longer toggled on and off every control cycle while the main fuse limit was reached, which overloaded the fuse every other cycle ([issue #31](https://github.com/mauritshartman/RUDE_energy/issues/31))
+- With multiple solar inverters on a phase, the room left at the main fuse is shared based on what each actually generates, so an inverter in full sun is no longer curtailed because another one is in the shade ([issue #31](https://github.com/mauritshartman/RUDE_energy/issues/31))
+- Solar inverters are no longer curtailed at positive energy prices or after sundown. Their maximum output was counted as actual generation, so a discharging battery made the phase look overloaded. Solar is now only curtailed during negative prices, or when the main fuse would otherwise be exceeded ([issue #29](https://github.com/mauritshartman/RUDE_energy/issues/29))
+
 ## [1.1.11] - 2026-09-02
 
 ### Fixed

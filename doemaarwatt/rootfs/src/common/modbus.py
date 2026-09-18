@@ -28,12 +28,12 @@ _modbus_exception_codes = {
 
 # For each data type, SMA Modbus defines specific NaN values. Taken from 'SMAModbus-ennexOS-TI-en-13.pdf'
 _modbus_nan_values = {
-    'S16': -32768,
-    'S32': -2147483648,
+    'S16': -32768, # 0x8000
+    'S32': -2147483648, # 0x8000 0000
     'STR32': 0,
-    'U16': 65535,
-    'U32': 4294967295,
-    'U32-status': 16777213,
+    'U16': 65535, # 0xFFFF
+    'U32': 4294967295, # 0xFFFF FFFF
+    'U32-STATUS': 16777213, # 0xFFFF FD
     'U64': 18446744073709551615,
 }
 
@@ -311,7 +311,7 @@ class ModbusManager():
             return 1
         elif dtype == 'U32':
             return 2
-        elif dtype == 'U32-status':
+        elif dtype == 'U32-STATUS':
             return 2
         elif dtype == 'S32':
             return 2
@@ -337,6 +337,8 @@ class ModbusManager():
         elif dtype == 'S16':
             value = MBClient.convert_from_registers(resp.registers, MBClient.DATATYPE.INT16, 'big')
         elif dtype == 'U32':
+            value = MBClient.convert_from_registers(resp.registers, MBClient.DATATYPE.UINT32, 'big')
+        elif dtype == 'U32-STATUS':
             value = MBClient.convert_from_registers(resp.registers, MBClient.DATATYPE.UINT32, 'big')
         elif dtype == 'S32':
             value = MBClient.convert_from_registers(resp.registers, MBClient.DATATYPE.INT32, 'big')

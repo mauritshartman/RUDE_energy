@@ -11,8 +11,8 @@ IO_LATENCY = 0.1  # simulated IO delay
 
 class SimEnergyMeter(BaseEnergyMeter):
 
-    def __init__(self, name: str, max_fuse_a: int, log: Logger) -> None:
-        super().__init__(name, max_fuse_a, log)
+    def __init__(self, name: str, max_fuse_a: int, max_phase_current_diff_a: int, log: Logger) -> None:
+        super().__init__(name, max_fuse_a, max_phase_current_diff_a, log)
         self.is_connected = False
 
     @classmethod
@@ -20,6 +20,7 @@ class SimEnergyMeter(BaseEnergyMeter):
         return cls(
             name=cfg.get('name', 'Simulated Energy Meter'),
             max_fuse_a=cfg.get('max_fuse_current', 25),
+            max_phase_current_diff_a=cfg.get('max_phase_current_diff', 25),
             log=log,
         )
 
