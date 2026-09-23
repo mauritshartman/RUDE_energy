@@ -5,7 +5,7 @@ from typing import Any, Optional
 import random
 
 from common import Logger, ControlStatus, Phase, SPCStats, ProgrammingError, ControlException
-from .base import BaseSolarInverter, SolarInverterStats
+from .base import BaseSolarInverter, SolarInverterStats, SolarGenerationStatus
 
 
 IO_LATENCY = 0.1  # simulated IO delay
@@ -52,6 +52,8 @@ class SimSolarInverter(BaseSolarInverter):
         #   x    -> output capped at x W
         self.power_setpoint: Optional[float] = None
 
+        self.solar_status: SolarGenerationStatus = SolarGenerationStatus.UNKNOWN
+
     @classmethod
     def from_config(cls, cfg: dict[str, Any], log: Logger) -> 'SimSolarInverter':
         return cls(
@@ -78,6 +80,7 @@ class SimSolarInverter(BaseSolarInverter):
     def close(self) -> None:
         self.is_connected = False
         self.is_controlled = False
+        self.solar_status = SolarGenerationStatus.UNKNOWN
 
     async def enable_control(self) -> None:
         if not self.is_connected:
@@ -91,6 +94,11 @@ class SimSolarInverter(BaseSolarInverter):
 
         self.is_controlled = False
         self.power_setpoint = None  # relinquish external control: inverter runs freely again
+
+        self.solar_status = SolarGenerationStatus.UNKNOWN
+
+    def get_solar_status(self) -> SolarGenerationStatus:
+        return self.solar_status
 
     async def read_stats(self) -> SolarInverterStats:
         await self._io_delay()
@@ -114,8 +122,11 @@ class SimSolarInverter(BaseSolarInverter):
 
             self.log.debug(f'{self.name}: ' + ' '.join(f'{phi}={pwr:.0f} W' for phi, pwr in phase_power.items()) + f' {total:.0f} W')
 
+        self.solar_status = SolarGenerationStatus.GENERATING if total > 0 else SolarGenerationStatus.STANDBY
+
         return SolarInverterStats(
             control_status=ControlStatus.NOMINAL if self.is_connected else ControlStatus.UNCONTROLLED,
+            solar_status=self.solar_status,
             setpoint_limit_w=self.power_setpoint,
             total_power_w=total,
             ac_side={ phi: SPCStats(power=phase_pow) for phi, phase_pow in phase_power.items() },

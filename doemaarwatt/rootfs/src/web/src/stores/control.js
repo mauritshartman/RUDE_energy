@@ -13,6 +13,10 @@ export const useControlStore = defineStore('control', {
         schedule: null,
         schedule_ts: null,
         update_time: DateTime.now(),
+        // Set on every status poll, whether it succeeded or not, unlike update_time which marks the last
+        // successful update. Getters that depend on the current time (eg. the config store's
+        // in_ev_charge_period) read this instead of the clock, so they are re-evaluated once per poll.
+        poll_time: DateTime.now(),
     }),
 
     getters: {
@@ -101,6 +105,8 @@ export const useControlStore = defineStore('control', {
                 this.schedule = null
                 this.schedule_ts = null
                 this.error_status = `control store: error while fetching status: ${err.msg}`
+            } finally {
+                this.poll_time = DateTime.now()  // the tick time-dependent getters follow, see the state above
             }
         },
         async set_running(r) {

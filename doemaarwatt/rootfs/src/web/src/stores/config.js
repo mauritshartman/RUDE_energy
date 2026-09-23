@@ -1,6 +1,7 @@
 
 import { defineStore } from 'pinia'
 import { API_BASE } from './api'
+import { useControlStore } from './control'
 
 export const useConfigStore = defineStore('configuration', {
     state: () => ({
@@ -19,8 +20,27 @@ export const useConfigStore = defineStore('configuration', {
         mode_static:    (state) => (state.config === null) ? [] : state.config.mode_static,
         mode_dynamic:   (state) => (state.config === null) ? -1 : state.config.mode_dynamic,
         timezone:       (state) => state.config?.general?.timezone ?? 'UTC',
+        // True while the current time falls inside the configured EV charge window (issue #36), both bounds
+        // included. An unset window (either time an empty string) is never active. A saved time carries the
+        // offset of the configured timezone, so it marks a single instant whatever timezone the browser is in;
+        // a time still being edited has no offset yet and is read as local browser time.
+        //
+        // The current time is taken from the control store's poll_time rather than from the clock: a getter is
+        // only re-evaluated when something reactive it reads has changed, and the clock is not reactive. Tying
+        // it to the status poll means this turns true and false again on its own, one poll late at worst.
+        in_ev_charge_period: (state) => {
+            const { ev_charge_start: start, ev_charge_end: end } = state.config?.mode_dynamic ?? {}
+            if (!start || !end) { return false }
+
+            const from = Date.parse(start)
+            const until = Date.parse(end)
+            if (Number.isNaN(from) || Number.isNaN(until)) { return false }
+
+            const now = useControlStore().poll_time?.toMillis() ?? Date.now()
+            return from <= now && now <= until
+        },
         error:          (state) => (state.error_status !== ''),
-        status:         (state) => (state.error_status !== '') ? '': state.error_status,
+        status: (state) => (state.error_status !== '') ? '' : state.error_status,
     },
 
     actions: {

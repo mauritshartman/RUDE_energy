@@ -108,6 +108,12 @@ function r(v) {
                 {{ sol.setpoint_limit === null || sol.setpoint_limit === undefined ? "not set" : fmtKW(sol.setpoint_limit) }}
               </td>
             </tr>
+            <tr>
+              <td>Status</td>
+              <td colspan="4">
+                {{ sol.solar_status === null || sol.solar_status === undefined ? "unknown" : sol.solar_status }}
+              </td>
+            </tr>
           </tbody>
         </n-table>
       </n-collapse-item>

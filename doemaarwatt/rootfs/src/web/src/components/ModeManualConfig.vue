@@ -44,7 +44,7 @@ onMounted(async () => { await config.fetch_config() })
       </n-input-number>
     </n-form-item-gi>
 
-    <n-form-item-gi span="4" label="Solar max power (per pahse)" path="solar_amount">
+    <n-form-item-gi span="4" label="Solar max power (per phase)" path="solar_amount">
       <n-input-number v-model:value="mode_manual.solar_amount" min="0" max="10000" :show-button="false">
         <template #suffix>W</template>
       </n-input-number>

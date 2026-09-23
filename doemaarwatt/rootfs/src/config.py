@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from typing import Any, Callable, Optional
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from datetime import datetime as dt
 
 from aiohttp import web
 
@@ -47,6 +48,8 @@ DYN_CONFIG_DEFAULT = {
         'fallback_mode': 1,
         'efficiency': 0.93,
         'api_token': '',
+        'ev_charge_start': '',
+        'ev_charge_end': '',
     },
 }
 GEN_CONFIG = {
@@ -120,6 +123,8 @@ MODE_DYNAMIC_CONFIG = {
     'fallback_mode': int,
     'efficiency': float,
     'api_token': str,
+    'ev_charge_start': str,
+    'ev_charge_end': str,
 }
 
 
@@ -133,12 +138,14 @@ class DoeMaarWattConfig:
         if DYN_CONFIG_PATH.exists():  # check for save dynamic config from an earlier session
             with DYN_CONFIG_PATH.open() as f:
                 self._dyn_config = json.load(f)
+
                 # migrate old integer timezone_offset to timezone string
                 gen = self._dyn_config['general']
                 if 'timezone_offset' in gen and 'timezone' not in gen:
                     gen['timezone'] = 'Europe/Amsterdam'
                     del gen['timezone_offset']
                     self.save_dyn_config()
+
                 # backfill per-inverter state-of-charge limits for configs saved before issue #7
                 migrated = False
                 for inv in self._dyn_config.get('battery_inverters', []):
@@ -148,11 +155,21 @@ class DoeMaarWattConfig:
                     if 'battery_charge_min_pct' not in inv:
                         inv['battery_charge_min_pct'] = DEFAULT_BATTERY_CHARGE_MIN_PCT
                         migrated = True
+
                 # backfill the phase current difference limit for configs saved before issue #18
                 em = self._dyn_config.get('energy_meter', {})
                 if len(em) > 0 and 'max_phase_current_diff' not in em:
                     em['max_phase_current_diff'] = DEFAULT_MAX_PHASE_CURRENT_DIFF
                     migrated = True
+
+                # backfill the EV charge start and end times before issue #36. An unset time is an empty string:
+                # also replace the null an intermediate version stored for it, which is no longer a valid value
+                mode_4_cfg = self._dyn_config.get('mode_dynamic', {})
+                for k in ('ev_charge_start', 'ev_charge_end'):
+                    if mode_4_cfg.get(k) is None:
+                        mode_4_cfg[k] = ''
+                        migrated = True
+
                 if migrated:
                     self.save_dyn_config()
                 self.log.set_timezone(self.timezone)
@@ -480,6 +497,38 @@ class DoeMaarWattConfig:
     def set_mode_dynamic_config(self, cfg: dict):
         if not isinstance(cfg, dict):
             raise ConfigException(f'mode dynamic config requires a dict, passed: {cfg}', source='config')
+        if len(set(cfg.keys()) ^ set(MODE_DYNAMIC_CONFIG.keys())) != 0:
+            raise ConfigException(f'invalid mode dynamic config (missing or extraneous fields): {cfg}', source='config')
+
+        for k, v in cfg.items():
+            if not isinstance(v, MODE_DYNAMIC_CONFIG[k]):
+                raise ConfigException(f'invalid mode dynamic config: field {k} has invalid value: {v}', source='config')
+
+        # EV charge window (issue #36): both times are unset (an empty string), or both are set - check if they parse
+        start, end = cfg['ev_charge_start'].strip(), cfg['ev_charge_end'].strip()
+        if bool(start) != bool(end):
+            raise ConfigException(f'invalid mode dynamic config: ev_charge_start and ev_charge_end must both be set '
+                                  f'or both be empty, passed: {start!r} / {end!r}', source='config')
+        if start:
+            try:
+                start, end = dt.fromisoformat(start), dt.fromisoformat(end)
+            except ValueError as e:
+                raise ConfigException(f'invalid mode dynamic config: ev_charge_start / ev_charge_end has invalid value: {e}',
+                                      source='config')
+            # a plain wall-clock time is read in the configured timezone, an offset in the string is respected
+            tz = ZoneInfo(self.timezone)
+            start = start.replace(tzinfo=tz) if start.tzinfo is None else start.astimezone(tz)
+            end = end.replace(tzinfo=tz) if end.tzinfo is None else end.astimezone(tz)
+            if end <= start:
+                raise ConfigException(f'invalid mode dynamic config: ev_charge_end ({end}) is not after '
+                                      f'ev_charge_start ({start})', source='config')
+
+        # never mutate the dict that was passed in: get_mode_dynamic_config() hands out the stored one. The times are
+        # stored as ISO strings so the config stays JSON serializable; dt.fromisoformat() reads them back unchanged
+        cfg = dict(cfg)
+        cfg['ev_charge_start'] = start.isoformat() if start else ''
+        cfg['ev_charge_end'] = end.isoformat() if end else ''
+
         self.log.info(f'config: setting dynamic mode config to {cfg}')
         self._dyn_config['mode_dynamic'] = cfg
         self.save_dyn_config()

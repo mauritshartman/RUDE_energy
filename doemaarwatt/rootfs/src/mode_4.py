@@ -53,6 +53,24 @@ class Mode4Controller(BaseController):
             self.price_task.cancel()
             self.price_task = None
 
+    def _in_ev_charge_period(self, now: dt) -> bool:
+        refreshed_dyn_cfg = self.config.get_mode_dynamic_config()
+        ev_charge_start = refreshed_dyn_cfg.get('ev_charge_start', '')
+        ev_charge_end = refreshed_dyn_cfg.get('ev_charge_end', '')
+        if ev_charge_start and ev_charge_end:
+            try:
+                start = dt.fromisoformat(ev_charge_start)
+                end = dt.fromisoformat(ev_charge_end)
+            except ValueError as e:
+                self.log.error(f'ignoring unparseable EV charge period ({ev_charge_start} / {ev_charge_end}): {e}')
+                return False
+
+            if start <= now <= end:
+                self.log.info(f'currently in an EV charging period: restricting battery inverters to discharging and standby only')
+                return True
+
+        return False
+
     def get_PBSapp(self, now: dt) -> PBSapp:
         '''Return the desired power level (PBSapp) for each controlled inverter. Battery inverters follow the
         computed schedule (disconnected batteries are commanded to zero). Each solar inverter is registered at
@@ -65,6 +83,10 @@ class Mode4Controller(BaseController):
 
         # set PBapp to zero for disconnected batteries:
         PBapp_inverters = { i: p if self.battery_present[i] else 0 for i, p in PBapp_inverters.items() }
+
+        # ensure PBapp is never negative (charging) for any battery inverter when we are in a EV charging period
+        if self._in_ev_charge_period(now):
+            PBapp_inverters = { i: max(0, p) if self.battery_present[i] else p for i, p in PBapp_inverters.items() }
 
         pbsapp = PBSapp(list(self.inverters.values()))
         for inv in self.battery_inverters:

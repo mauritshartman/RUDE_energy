@@ -189,7 +189,7 @@ class ModbusManager():
                     raise ModbusException(f'error while reading register {address}: ({code}) {exc_descr}',
                                           source=f'modbus:{client_name}')
 
-            value = self._decode_response(client_name, dtype, resp, sma_format=sma_format)
+            value = self._decode_response(client_name, address, dtype, resp, sma_format=sma_format)
             self.log.debug(f'[modbus:{client_name}]: read register {address} -> {value}')
             return value
 
@@ -254,7 +254,7 @@ class ModbusManager():
                 else:
                     raise ModbusException(f'error while reading register {address}: (code absent) {resp}', source=f'modbus:{client_name}')
 
-            value = self._decode_response(client_name, dtype, resp, sma_format=sma_format)
+            value = self._decode_response(client_name, address, dtype, resp, sma_format=sma_format)
             result_dict[client_name] = value
             self.log.debug(f'[modbus:{client_name}]: read register {address} -> {value}')
 
@@ -323,6 +323,7 @@ class ModbusManager():
 
     def _decode_response(self,
         client_name: str,
+        address: int,
         dtype: str,
         resp,
         sma_format: str | dict[int, str] | None = None,
@@ -348,7 +349,7 @@ class ModbusManager():
             return resp
 
         if value_is_nan(value, dtype):
-            self.log.info(f'[modbus:{client_name}]: decoded modbus response {value} into a NaN-value')
+            self.log.info(f'[modbus:{client_name}]: decoded modbus response {value} into NaN for register {address}')
             return None  # we use None as NaN
 
         if sma_format is not None:
@@ -370,5 +371,5 @@ class ModbusManager():
                 except KeyError:
                     raise ProgrammingError(f'no taglist mapping for value {value}', source='modbus')
 
-        self.log.debug(f"[modbus:{client_name}]: decoded response '{resp}' into {value}")
+        self.log.debug(f"[modbus:{client_name}]: decoded response '{resp}' into {value} for register {address}")
         return value

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, defineAsyncComponent } from "vue";
+import { NAlert } from "naive-ui";
 import { storeToRefs } from "pinia";
 import { useControlStore } from '../stores/control';
 import { useConfigStore } from "../stores/config";
@@ -49,7 +50,10 @@ onBeforeUnmount(() => {
         <template v-else>Not running</template>
 
         as of {{ control.update_time.setZone(tz).toLocaleString(DateTime.TIME_WITH_SECONDS) }}.
+
+        <n-alert v-if="config.in_ev_charge_period" title="EV Charging" type="warning">Currently charging an electric vehicle: battery inverters restricted to discharging or standby only.</n-alert>
     </p>
+
 
     <ScheduleGraph v-if="control.schedule?.length" />
     <PricesGraph v-if="control.prices?.prices" />
