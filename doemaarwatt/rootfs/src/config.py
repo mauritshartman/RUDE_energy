@@ -12,6 +12,7 @@ from common import Logger, LogLevel, Phase, ConfigException
 from subsystems.battery_inverters import BATTERY_INVERTER_DESCRIPTIONS
 from subsystems.solar_inverters import SOLAR_INVERTER_DESCRIPTIONS
 from subsystems.energy_meters import ENERGY_METER_DESCRIPTIONS
+from subsystems.ev_chargers import EV_CHARGER_DESCRIPTIONS
 
 
 # Local development path:
@@ -39,6 +40,7 @@ DYN_CONFIG_DEFAULT = {
     'battery_inverters': [],
     'solar_inverters': [],
     'energy_meter': {},
+    'ev_chargers': [],
     'mode_manual': { 'battery_amount': 0, 'direction': 'standby', 'solar_amount': 0 },
     'mode_static': { 'schedule': [] },
     'mode_dynamic': {
@@ -91,6 +93,15 @@ EM_CONFIG = {
     'max_phase_current_diff': int,
 }
 VALID_ENERGY_METER_TYPES = set(ENERGY_METER_DESCRIPTIONS.keys())
+EV_CHARGER_CONFIG = {
+    'name': str,
+    'type': str,
+    'enable': bool,
+    'host': str,
+    'port': int,
+    'connected_phase': Phase,
+}
+VALID_EV_CHARGER_TYPES = set(EV_CHARGER_DESCRIPTIONS.keys())
 SOL_INV_CONFIG = {
     'name': str,
     'type': str,
@@ -170,6 +181,11 @@ class DoeMaarWattConfig:
                         mode_4_cfg[k] = ''
                         migrated = True
 
+                # backfill the EV chargers section
+                if 'ev_chargers' not in self._dyn_config:
+                    self._dyn_config['ev_chargers'] = []
+                    migrated = True
+
                 if migrated:
                     self.save_dyn_config()
                 self.log.set_timezone(self.timezone)
@@ -234,6 +250,8 @@ class DoeMaarWattConfig:
         return self._dyn_config['battery_inverters']
     def get_solar_inverters_config(self) -> list:
         return self._dyn_config['solar_inverters']
+    def get_ev_chargers_config(self) -> list:
+        return self._dyn_config['ev_chargers']
     def get_energy_meter_config(self) -> dict:
         return self._dyn_config['energy_meter']
     def get_mode_manual_config(self) -> dict[str, Any]:
@@ -365,6 +383,14 @@ class DoeMaarWattConfig:
             'modbus_device_id': 3,
             'connected_phase': Phase.ALL,
         }])
+        self.set_ev_chargers_config([{
+            'name': 'Alfen Eve Pro',
+            'enable': True,
+            'type': 'alfen_eve_pro',
+            'host': '192.168.1.162',
+            'port': 502,
+            'connected_phase': Phase.ALL,
+        }])
         dyn_cfg = self.get_mode_dynamic_config()
         dyn_cfg['api_token'] = NEKOT
         self.set_mode_dynamic_config(dyn_cfg)
@@ -377,7 +403,10 @@ class DoeMaarWattConfig:
         if not isinstance(cfg, list):
             raise ConfigException(f'battery inverters config requires a list of dicts, passed: {cfg}', source='config')
 
-        taken_names = { i['name'] for i in self._dyn_config['solar_inverters'] }
+        taken_names = (
+            { i['name'] for i in self._dyn_config['ev_chargers'] } |
+            { i['name'] for i in self._dyn_config['solar_inverters'] }
+        )
 
         self._dyn_config['battery_inverters'] = []
         for c in cfg: # check each battery inverter config
@@ -416,7 +445,10 @@ class DoeMaarWattConfig:
         if not isinstance(cfg, list):
             raise ConfigException(f'solar inverter config requires a list of dicts, passed: {cfg}', source='config')
 
-        taken_names = { i['name'] for i in self._dyn_config['battery_inverters'] }
+        taken_names = (
+            { i['name'] for i in self._dyn_config['battery_inverters'] } |
+            { i['name'] for i in self._dyn_config['ev_chargers'] }
+        )
 
         self._dyn_config['solar_inverters'] = []
         for c in cfg:
@@ -444,6 +476,43 @@ class DoeMaarWattConfig:
             self._dyn_config['solar_inverters'].append(c)
 
         self.log.info(f'config: setting solar inverters config to:\n{"\n".join(str(s) for s in self._dyn_config["solar_inverters"])}')
+        self.save_dyn_config()
+
+    def set_ev_chargers_config(self, cfg: list):
+        if not isinstance(cfg, list):
+            raise ConfigException(f'EV charger config requires a list of dicts, passed: {cfg}', source='config')
+
+        taken_names = (
+            { i['name'] for i in self._dyn_config['battery_inverters'] } |
+            { i['name'] for i in self._dyn_config['solar_inverters'] }
+        )
+
+        self._dyn_config['ev_chargers'] = []
+        for c in cfg:
+            if not isinstance(c, dict):
+                raise ConfigException(f'EV charger config requires a list of dicts, passed: {cfg}', source='config')
+
+            if len(set(c.keys()) ^ set(EV_CHARGER_CONFIG.keys())) != 0:
+                raise ConfigException(f'invalid EV charger config (missing or extraneous fields): {c}', source='config')
+
+            # ensure connected_phase is converted before checking types of all fields
+            try:
+                c['connected_phase'] = Phase(c['connected_phase'])
+            except ValueError as e:
+                raise ConfigException(f'invalid EV charger config: connected_phase has invalid value: {e}', source='config')
+
+            for k, v in c.items():
+                if not isinstance(v, EV_CHARGER_CONFIG[k]):
+                    raise ConfigException(f'invalid EV charger config: field {k} has invalid value: {v}', source='config')
+                if k == 'type' and v not in VALID_EV_CHARGER_TYPES:
+                    raise ConfigException(f'invalid EV charger type: field {k} has invalid value: {v}', source='config')
+                if k == 'name' and v in taken_names:
+                    raise ConfigException(f'invalid EV charger name: there is another charger named {v}', source='config')
+
+            taken_names.add(c['name']) # reserve so no later charger can reuse it
+            self._dyn_config['ev_chargers'].append(c)
+
+        self.log.info(f'config: setting EV chargers config to:\n{"\n".join(str(s) for s in self._dyn_config["ev_chargers"])}')
         self.save_dyn_config()
 
     def set_energy_meter_config(self, cfg: dict):
@@ -542,6 +611,8 @@ class DoeMaarWattConfig:
         router.add_post('/api/config/battery_inverters',    self.handle_post_battery_inverters_config)
         router.add_get('/api/config/solar_inverters',       self.handle_get_solar_inverters_config)
         router.add_post('/api/config/solar_inverters',      self.handle_post_solar_inverters_config)
+        router.add_get('/api/config/ev_chargers',           self.handle_get_ev_chargers_config)
+        router.add_post('/api/config/ev_chargers',          self.handle_post_ev_chargers_config)
         router.add_get('/api/config/energy_meter',          self.handle_get_energy_meter_config)
         router.add_post('/api/config/energy_meter',         self.handle_post_energy_meter_config)
         router.add_get('/api/config/mode/manual',           self.handle_get_mode_manual_config)
@@ -564,6 +635,9 @@ class DoeMaarWattConfig:
 
     async def handle_get_solar_inverters_config(self, req: web.Request) -> web.Response:
         return web.json_response(self.get_solar_inverters_config())
+
+    async def handle_get_ev_chargers_config(self, req: web.Request) -> web.Response:
+        return web.json_response(self.get_ev_chargers_config())
 
     async def handle_get_energy_meter_config(self, req: web.Request) -> web.Response:
         return web.json_response(self.get_energy_meter_config())
@@ -597,6 +671,14 @@ class DoeMaarWattConfig:
         try:
             parsed = await req.json()
             self.set_solar_inverters_config(parsed)
+            return web.json_response({'status': 'ok'})
+        except Exception as e:
+            raise web.HTTPBadRequest(text=json.dumps({'status': 'error', 'msg': str(e)}))
+
+    async def handle_post_ev_chargers_config(self, req: web.Request) -> web.Response:
+        try:
+            parsed = await req.json()
+            self.set_ev_chargers_config(parsed)
             return web.json_response({'status': 'ok'})
         except Exception as e:
             raise web.HTTPBadRequest(text=json.dumps({'status': 'error', 'msg': str(e)}))
@@ -645,4 +727,5 @@ class DoeMaarWattConfig:
             'battery_inverters': BATTERY_INVERTER_DESCRIPTIONS,
             'solar_inverters': SOLAR_INVERTER_DESCRIPTIONS,
             'energy_meters': ENERGY_METER_DESCRIPTIONS,
+            'ev_chargers': EV_CHARGER_DESCRIPTIONS,
         })

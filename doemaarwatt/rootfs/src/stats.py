@@ -6,6 +6,7 @@ from config import DoeMaarWattConfig
 from subsystems.battery_inverters import BatteryInverterStats
 from subsystems.solar_inverters import SolarInverterStats
 from subsystems.energy_meters import EnergyMeterStats
+from subsystems.ev_chargers import EVChargerStats
 
 
 class ControllerStats:
@@ -15,6 +16,7 @@ class ControllerStats:
 
         self.battery_inverters: dict[str, BatteryInverterStats] = {}
         self.solar_inverters: dict[str, SolarInverterStats] = {}
+        self.ev_chargers: dict[str, EVChargerStats] = {}
         self.energy_meter: Optional[EnergyMeterStats] = None
 
         self.start_ts: Optional[float] = None
@@ -22,6 +24,7 @@ class ControllerStats:
     def reset(self):
         self.battery_inverters = {}
         self.solar_inverters = {}
+        self.ev_chargers = {}
         self.energy_meter = None
 
         self.start_ts = None
@@ -52,5 +55,6 @@ class ControllerStats:
         return {
             'battery_inverters': { n: s.to_dict() for n, s in self.battery_inverters.items() },
             'solar_inverters': { n: s.to_dict() for n, s in self.solar_inverters.items() },
+            'ev_chargers': { n: s.to_dict() for n, s in self.ev_chargers.items() },
             'energy_meter': None if self.energy_meter is None else self.energy_meter.to_dict(),
         }

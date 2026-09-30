@@ -15,6 +15,7 @@ export const useConfigStore = defineStore('configuration', {
         general:        (state) => (state.config === null) ? [] : state.config.general,
         battery_inverters:      (state) => (state.config === null) ? [] : state.config.battery_inverters,
         solar_inverters: (state) => (state.config === null) ? [] : state.config.solar_inverters,
+        ev_chargers:    (state) => (state.config === null) ? [] : state.config.ev_chargers,
         energy_meter:   (state) => (state.config === null) ? -1 : state.config.energy_meter,
         mode_manual:    (state) => (state.config === null) ? -1 : state.config.mode_manual,
         mode_static:    (state) => (state.config === null) ? [] : state.config.mode_static,
@@ -88,6 +89,14 @@ export const useConfigStore = defineStore('configuration', {
             } catch (err) {
                 this.config = null
                 this.error_status = `config store: error while updating solar inverter config: ${err.msg}`
+            }
+        },
+        async sync_ev_chargers_config(cfg) {
+            try {
+                const resp = await this._make_fetch(`/config/ev_chargers`, 'POST', cfg)
+            } catch (err) {
+                this.config = null
+                this.error_status = `config store: error while updating EV chargers config: ${err.msg}`
             }
         },
         async sync_energy_meter_config(cfg) {

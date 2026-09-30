@@ -17,6 +17,7 @@ from stats import ControllerStats
 from subsystems.battery_inverters import BaseBatteryInverter, BatteryInverterStats, create_battery_inverter
 from subsystems.solar_inverters import BaseSolarInverter, SolarInverterStats, create_solar_inverter
 from subsystems.energy_meters import BaseEnergyMeter, create_energy_meter, EnergyMeterStats
+from subsystems.ev_chargers import BaseEVCharger, create_ev_charger, EVChargerStats
 
 
 RECONNECT_DELAY = 10 # seconds before attempting a reconnect
@@ -64,6 +65,7 @@ class BaseController(ABC):
         # set up by setup()
         self.battery_inverters: list[BaseBatteryInverter] = []
         self.solar_inverters: list[BaseSolarInverter] = []
+        self.ev_chargers: list[BaseEVCharger] = []
         self.inverters: dict[str, BaseInverter] = {} # inverter name -> BaseInverter
         self.energy_meter: Optional[BaseEnergyMeter] = None
 
@@ -90,6 +92,7 @@ class BaseController(ABC):
     def setup(self) -> None:
         bat_inv_cfg = self.config.get_battery_inverters_config()
         sol_inv_cfg = self.config.get_solar_inverters_config()
+        ev_cfg = self.config.get_ev_chargers_config()
         em_cfg = self.config.get_energy_meter_config()
 
         self.battery_inverters = [
@@ -97,21 +100,25 @@ class BaseController(ABC):
             for cfg in bat_inv_cfg
             if len(cfg) > 0 and cfg.get('enable', True)
         ]
-
         self.solar_inverters = [
             create_solar_inverter(cfg, self.log)
             for cfg in sol_inv_cfg
             if len(cfg) > 0 and cfg.get('enable', True)
         ]
+        self.ev_chargers = [
+            create_ev_charger(cfg, self.log)
+            for cfg in ev_cfg
+            if len(cfg) > 0 and cfg.get('enable', True)
+        ]
 
-        for inv in self.battery_inverters + self.solar_inverters:
+        for inv in self.battery_inverters + self.solar_inverters + self.ev_chargers:
             if inv.name in self.inverters:
                 raise ProgrammingError(f'inverters should have a unique name: {inv.name}', source='base_controller')
             self.inverters[inv.name] = inv
 
         self.inv_phase_map = {
             phase: [
-                i.name for i in self.battery_inverters + self.solar_inverters
+                i.name for i in self.battery_inverters + self.solar_inverters + self.ev_chargers
                 if i.connected_phase == phase or i.connected_phase == Phase.ALL
             ]
             for phase in SINGLE_PHASES
@@ -122,7 +129,7 @@ class BaseController(ABC):
         self.tz = ZoneInfo(self.config.timezone)
 
     async def connect_subsystems(self):
-        await asyncio.gather(*[inv.connect() for inv in self.battery_inverters + self.solar_inverters])
+        await asyncio.gather(*[inv.connect() for inv in self.inverters.values()])
 
         if self.energy_meter:
             await self.energy_meter.connect()
@@ -130,10 +137,9 @@ class BaseController(ABC):
         self.log.info(f'(re)connected to all subsystems')
 
     def close_subsystems(self):
-        for inv in self.battery_inverters:
+        for inv in self.inverters.values():
             inv.close()
-        for inv in self.solar_inverters:
-            inv.close()
+
         if self.energy_meter:
             self.energy_meter.close()
         self.log.info('disconnected from all subsystems')
@@ -173,6 +179,10 @@ class BaseController(ABC):
         if self.solar_inverters:
             sol_inv_stats = await asyncio.gather(*[inv.read_stats() for inv in self.solar_inverters])
             self._stats.solar_inverters = { inv.name: inv_stats for inv, inv_stats in zip(self.solar_inverters, sol_inv_stats) }
+
+        if self.ev_chargers:
+            ev_stats = await asyncio.gather(*[inv.read_stats() for inv in self.ev_chargers])
+            self._stats.ev_chargers = { inv.name: inv_stats for inv, inv_stats in zip(self.ev_chargers, ev_stats) }
 
         if self.energy_meter is not None:
             em_stats = await self.energy_meter.read_stats()
@@ -287,14 +297,16 @@ class BaseController(ABC):
         voltage = em.grid[phi].voltage if em is not None and phi in em.grid else None
         return voltage if voltage else NOMINAL_PHASE_VOLTAGE
 
-    def _inverter_stats(self, inv_name: str) -> Optional[BatteryInverterStats | SolarInverterStats]:
+    def _inverter_stats(self, inv_name: str) -> Optional[BatteryInverterStats | SolarInverterStats | EVChargerStats]:
         '''Latest stats of a battery or solar inverter, or None when it has not been read (yet).'''
         if inv_name in self._stats.battery_inverters:
             return self._stats.battery_inverters[inv_name] # can be None
         if inv_name in self._stats.solar_inverters:
             return self._stats.solar_inverters[inv_name] # can be None
+        if inv_name in self._stats.ev_chargers:
+            return self._stats.ev_chargers[inv_name] # can be None
 
-        raise ProgrammingError(f'inverter {inv_name} is neither a battery nor a solar inverter',
+        raise ProgrammingError(f'inverter {inv_name} is neither a battery, solar inverter nor an EV charger',
                                source='base_controller.py', requires_fallback=True)
 
     def _follows_command(self, inv_name: str) -> bool:

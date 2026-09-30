@@ -12,6 +12,7 @@ import {
   FileTrayFullOutline,
   SunnyOutline,
   SpeedometerOutline,
+  CarOutline,
 } from "@vicons/ionicons5";
 import { NIcon, NMenu, NButton, NGrid, NGi } from "naive-ui";
 import { RouterLink } from "vue-router";
@@ -76,6 +77,16 @@ const menu_options = ref([
           ),
         key: "go-solar-inverters",
         icon: render_icon(SunnyOutline),
+      },
+      {
+        label: () =>
+          h(
+            RouterLink,
+            { to: { name: "ev_chargers_config" } },
+            { default: () => "EV Chargers" }
+          ),
+        key: "go-ev-chargers",
+        icon: render_icon(CarOutline),
       },
     ],
   },

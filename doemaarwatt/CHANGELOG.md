@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.14] - 2026-09-30
+
+### Added
+
+- Added initial support for a new type of subsystem for EV car chargers with a driver for an Alfen Eve Pro.
+  For now it only reads stats from the charger without controlling it ([issue #36](https://github.com/mauritshartman/RUDE_energy/issues/36))
+
 ## [1.1.13] - 2026-09-22
 
 ### Fixed

@@ -15,6 +15,7 @@ const routes = [
     { name: 'energy_meter_config', path: '/config/energy_meter', component: () => import('./components/EnergyMeterConfig.vue') },
     { name: 'solar_inverters_config', path: '/config/solar_inverters', component: () => import('./components/SolarInverterConfig.vue') },
     { name: 'battery_inverters_config', path: '/config/battery_inverters', component: () => import('./components/BatteryInverterConfig.vue') },
+    { name: 'ev_chargers_config', path: '/config/ev_chargers', component: () => import('./components/EVChargerConfig.vue') },
     { name: 'general_config', path: '/config/general', component: () => import('./components/StartupMode.vue') },
     { name: 'manual_config', path: '/config/manual', component: () => import('./components/ModeManualConfig.vue') },
     { name: 'static_schedule_config', path: '/config/static', component: () => import('./components/ModeStaticConfig.vue') },
