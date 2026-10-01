@@ -2,7 +2,7 @@ from typing import Any
 
 from prettytable import PrettyTable
 
-from common import Logger, ModbusManager, ControlStatus, Phase, SPCStats, ControlException
+from common import Logger, ModbusManager, ControlStatus, Phase, SPCStats, ControlException, ProgrammingError
 from .base import BaseEVCharger, EVChargerStats, EVChargingStatus
 
 
@@ -13,7 +13,19 @@ from .base import BaseEVCharger, EVChargerStats, EVChargingStatus
 STATION_DEVICE_ID = 200
 SOCKET_DEVICE_ID = 1
 
-EXPECTED_MANUFACTURER = 'Alfen B.V.'  # what registers 117..121 read on every Alfen charging station
+EXPECTED_MANUFACTURER = 'Alfen'  # what registers 117..121 read on every Alfen charging station
+
+MODE_3_STATUS = {
+    'A': 'EV not connected',
+    'B1': 'EV connected, EV and EVSE not ready for charging',
+    'B2': 'EV connected, EV not ready for charging',
+    'C1': 'EV ready for charging, waiting for EVSE (no ventilation needed)',
+    'C2': 'actively charging (no ventilation needed)',
+    'D1': 'EV ready for charging, waiting for EVSE (ventilation needed)',
+    'D2': 'actively charging (ventilation needed)',
+    'E': 'Error condition',
+    'F': 'Fault condition',
+}
 
 
 class AlfenEvePro(BaseEVCharger):
@@ -125,22 +137,42 @@ class AlfenEvePro(BaseEVCharger):
             word_count=word_count,
         )
 
+    async def _set_ev_charging_state(self):
+        availability = await self._read(1200, 'U16', SOCKET_DEVICE_ID) # 1 operative, 0 inoperative
+        if availability == 0: # inoperative
+            self.ev_charging_status = EVChargingStatus.INOPERATIVE
+            return
+
+        # EVSE is operative so check mode 3 status:
+        mode_3_state = await self._read(1201, 'STRING', SOCKET_DEVICE_ID, word_count=5) # IEC 61851 mode 3 status
+        if mode_3_state not in MODE_3_STATUS:
+            raise ProgrammingError(f'unknown IEC 61851 mode 3 state: {mode_3_state}', source=self.name)
+        status_descr = MODE_3_STATUS[mode_3_state]
+
+        self.log.info(f'{self.name}: charger is operative, mode 3 status {mode_3_state} ({status_descr})')
+
+        if mode_3_state == 'A':
+            self.ev_charging_status = EVChargingStatus.NO_CAR_CONNECTED
+        elif mode_3_state == 'B1' or mode_3_state == 'C1' or mode_3_state == 'D1':
+            self.ev_charging_status = EVChargingStatus.CONNECTED_NOT_CHARGING
+        elif mode_3_state == 'C2' or mode_3_state == 'D2':
+            self.ev_charging_status = EVChargingStatus.CONNECTED_CHARGING
+        else: # E (error) / F (fault)
+            self.ev_charging_status = EVChargingStatus.ERROR
+
     async def read_stats(self) -> EVChargerStats:
         self.log.debug('reading EV charger properties:')
 
         # safety check for STRING datatype: read register 117-121 (manufacturer) which should yield 'Alfen B.V.'
-        manufacturer = await self._read(117, 'STRING', device_id=STATION_DEVICE_ID, word_count=5)
-        if manufacturer != EXPECTED_MANUFACTURER:
+        manufacturer: str = await self._read(117, 'STRING', device_id=STATION_DEVICE_ID, word_count=5)
+        if not manufacturer.startswith(EXPECTED_MANUFACTURER):
             self.log.error(f'{self.name}: expected the manufacturer register to read {EXPECTED_MANUFACTURER!r}, '
                            f'but it reads {manufacturer!r}: check the Modbus server address and the decoding '
                            f'of strings and register addresses before trusting any other reading')
         else:
             self.log.debug(f'{self.name}: manufacturer register reads {manufacturer!r} as expected')
 
-        availability = await self._read(1200, 'U16', SOCKET_DEVICE_ID) # 1 operative, 0 inoperative
-        mode_3_state = await self._read(1201, 'STRING', SOCKET_DEVICE_ID, word_count=5) # IEC 61851 mode 3 status
-        # TODO: set the ev_charging_status based on availability and mode 3 status
-        self.log.info(f'{self.name}: availability {availability}, mode 3 status: {mode_3_state}')
+        await self._set_ev_charging_state()
 
         l1_voltage = await self._read(306, 'FLOAT32', SOCKET_DEVICE_ID) # L1-N voltage
         l2_voltage = await self._read(308, 'FLOAT32', SOCKET_DEVICE_ID) # L2-N voltage
@@ -154,8 +186,17 @@ class AlfenEvePro(BaseEVCharger):
         l2_power = await self._read(340, 'FLOAT32', SOCKET_DEVICE_ID) # L2 real power
         l3_power = await self._read(342, 'FLOAT32', SOCKET_DEVICE_ID) # L3 real power
 
+        self.log.info(f'{self.name}: L1 voltage reading: {l1_voltage} V')
+        self.log.info(f'{self.name}: L2 voltage reading: {l2_voltage} V')
+        self.log.info(f'{self.name}: L3 voltage reading: {l3_voltage} V')
+        self.log.info(f'{self.name}: L1 current reading: {l1_current} A')
+        self.log.info(f'{self.name}: L2 current reading: {l2_current} A')
+        self.log.info(f'{self.name}: L3 current reading: {l3_current} A')
+        self.log.info(f'{self.name}: L1 power reading: {l1_power} W')
+        self.log.info(f'{self.name}: L2 power reading: {l2_power} W')
+        self.log.info(f'{self.name}: L3 power reading: {l3_power} W')
+
         unreadable = [name for name, value in (
-            ('availability (1200)', availability), ('mode 3 state (1201)', mode_3_state),
             ('L1 voltage (306)', l1_voltage), ('L2 voltage (308)', l2_voltage), ('L3 voltage (310)', l3_voltage),
             ('L1 current (320)', l1_current), ('L2 current (322)', l2_current), ('L3 current (324)', l3_current),
             ('L1 power (338)', l1_power), ('L2 power (340)', l2_power), ('L3 power (342)', l3_power),

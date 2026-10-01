@@ -7,10 +7,10 @@ from common import Logger, ControlStatus, Phase, SPCStats, BaseInverter
 
 
 class EVChargingStatus(StrEnum):
+    INOPERATIVE = 'INOPERATIVE' # EVSE is turned off
     NO_CAR_CONNECTED = 'NO_CAR_CONNECTED' # no EV is currently charging
-    CAR_CONNECTED_WAITING_AUTH = 'CAR_CONNECTED_WAITING_AUTH' # an EV is connected and awaiting start/ authorization
-    ACTIVELY_CHARGING = 'ACTIVELY_CHARGING' # an EV is currently charging
     CONNECTED_NOT_CHARGING = 'CONNECTED_NOT_CHARGING' # an EV is connected to the charger, but not actively charging (anymore)
+    CONNECTED_CHARGING = 'ACTIVELY_CHARGING' # an EV is currently charging
     ERROR = 'ERROR' # some error occurred
 
 
