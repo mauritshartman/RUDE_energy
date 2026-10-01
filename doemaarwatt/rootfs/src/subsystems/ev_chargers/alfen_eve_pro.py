@@ -101,18 +101,25 @@ class AlfenEvePro(BaseEVCharger):
         device_id: int = SOCKET_DEVICE_ID,
         word_count: int = 0,
     ) -> Any:
-        '''Read a register by the number the Alfen documentation gives it. Its Modbus address is one lower:
-        'Register 1 has an offset from 0 [...] Always subtract 1 from the register value to get the Modbus
-        address' (configuration guide, section 3.4). Every Alfen register is a holding register, which the
-        address itself does not tell (the socket measurements start with a 3, the rest with a 1), so reading
-        them is always forced to Modbus function 0x03.
+        '''Read a register by the number the Alfen documentation gives it, which is also the Modbus address to
+        ask for. The configuration guide (section 3.4) claims otherwise - 'Register 1 has an offset from 0
+        [...] Always subtract 1 from the register value to get the Modbus address' - but the charging station
+        does not do this, as reading it both ways shows:
+            - register 117 (manufacturer) read at 116 returns the zero padding at the end of the name field
+              that precedes it (registers 100..116), so the string comes back empty. Read at 117 it returns
+              'Alfen B.V.' (see EXPECTED_MANUFACTURER, which is checked on every read_stats)
+            - register 1200 (availability) read at 1199 is refused with 'Illegal Data Address', 1199 being
+              part of the gap between the station registers (up to 1105) and the status registers (from 1200)
+        Every Alfen register is a holding register, which the address itself does not tell (the socket
+        measurements start with a 3, the rest with a 1), so reading them is always forced to Modbus function
+        0x03.
 
         A STRING spans as many registers as the documentation lists for it, which has to be passed as
         word_count. The station registers are read with STATION_DEVICE_ID, the socket ones (the default) with
         SOCKET_DEVICE_ID.
         '''
         return await self._modbus.read_register(
-            self.name, register - 1, dtype,
+            self.name, register, dtype,
             device_id=device_id,
             force_holding_register=True,
             word_count=word_count,
@@ -147,12 +154,28 @@ class AlfenEvePro(BaseEVCharger):
         l2_power = await self._read(340, 'FLOAT32', SOCKET_DEVICE_ID) # L2 real power
         l3_power = await self._read(342, 'FLOAT32', SOCKET_DEVICE_ID) # L3 real power
 
-        if any(v is None for v in (availability, mode_3_state, l1_voltage, l2_voltage, l3_voltage, l1_current, l2_current, l3_current,
-                  l1_power, l2_power, l3_power)):
+        unreadable = [name for name, value in (
+            ('availability (1200)', availability), ('mode 3 state (1201)', mode_3_state),
+            ('L1 voltage (306)', l1_voltage), ('L2 voltage (308)', l2_voltage), ('L3 voltage (310)', l3_voltage),
+            ('L1 current (320)', l1_current), ('L2 current (322)', l2_current), ('L3 current (324)', l3_current),
+            ('L1 power (338)', l1_power), ('L2 power (340)', l2_power), ('L3 power (342)', l3_power),
+        ) if value is None]
+        if unreadable:
             self.control_status = ControlStatus.DEGRADED
-            self.log.error(f'{self.name}: error reading stats')
-        else:
-            self.control_status = ControlStatus.NOMINAL
+            self.log.error(f'{self.name}: error reading stats, no value for {", ".join(unreadable)}')
+
+            return EVChargerStats(
+                control_status=self.control_status,
+                ev_charging_status=self.ev_charging_status,
+                total_power_w=None,
+                ac_side={
+                    Phase.L1: SPCStats(),
+                    Phase.L2: SPCStats(),
+                    Phase.L3: SPCStats(),
+                },
+            )
+
+        self.control_status = ControlStatus.NOMINAL
 
         # An EV charger only consumes power (for now), so ensure proper signing convention for current and power:
         l1_current = -1 * abs(l1_current)
@@ -174,5 +197,4 @@ class AlfenEvePro(BaseEVCharger):
         )
 
         self.log.info(f'{self.name}: read stats:\n{ret.to_dict()}')
-
         return ret
