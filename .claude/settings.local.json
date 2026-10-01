@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd *)",
+      "Bash(python3 -c ' *)",
+      "Bash(.venv/bin/python *)",
+      "Bash(./.venv/bin/python *)",
+      "Bash(python3.13 -c ' *)"
+    ]
+  }
+}
