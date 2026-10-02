@@ -28,6 +28,15 @@ MODE_3_STATUS = {
 }
 
 
+def ensure_negative(val: int|float|None) -> float|None:
+    if val is None:
+        return None
+    elif val == 0:
+        return 0
+    else:
+        return -1 * abs(val)
+
+
 class AlfenEvePro(BaseEVCharger):
 
     def __init__(self,
@@ -153,9 +162,9 @@ class AlfenEvePro(BaseEVCharger):
 
         if mode_3_state == 'A':
             self.ev_charging_status = EVChargingStatus.NO_CAR_CONNECTED
-        elif mode_3_state == 'B1' or mode_3_state == 'C1' or mode_3_state == 'D1':
+        elif mode_3_state in { 'B1', 'C1', 'D1' }:
             self.ev_charging_status = EVChargingStatus.CONNECTED_NOT_CHARGING
-        elif mode_3_state == 'C2' or mode_3_state == 'D2':
+        elif mode_3_state in { 'C2', 'D2' }:
             self.ev_charging_status = EVChargingStatus.CONNECTED_CHARGING
         else: # E (error) / F (fault)
             self.ev_charging_status = EVChargingStatus.ERROR
@@ -202,34 +211,34 @@ class AlfenEvePro(BaseEVCharger):
             ('L1 power (338)', l1_power), ('L2 power (340)', l2_power), ('L3 power (342)', l3_power),
         ) if value is None]
         if unreadable:
-            self.control_status = ControlStatus.DEGRADED
+            # self.control_status = ControlStatus.DEGRADED
             self.log.error(f'{self.name}: error reading stats, no value for {", ".join(unreadable)}')
 
-            return EVChargerStats(
-                control_status=self.control_status,
-                ev_charging_status=self.ev_charging_status,
-                total_power_w=None,
-                ac_side={
-                    Phase.L1: SPCStats(),
-                    Phase.L2: SPCStats(),
-                    Phase.L3: SPCStats(),
-                },
-            )
+            # return EVChargerStats(
+            #     control_status=self.control_status,
+            #     ev_charging_status=self.ev_charging_status,
+            #     total_power_w=None,
+            #     ac_side={
+            #         Phase.L1: SPCStats(),
+            #         Phase.L2: SPCStats(),
+            #         Phase.L3: SPCStats(),
+            #     },
+            # )
 
         self.control_status = ControlStatus.NOMINAL
 
         # An EV charger only consumes power (for now), so ensure proper signing convention for current and power:
-        l1_current = -1 * abs(l1_current)
-        l2_current = -1 * abs(l2_current)
-        l3_current = -1 * abs(l3_current)
-        l1_power = -1 * abs(l1_power)
-        l2_power = -1 * abs(l2_power)
-        l3_power = -1 * abs(l3_power)
+        l1_current = ensure_negative(l1_current)
+        l2_current = ensure_negative(l2_current)
+        l3_current = ensure_negative(l3_current)
+        l1_power = ensure_negative(l1_power)
+        l2_power = ensure_negative(l2_power)
+        l3_power = ensure_negative(l3_power)
 
         ret = EVChargerStats(
             control_status=self.control_status,
             ev_charging_status=self.ev_charging_status,
-            total_power_w=l1_power + l2_power + l3_power,
+            total_power_w=sum(p for p in (l1_power, l2_power, l3_power) if p),
             ac_side={
                 Phase.L1: SPCStats(current=l1_current, voltage=l1_voltage, power=l1_power),
                 Phase.L2: SPCStats(current=l2_current, voltage=l2_voltage, power=l2_power),
