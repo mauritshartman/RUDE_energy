@@ -180,7 +180,7 @@ class ModbusManager():
         '''
         client = self._clients.get(client_name)
         if client is None:
-            return 1.2345  # dummy value
+            return 'dummy' if dtype == 'STRING' else 1.2345  # dummy value
 
         try:
             cnt = word_count if word_count > 0 else self._dtype_to_word_count(dtype)
@@ -312,7 +312,7 @@ class ModbusManager():
         task_names = []
         for name, client in self._clients.items():
             if client is None:
-                ret[name] = 1.2345  # dummy value
+                ret[name] = "dummy" if dtype == 'STRING' else 1.2345  # dummy value
                 continue
             tasks.append(self._read_registers(
                 name, address, dtype, ret,
@@ -396,11 +396,15 @@ class ModbusManager():
         elif dtype == 'U64':
             value = MBClient.convert_from_registers(resp.registers, MBClient.DATATYPE.UINT64, 'big')
         elif dtype == 'FLOAT32':
-            # From Alfen modbus docs is a bit vague: "The 32-bit values are mixed-Endian:
-            # the 16-bit words are big Endian (high byte first), the 32-bit words are little Endian (low word first)."
-            value = MBClient.convert_from_registers(resp.registers, MBClient.DATATYPE.FLOAT32, 'little')
+            # The Alfen modbus docs claim the 32-bit values are mixed-Endian: "the 16-bit words are big Endian
+            # (high byte first), the 32-bit words are little Endian (low word first)". The charging station does
+            # not do this: it sends plain big Endian, low word last, like every other value here. Reading the L1
+            # voltage (register 306) gave registers [0x435B, 0x2E14], which is 219.18 V read as big (a plausible
+            # phase voltage) and 3.4e-11 read as little. The docs are wrong about the register offset in the same
+            # way, see AlfenEvePro._read
+            value = MBClient.convert_from_registers(resp.registers, MBClient.DATATYPE.FLOAT32, 'big')
         elif dtype == 'FLOAT64':
-            value = MBClient.convert_from_registers(resp.registers, MBClient.DATATYPE.FLOAT64, 'little')
+            value = MBClient.convert_from_registers(resp.registers, MBClient.DATATYPE.FLOAT64, 'big')
         elif dtype == 'STRING': # Alfen
             value = self._decode_string(resp.registers)
         else:

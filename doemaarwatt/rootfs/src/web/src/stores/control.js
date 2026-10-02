@@ -37,6 +37,9 @@ export const useControlStore = defineStore('control', {
         // Solar inverters can span multiple phases; keep the per-phase `ac_side`.
         solar_rows: (state) =>
             Object.entries(state.stats?.solar_inverters ?? {}).map(([name, inv]) => ({ name, ...inv })),
+        // EV car chargers can span multiple phases; keep the per-phase `ac_side`.
+        ev_charger_rows: (state) =>
+            Object.entries(state.stats?.ev_chargers ?? {}).map(([name, inv]) => ({ name, ...inv })),
         energy_meter: (state) => state.stats?.energy_meter ?? null,
         mode_name: (state) => {
             if (state.mode === 1) { return 'idle' }

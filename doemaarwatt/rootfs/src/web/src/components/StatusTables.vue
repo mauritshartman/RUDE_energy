@@ -109,9 +109,73 @@ function r(v) {
               </td>
             </tr>
             <tr>
-              <td>Status</td>
-              <td colspan="4">
+              <td>Solar Status</td>
+              <td colspan="2">
                 {{ sol.solar_status === null || sol.solar_status === undefined ? "unknown" : sol.solar_status }}
+              </td>
+              <td>Control Status</td>
+              <td>
+                {{ sol.control_status === null || sol.control_status === undefined ? "unknown" : sol.control_status }}
+              </td>
+            </tr>
+          </tbody>
+        </n-table>
+      </n-collapse-item>
+    </n-collapse>
+  </template>
+
+  <template v-if="control.ev_charger_rows.length">
+    <n-collapse arrow-placement="right">
+      <n-collapse-item>
+        <template #header>
+          <n-h4 prefix="bar"> EV Chargers </n-h4>
+        </template>
+
+        <n-table
+          v-for="evse in control.ev_charger_rows"
+          :key="evse.name"
+          :bordered="false"
+          :single-line="false"
+        >
+          <thead>
+            <tr>
+              <th>{{ evse.name }}</th>
+              <th>L1</th>
+              <th>L2</th>
+              <th>L3</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Power</td>
+              <td>{{ fmtKW(evse.ac_side?.L1?.P) }}</td>
+              <td>{{ fmtKW(evse.ac_side?.L2?.P) }}</td>
+              <td>{{ fmtKW(evse.ac_side?.L3?.P) }}</td>
+              <td>{{ fmtKW(evse.total_power) }}</td>
+            </tr>
+            <tr>
+              <td>Voltage</td>
+              <td>{{ evse.ac_side?.L1?.V }} V</td>
+              <td>{{ evse.ac_side?.L2?.V }} V</td>
+              <td>{{ evse.ac_side?.L3?.V }} V</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Current</td>
+              <td>{{ evse.ac_side?.L1?.A }} A</td>
+              <td>{{ evse.ac_side?.L2?.A }} A</td>
+              <td>{{ evse.ac_side?.L3?.A }} A</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Charging Status</td>
+              <td colspan="2">
+                {{ evse.charging_status === null || evse.charging_status === undefined ? "unknown" : evse.charging_status }}
+              </td>
+              <td>Control Status</td>
+              <td>
+                {{ evse.control_status === null || evse.control_status === undefined ? "unknown" : evse.control_status }}
               </td>
             </tr>
           </tbody>
