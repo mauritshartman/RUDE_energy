@@ -13,6 +13,7 @@ const props = defineProps(['idx'])
 const name = defineModel('name')
 const type = defineModel('type')
 const enable = defineModel('enable')
+const ignore_errors = defineModel('ignore_errors')
 const host = defineModel('host')
 const port = defineModel('port')
 const battery_capacity = defineModel('battery_capacity')
@@ -46,12 +47,12 @@ const phase_options = [
         size="medium"
         label-placement="top"
     >
-        <n-grid cols="4 s:4 m:8 l:26 xl:26" x-gap="10" responsive="screen">
-            <n-form-item-gi span="5" label="Name" path="name">
+        <n-grid cols="3 s:3 m:8 l:20" x-gap="10" responsive="screen">
+            <n-form-item-gi span="3" label="Name" path="name">
                 <n-input v-model:value="name" placeholder="inverter name" />
             </n-form-item-gi>
 
-            <n-form-item-gi span="4" label="Type" path="type">
+            <n-form-item-gi span="3" label="Type" path="type">
                 <n-select
                     v-model:value="type"
                     placeholder="Select type"
@@ -59,45 +60,38 @@ const phase_options = [
                 />
             </n-form-item-gi>
 
-            <n-form-item-gi span="2" label="Host" path="host">
-                <n-input v-model:value="host" placeholder="192.168..." />
-            </n-form-item-gi>
-
-            <n-form-item-gi  span="1" label="Port" path="port">
+            <n-form-item-gi span="3" label="Host : port" path="host">
+                <n-input v-model:value="host" placeholder="192.168..." />:
                 <n-input-number v-model:value="port" min="1" max="65535" :show-button="false" />
             </n-form-item-gi>
 
-            <n-form-item-gi  span="2" label="Capacity" path="battery_capacity">
+            <n-form-item-gi label="Capacity" path="battery_capacity">
                 <n-input-number v-model:value="battery_capacity" min="0" max="100000" :show-button="false">
                     <template #suffix>Wh</template>
                 </n-input-number>
             </n-form-item-gi>
 
-            <n-form-item-gi  span="2" label="Charge limit" path="battery_charge_limit">
+            <n-form-item-gi  span="3" label="Charge / discharge limits">
                 <n-input-number v-model:value="battery_charge_limit" min="0" max="100000" :show-button="false">
                     <template #suffix>W</template>
                 </n-input-number>
-            </n-form-item-gi>
-
-            <n-form-item-gi  span="2" label="Discharge limit" path="battery_discharge_limit">
+                &nbsp;
                 <n-input-number v-model:value="battery_discharge_limit" min="0" max="100000" :show-button="false">
                     <template #suffix>W</template>
                 </n-input-number>
             </n-form-item-gi>
 
-            <n-form-item-gi  span="2" label="Max charge" path="battery_charge_max_pct">
+            <n-form-item-gi  span="3" label="Min / max charge">
+                <n-input-number v-model:value="battery_charge_min_pct" min="0" max="100" :show-button="false">
+                    <template #suffix>%</template>
+                </n-input-number>
+                &nbsp;
                 <n-input-number v-model:value="battery_charge_max_pct" min="0" max="100" :show-button="false">
                     <template #suffix>%</template>
                 </n-input-number>
             </n-form-item-gi>
 
-            <n-form-item-gi  span="2" label="Min charge" path="battery_charge_min_pct">
-                <n-input-number v-model:value="battery_charge_min_pct" min="0" max="100" :show-button="false">
-                    <template #suffix>%</template>
-                </n-input-number>
-            </n-form-item-gi>
-
-            <n-form-item-gi span="2" label="Phase" path="connected_phase">
+            <n-form-item-gi label="Phase" path="connected_phase">
                 <n-select
                     v-model:value="connected_phase"
                     placeholder="Select phase"
@@ -105,8 +99,12 @@ const phase_options = [
                 />
             </n-form-item-gi>
 
-            <n-form-item-gi :label="(enable) ? 'Enabled' : 'Disabled'" path="enable">
+            <n-form-item-gi :label="(enable) ? 'Enabled' : 'Disabled'">
                 <n-switch v-model:value="enable" />
+            </n-form-item-gi>
+
+            <n-form-item-gi label="Ignore errors">
+                <n-switch v-model:value="ignore_errors" />
             </n-form-item-gi>
 
             <n-form-item-gi>

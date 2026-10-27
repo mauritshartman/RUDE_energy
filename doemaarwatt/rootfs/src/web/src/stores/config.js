@@ -7,6 +7,7 @@ export const useConfigStore = defineStore('configuration', {
     state: () => ({
         config: null,
         subsystem_types: null,
+        available_safety_checks: null,
         error_status: '',
     }),
 
@@ -20,7 +21,8 @@ export const useConfigStore = defineStore('configuration', {
         mode_manual:    (state) => (state.config === null) ? -1 : state.config.mode_manual,
         mode_static:    (state) => (state.config === null) ? [] : state.config.mode_static,
         mode_dynamic:   (state) => (state.config === null) ? -1 : state.config.mode_dynamic,
-        timezone:       (state) => state.config?.general?.timezone ?? 'UTC',
+        timezone: (state) => state.config?.general?.timezone ?? 'UTC',
+        safety_checks: (state) => (state.config === null) ? {} : state.config.general.safety_checks,
         // True while the current time falls inside the configured EV charge window (issue #36), both bounds
         // included. An unset window (either time an empty string) is never active. A saved time carries the
         // offset of the configured timezone, so it marks a single instant whatever timezone the browser is in;
@@ -146,6 +148,16 @@ export const useConfigStore = defineStore('configuration', {
                 } catch (err) {
                     this.subsystem_types = null
                     this.error_status = `config store: error while fetching subsystem types: ${err.msg}`
+                }
+            }
+        },
+        async fetch_available_safety_checks(cfg) {
+            if (!this.available_safety_checks) {
+                try {
+                    this.available_safety_checks = await this._make_fetch(`/config/available_safety_checks`)
+                } catch (err) {
+                    this.available_safety_checks = null
+                    this.error_status = `config store: error while fetching available safety checks: ${err.msg}`
                 }
             }
         },

@@ -21,7 +21,7 @@ const on_add = async () => {
     name: '', host: '', port: 502,
     battery_capacity: 0, battery_charge_limit: 0, battery_discharge_limit: 0,
     battery_charge_max_pct: 95, battery_charge_min_pct: 10,
-    connected_phase: 'ALL', enable: true,
+    connected_phase: 'ALL', enable: true, ignore_errors: false,
   })
 }
 
@@ -45,6 +45,7 @@ onMounted(async () => {
       v-model:name="inv_cfg.name"
       v-model:type="inv_cfg.type"
       v-model:enable="inv_cfg.enable"
+      v-model:ignore_errors="inv_cfg.ignore_errors"
       v-model:host="inv_cfg.host"
       v-model:port="inv_cfg.port"
       v-model:battery_capacity="inv_cfg.battery_capacity"

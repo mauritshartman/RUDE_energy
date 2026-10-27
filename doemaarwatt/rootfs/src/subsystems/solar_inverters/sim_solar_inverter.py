@@ -125,17 +125,25 @@ class SimSolarInverter(BaseSolarInverter):
         self.solar_status = SolarGenerationStatus.GENERATING if total > 0 else SolarGenerationStatus.STANDBY
 
         return SolarInverterStats(
-            control_status=ControlStatus.NOMINAL if self.is_connected else ControlStatus.UNCONTROLLED,
+            control_status=self.get_control_status(),
             solar_status=self.solar_status,
             setpoint_limit_w=self.power_setpoint,
             total_power_w=total,
             ac_side={ phi: SPCStats(power=phase_pow) for phi, phase_pow in phase_power.items() },
         )
 
-    async def set_power(self, power_w: float) -> None:
+    def get_control_status(self) -> ControlStatus:
+        return ControlStatus.NOMINAL if self.is_connected else ControlStatus.UNCONTROLLED
+
+    def get_setpoint_limit(self) -> float | None:
+        return self.power_setpoint
+
+    async def set_power_limit(self, power_w: Optional[float]) -> None:
         '''Apply a curtailment setpoint capping total output at `power_w` W across all connected
         phases. `power_w == 0` means full curtailment (zero output); the maximum caps at natural output.'''
-        if power_w < 0:
+        if power_w is None:
+            self.power_setpoint = None
+        elif power_w < 0:
             raise ProgrammingError('solar inverter can only source power, not sink it', source=self.name)
         elif power_w > 30_000:
             raise ProgrammingError('exceeds power set point for this solar inverter', source=self.name)
@@ -144,3 +152,6 @@ class SimSolarInverter(BaseSolarInverter):
             raise ProgrammingError(f'unable to apply power setpoint: solar inverter not being controlled', source=self.name)
 
         self.power_setpoint = power_w
+
+    def is_curtailed(self) -> bool:
+        return not self.power_setpoint is None

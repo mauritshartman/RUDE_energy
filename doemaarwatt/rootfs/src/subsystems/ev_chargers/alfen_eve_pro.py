@@ -1,9 +1,7 @@
 from typing import Any
 
-from prettytable import PrettyTable
-
 from common import Logger, ModbusManager, ControlStatus, Phase, SPCStats, ControlException, ProgrammingError
-from .base import BaseEVCharger, EVChargerStats, EVChargingStatus
+from .base import BaseEVCharger, EVChargerStats, EVChargingStatus, EV_CHARGER_STRAIGHT_MAPPING
 
 
 # Modbus server addresses (configuration guide, section 4.1): the charging station as a whole is reached at
@@ -32,7 +30,7 @@ def ensure_negative(val: int|float|None) -> float|None:
     if val is None:
         return None
     elif val == 0:
-        return 0
+        return 0.0
     else:
         return -1 * abs(val)
 
@@ -45,8 +43,9 @@ class AlfenEvePro(BaseEVCharger):
         host: str,
         port: int,
         log: Logger,
+        phase_map_str: str,
     ) -> None:
-        super().__init__(name, connected_phase, log)
+        super().__init__(name, connected_phase, log, phase_map_str)
 
         self._modbus = ModbusManager(
             client_configs=[{'name': name, 'host': host, 'port': port, 'enable': True}],
@@ -67,6 +66,7 @@ class AlfenEvePro(BaseEVCharger):
             host=cfg['host'],
             port=cfg.get('port', 502),
             log=log,
+            phase_map_str=cfg.get('phase_mapping', EV_CHARGER_STRAIGHT_MAPPING),
         )
 
     @property
@@ -108,13 +108,8 @@ class AlfenEvePro(BaseEVCharger):
         self.is_controlled = False
         self.control_status = ControlStatus.UNCONTROLLED
 
-    async def set_power(self, power_w: float) -> None:
-        '''For now, we only use EV chargers in read-only mode: only gather stats from them in order to
-        know when they are charging in order to protect the main fuse and/or use excessive solar production
-        to charge the EV.
-
-        So this is a NOP for now'''
-        pass
+    def get_control_status(self) -> ControlStatus:
+        return self.control_status
 
     async def _read(self,
         register: int,
@@ -148,12 +143,21 @@ class AlfenEvePro(BaseEVCharger):
 
     async def _set_ev_charging_state(self):
         availability = await self._read(1200, 'U16', SOCKET_DEVICE_ID) # 1 operative, 0 inoperative
-        if availability == 0: # inoperative
+        if availability is None:
+            self.log.error(f'{self.name}: unable to read availability - setting EV charging status to ERROR')
+            self.ev_charging_status = EVChargingStatus.ERROR
+            return
+        if availability == 0:
             self.ev_charging_status = EVChargingStatus.INOPERATIVE
             return
 
         # EVSE is operative so check mode 3 status:
         mode_3_state = await self._read(1201, 'STRING', SOCKET_DEVICE_ID, word_count=5) # IEC 61851 mode 3 status
+        if mode_3_state is None:
+            self.log.error(f'{self.name}: unable to read mode 3 state - setting EV charging status to ERROR')
+            self.ev_charging_status = EVChargingStatus.ERROR
+            return
+
         if mode_3_state not in MODE_3_STATUS:
             raise ProgrammingError(f'unknown IEC 61851 mode 3 state: {mode_3_state}', source=self.name)
         status_descr = MODE_3_STATUS[mode_3_state]
@@ -162,7 +166,7 @@ class AlfenEvePro(BaseEVCharger):
 
         if mode_3_state == 'A':
             self.ev_charging_status = EVChargingStatus.NO_CAR_CONNECTED
-        elif mode_3_state in { 'B1', 'C1', 'D1' }:
+        elif mode_3_state in { 'B1', 'B2', 'C1', 'D1' }:
             self.ev_charging_status = EVChargingStatus.CONNECTED_NOT_CHARGING
         elif mode_3_state in { 'C2', 'D2' }:
             self.ev_charging_status = EVChargingStatus.CONNECTED_CHARGING
@@ -173,8 +177,8 @@ class AlfenEvePro(BaseEVCharger):
         self.log.debug('reading EV charger properties:')
 
         # safety check for STRING datatype: read register 117-121 (manufacturer) which should yield 'Alfen B.V.'
-        manufacturer: str = await self._read(117, 'STRING', device_id=STATION_DEVICE_ID, word_count=5)
-        if not manufacturer.startswith(EXPECTED_MANUFACTURER):
+        manufacturer: str | None = await self._read(117, 'STRING', device_id=STATION_DEVICE_ID, word_count=5)
+        if manufacturer is None or not manufacturer.startswith(EXPECTED_MANUFACTURER):
             self.log.error(f'{self.name}: expected the manufacturer register to read {EXPECTED_MANUFACTURER!r}, '
                            f'but it reads {manufacturer!r}: check the Modbus server address and the decoding '
                            f'of strings and register addresses before trusting any other reading')
@@ -183,66 +187,76 @@ class AlfenEvePro(BaseEVCharger):
 
         await self._set_ev_charging_state()
 
-        l1_voltage = await self._read(306, 'FLOAT32', SOCKET_DEVICE_ID) # L1-N voltage
-        l2_voltage = await self._read(308, 'FLOAT32', SOCKET_DEVICE_ID) # L2-N voltage
-        l3_voltage = await self._read(310, 'FLOAT32', SOCKET_DEVICE_ID) # L3-N voltage
+        # we want to read voltage, current and power from the EV charger and map it back to grid phases
+        voltages: dict[Phase, float | None] = {}
+        currents: dict[Phase, float | None] = {}
+        powers: dict[Phase, float | None] = {}
 
-        l1_current = await self._read(320, 'FLOAT32', SOCKET_DEVICE_ID) # L1 current
-        l2_current = await self._read(322, 'FLOAT32', SOCKET_DEVICE_ID) # L2 current
-        l3_current = await self._read(324, 'FLOAT32', SOCKET_DEVICE_ID) # L3 current
+        voltages[self.evse_to_grid_phase(Phase.L1)] = await self._read(306, 'FLOAT32', SOCKET_DEVICE_ID) # L1-N voltage
+        voltages[self.evse_to_grid_phase(Phase.L2)] = await self._read(308, 'FLOAT32', SOCKET_DEVICE_ID) # L2-N voltage
+        voltages[self.evse_to_grid_phase(Phase.L3)] = await self._read(310, 'FLOAT32', SOCKET_DEVICE_ID) # L3-N voltage
 
-        l1_power = await self._read(338, 'FLOAT32', SOCKET_DEVICE_ID) # L1 real power
-        l2_power = await self._read(340, 'FLOAT32', SOCKET_DEVICE_ID) # L2 real power
-        l3_power = await self._read(342, 'FLOAT32', SOCKET_DEVICE_ID) # L3 real power
+        currents[self.evse_to_grid_phase(Phase.L1)] = await self._read(320, 'FLOAT32', SOCKET_DEVICE_ID) # L1 current
+        currents[self.evse_to_grid_phase(Phase.L2)] = await self._read(322, 'FLOAT32', SOCKET_DEVICE_ID) # L2 current
+        currents[self.evse_to_grid_phase(Phase.L3)] = await self._read(324, 'FLOAT32', SOCKET_DEVICE_ID) # L3 current
 
-        self.log.info(f'{self.name}: L1 voltage reading: {l1_voltage} V')
-        self.log.info(f'{self.name}: L2 voltage reading: {l2_voltage} V')
-        self.log.info(f'{self.name}: L3 voltage reading: {l3_voltage} V')
-        self.log.info(f'{self.name}: L1 current reading: {l1_current} A')
-        self.log.info(f'{self.name}: L2 current reading: {l2_current} A')
-        self.log.info(f'{self.name}: L3 current reading: {l3_current} A')
-        self.log.info(f'{self.name}: L1 power reading: {l1_power} W')
-        self.log.info(f'{self.name}: L2 power reading: {l2_power} W')
-        self.log.info(f'{self.name}: L3 power reading: {l3_power} W')
+        powers[self.evse_to_grid_phase(Phase.L1)] = await self._read(346, 'FLOAT32', SOCKET_DEVICE_ID) # L1 apparent power
+        powers[self.evse_to_grid_phase(Phase.L2)] = await self._read(348, 'FLOAT32', SOCKET_DEVICE_ID) # L2 apparent power
+        powers[self.evse_to_grid_phase(Phase.L3)] = await self._read(350, 'FLOAT32', SOCKET_DEVICE_ID) # L3 apparent power
+
+        self.log.info(
+            f'{self.name}: voltages: {voltages[Phase.L1]}, {voltages[Phase.L2]}, {voltages[Phase.L3]} V (grid L1-3) '
+            f'currents: {currents[Phase.L1]}, {currents[Phase.L2]}, {currents[Phase.L3]} A '
+            f'power: {powers[Phase.L1]}, {powers[Phase.L2]}, {powers[Phase.L3]} W'
+        )
 
         unreadable = [name for name, value in (
-            ('L1 voltage (306)', l1_voltage), ('L2 voltage (308)', l2_voltage), ('L3 voltage (310)', l3_voltage),
-            ('L1 current (320)', l1_current), ('L2 current (322)', l2_current), ('L3 current (324)', l3_current),
-            ('L1 power (338)', l1_power), ('L2 power (340)', l2_power), ('L3 power (342)', l3_power),
+            ('L1 voltage (306)', voltages[self.evse_to_grid_phase(Phase.L1)]),
+            ('L2 voltage (308)', voltages[self.evse_to_grid_phase(Phase.L2)]),
+            ('L3 voltage (310)', voltages[self.evse_to_grid_phase(Phase.L3)]),
+            ('L1 current (320)', currents[self.evse_to_grid_phase(Phase.L1)]),
+            ('L2 current (322)', currents[self.evse_to_grid_phase(Phase.L2)]),
+            ('L3 current (324)', currents[self.evse_to_grid_phase(Phase.L3)]),
         ) if value is None]
         if unreadable:
-            # self.control_status = ControlStatus.DEGRADED
+            self.control_status = ControlStatus.DEGRADED
             self.log.error(f'{self.name}: error reading stats, no value for {", ".join(unreadable)}')
 
-            # return EVChargerStats(
-            #     control_status=self.control_status,
-            #     ev_charging_status=self.ev_charging_status,
-            #     total_power_w=None,
-            #     ac_side={
-            #         Phase.L1: SPCStats(),
-            #         Phase.L2: SPCStats(),
-            #         Phase.L3: SPCStats(),
-            #     },
-            # )
+            return EVChargerStats(
+                control_status=self.control_status,
+                ev_charging_status=self.ev_charging_status,
+                total_power_w=None,
+                ac_side={
+                    Phase.L1: SPCStats(),
+                    Phase.L2: SPCStats(),
+                    Phase.L3: SPCStats(),
+                },
+            )
+
+        if (any(p is None for p in powers.values())):
+            powers[Phase.L1] = voltages[Phase.L1] * currents[Phase.L1] # type: ignore
+            powers[Phase.L2] = voltages[Phase.L2] * currents[Phase.L2] # type: ignore
+            powers[Phase.L3] = voltages[Phase.L3] * currents[Phase.L3] # type: ignore
+            self.log.info(f'{self.name}: power registers returned NaN, so computed power from voltage and current')
 
         self.control_status = ControlStatus.NOMINAL
 
         # An EV charger only consumes power (for now), so ensure proper signing convention for current and power:
-        l1_current = ensure_negative(l1_current)
-        l2_current = ensure_negative(l2_current)
-        l3_current = ensure_negative(l3_current)
-        l1_power = ensure_negative(l1_power)
-        l2_power = ensure_negative(l2_power)
-        l3_power = ensure_negative(l3_power)
+        currents[Phase.L1] = ensure_negative(currents[Phase.L1])
+        currents[Phase.L2] = ensure_negative(currents[Phase.L2])
+        currents[Phase.L3] = ensure_negative(currents[Phase.L3])
+        powers[Phase.L1] = ensure_negative(powers[Phase.L1])
+        powers[Phase.L2] = ensure_negative(powers[Phase.L2])
+        powers[Phase.L3] = ensure_negative(powers[Phase.L3])
 
         ret = EVChargerStats(
             control_status=self.control_status,
             ev_charging_status=self.ev_charging_status,
-            total_power_w=sum(p for p in (l1_power, l2_power, l3_power) if p),
+            total_power_w=sum(p for p in powers.values() if p is not None),
             ac_side={
-                Phase.L1: SPCStats(current=l1_current, voltage=l1_voltage, power=l1_power),
-                Phase.L2: SPCStats(current=l2_current, voltage=l2_voltage, power=l2_power),
-                Phase.L3: SPCStats(current=l3_current, voltage=l3_voltage, power=l3_power),
+                Phase.L1: SPCStats(current=currents[Phase.L1], voltage=voltages[Phase.L1], power=powers[Phase.L1]),
+                Phase.L2: SPCStats(current=currents[Phase.L2], voltage=voltages[Phase.L2], power=powers[Phase.L2]),
+                Phase.L3: SPCStats(current=currents[Phase.L3], voltage=voltages[Phase.L3], power=powers[Phase.L3]),
             },
         )
 

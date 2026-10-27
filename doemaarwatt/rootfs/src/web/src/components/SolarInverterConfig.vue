@@ -19,7 +19,7 @@ const on_add = async () => {
   solar_inverters.value.push({
     name: '', host: '', port: 502,
     modbus_device_id: 3,
-    connected_phase: 'ALL', enable: true,
+    connected_phase: 'ALL', enable: true, ignore_errors: false,
   })
 }
 
@@ -43,6 +43,7 @@ onMounted(async () => {
       v-model:name="inv_cfg.name"
       v-model:type="inv_cfg.type"
       v-model:enable="inv_cfg.enable"
+      v-model:ignore_errors="inv_cfg.ignore_errors"
       v-model:host="inv_cfg.host"
       v-model:port="inv_cfg.port"
       v-model:modbus_device_id="inv_cfg.modbus_device_id"

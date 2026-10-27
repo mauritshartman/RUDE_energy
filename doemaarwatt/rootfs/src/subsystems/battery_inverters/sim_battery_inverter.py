@@ -158,7 +158,7 @@ class SimBatteryInverter(BaseBatteryInverter):
                 ac_side_stats[phi] = SPCStats(voltage=ac_vol, current=ac_amp / 3.0, power=ac_pow / 3.0)
 
         return BatteryInverterStats(
-            control_status=ControlStatus.NOMINAL if self.is_controlled else ControlStatus.UNCONTROLLED,
+            control_status=self.get_control_status(),
             battery=BatteryStats(
                 battery_status=bat_status,
                 battery_current=current,
@@ -169,6 +169,9 @@ class SimBatteryInverter(BaseBatteryInverter):
             ),
             ac_side=ac_side_stats,
         )
+
+    def get_control_status(self) -> ControlStatus:
+        return ControlStatus.NOMINAL if self.is_controlled else ControlStatus.UNCONTROLLED
 
     async def set_power(self, power_w: float) -> None:
         await self._io_delay()

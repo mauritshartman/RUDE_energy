@@ -2,7 +2,7 @@ from typing import Any
 from datetime import datetime as dt
 
 from common import Logger, ControlStatus, Phase, SPCStats, ControlException
-from .base import BaseEVCharger, EVChargerStats, EVChargingStatus
+from .base import BaseEVCharger, EVChargerStats, EVChargingStatus, EV_CHARGER_STRAIGHT_MAPPING
 
 
 class SimCarCharger(BaseEVCharger):
@@ -11,8 +11,9 @@ class SimCarCharger(BaseEVCharger):
         name: str,
         connected_phase: Phase,
         log: Logger,
+        phase_map_str: str,
     ) -> None:
-        super().__init__(name, connected_phase, log)
+        super().__init__(name, connected_phase, log, phase_map_str)
 
         self.is_connected = False
         self.is_controlled = False
@@ -26,6 +27,7 @@ class SimCarCharger(BaseEVCharger):
             name=cfg.get('name', 'Simulated EV charger'),
             connected_phase=cfg.get('connected_phase', Phase.ALL),
             log=log,
+            phase_map_str=cfg.get('phase_mapping', EV_CHARGER_STRAIGHT_MAPPING),
         )
 
     @property
@@ -64,13 +66,8 @@ class SimCarCharger(BaseEVCharger):
         self.is_controlled = False
         self.control_status = ControlStatus.UNCONTROLLED
 
-    async def set_power(self, power_w: float) -> None:
-        '''For now, we only use EV chargers in read-only mode: only gather stats from them in order to
-        know when they are charging in order to protect the main fuse and/or use excessive solar production
-        to charge the EV.
-
-        So this is a NOP for now'''
-        pass
+    def get_control_status(self) -> ControlStatus:
+        return self.control_status
 
     async def read_stats(self) -> EVChargerStats:
         self.control_status = ControlStatus.NOMINAL

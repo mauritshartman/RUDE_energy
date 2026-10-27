@@ -85,6 +85,14 @@ class BaseBatteryInverter(BaseInverter):
     async def read_charge_wh(self) -> Optional[float]:
         raise NotImplementedError
 
+    @abstractmethod
+    async def set_power(self, power_w: float) -> None:
+        '''Command a desired power level to the inverter. The power level is the same across all three phases.
+        If negative, the battery inverter is commanded to charge its battery. If positive, it is commanded to
+        discharge its battery.
+        '''
+        raise NotImplementedError
+
     @property
     def power_limits_phase(self) -> tuple[float, float]:
         '''Lower (charge power) and upper (discharge power) limits for the battery inverter, expressed in Watts.

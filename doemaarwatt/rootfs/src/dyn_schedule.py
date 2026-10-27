@@ -1,4 +1,4 @@
-from datetime import datetime as dt, timedelta, timezone
+from datetime import datetime as dt, timedelta
 from zoneinfo import ZoneInfo
 import math
 import json
@@ -8,8 +8,8 @@ from scipy.optimize import milp, LinearConstraint, Bounds
 from prettytable import PrettyTable
 
 from config import DoeMaarWattConfig
-from common import Phase, DMWException
-from price import PriceManager
+from common import DMWException
+from pricing import PriceManager
 
 
 class SchedulerException(DMWException):
@@ -221,17 +221,17 @@ class DynamicScheduler:
 
         self.schedule_ts = dt.now(tz=self.tz)
 
-    def get_PBapp_inverters(self, ts: dt) -> dict[str, float]:
-        '''Asserting that a schedule has been created, get the PBapp values for each inverter for the given time ts
+    def get_PBSapp_inverters(self, ts: dt) -> dict[str, float]:
+        '''Asserting that a schedule has been created, get the PBSapp values for each inverter for the given time ts
         '''
-        assert len(self.schedule) > 0, 'unable to get_PBapp_inverters when schedule not yet set'
+        assert len(self.schedule) > 0, 'unable to get_PBSapp_inverters when schedule not yet set'
         assert self.schedule[0].start_ts <= ts and ts < self.schedule[-1].end_ts, 'requested time outside schedule range'
 
         for sp in self.schedule:
             if sp.start_ts <= ts and ts < sp.end_ts:
-                return sp.PBapp_inverters
+                return sp.PBSapp_inverters
 
-        raise SchedulerException(f'get_PBapp_inverters(): requested time {ts} could not be found in schedule {self.schedule}',
+        raise SchedulerException(f'get_PBSapp_inverters(): requested time {ts} could not be found in schedule {self.schedule}',
                                  source='DynamicScheduler', requires_fallback=True)
 
     def schedule_to_string(self) -> str:
@@ -250,7 +250,7 @@ class DynamicScheduler:
 
         total_cost = 0.0
         for slot_idx, sp in enumerate(self.schedule):
-            pbapp = sp.PBapp_inverters
+            pbapp = sp.PBSapp_inverters
             total_cost += sp.cost
             table.add_row(
                 [
@@ -305,11 +305,11 @@ class SchedulePeriod:
             'cost': self.cost,
             'start_charge': self.start_charge,
             'end_charge': self.end_charge,
-            'PBapp_inverters': self.PBapp_inverters,
+            'PBSapp_inverters': self.PBSapp_inverters,
         }
 
     @property
-    def PBapp_inverters(self) -> dict[str, float]:
+    def PBSapp_inverters(self) -> dict[str, float]:
         ret = {}
         for inv, charge in self.end_charge.items():
             charge_delta = charge - self.start_charge[inv]  # diff in Wh, battery side

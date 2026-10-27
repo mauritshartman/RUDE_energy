@@ -166,7 +166,10 @@ onBeforeUnmount(() => {
                     Exchange Prices
                 </n-h4>
             </template>
-            Current price: <n-text type="success">&euro; {{ prices.current_price.toFixed(3) }} per kWh</n-text>.
+            Current price:
+            <n-text v-if="prices.current_price !== null && prices.current_price !== undefined" type="success">
+                &euro; {{ prices.current_price.toFixed(3) }} per kWh</n-text>
+            <n-text v-else type="warning">not known yet</n-text>.
             Prices updated at {{ price_update_ts.toLocaleString(DateTime.DATETIME_MED) }}
 
             <Line :data="price_chart_config" :options="options" />

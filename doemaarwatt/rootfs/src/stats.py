@@ -2,7 +2,6 @@ from typing import Optional, Any
 from dataclasses import dataclass
 
 from common import Phase, PhasePowerMap
-from config import DoeMaarWattConfig
 from subsystems.battery_inverters import BatteryInverterStats
 from subsystems.solar_inverters import SolarInverterStats
 from subsystems.energy_meters import EnergyMeterStats
@@ -11,7 +10,6 @@ from subsystems.ev_chargers import EVChargerStats
 
 class ControllerStats:
     def __init__(self,
-        cfg: DoeMaarWattConfig,
     ) -> None:
 
         self.battery_inverters: dict[str, BatteryInverterStats] = {}

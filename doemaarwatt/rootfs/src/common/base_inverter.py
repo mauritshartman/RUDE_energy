@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from .logger import Logger
-from .definitions import Phase
+from .definitions import Phase, ControlStatus
 from .exceptions import DMWException
 
 
@@ -16,6 +16,14 @@ class BaseInverter(ABC):
         self.name = name
         self.connected_phase = Phase(connected_phase)
         self.log = log
+
+        # When set, a failure of this subsystem is logged and stepped over instead of being allowed to reach
+        # the control loop, which would otherwise relinquish control of everything and reconnect. Meant for a
+        # subsystem that misbehaves often enough to keep the whole installation from being controlled, at the
+        # price of that subsystem no longer being controlled itself: it is reported as UNCONTROLLED for as
+        # long as it fails, so the safety checks treat it as something they cannot command.
+        # Set from the configuration by the create_* factory, see subsystems/*/create.py
+        self.ignore_errors = False
 
     @abstractmethod
     async def connect(self) -> None:
@@ -42,8 +50,8 @@ class BaseInverter(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def set_power(self, power_w: float) -> None:
-        '''Command a desired power level to the inverter. The power level is the same across all three phases.
+    def get_control_status(self) -> ControlStatus:
+        '''Return the control status of this inverter
         '''
         raise NotImplementedError
 

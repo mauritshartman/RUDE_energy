@@ -14,6 +14,14 @@ const fallback_options = [
     { label: 'dynamic', value: 4 },
 ]
 
+// Where the day-ahead prices come from. Each source needs its own token, so the token field below follows
+// this choice. Keep this list in step with VALID_PRICE_SOURCES on the backend: a value it does not know is
+// rejected on save, with the accepted ones named in the error.
+const price_source_options = [
+    { label: 'Enever', value: 'enever' },
+    { label: 'ENTSO-E', value: 'entsoe' },
+]
+
 const hours = [...Array(24).keys()]
 const minutes = [0, 15, 30, 45]
 
@@ -171,11 +179,27 @@ onMounted(async () => { await config.fetch_config() })
         </n-input-number>
     </n-form-item-gi>
 
-    <n-form-item-gi span="4 m:8 l:16" label="Enever API token" path="api_token">
+    <n-form-item-gi span="4" label="Price source" path="price_source">
+        <n-select
+            v-model:value="mode_dynamic.price_source"
+            :options="price_source_options"
+        />
+    </n-form-item-gi>
+
+    <n-form-item-gi v-if="mode_dynamic.price_source !== 'entsoe'" span="4 m:8 l:16" label="Enever API token" path="api_token">
         <n-input
             v-model:value="mode_dynamic.api_token"
             type="text"
             placeholder="API token..."
+        >
+        </n-input>
+    </n-form-item-gi>
+
+    <n-form-item-gi v-else span="4 m:8 l:16" label="ENTSO-E security token" path="entsoe_token">
+        <n-input
+            v-model:value="mode_dynamic.entsoe_token"
+            type="text"
+            placeholder="Security token..."
         >
         </n-input>
     </n-form-item-gi>

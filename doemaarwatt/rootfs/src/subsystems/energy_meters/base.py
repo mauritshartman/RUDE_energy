@@ -50,6 +50,13 @@ class BaseEnergyMeter(ABC):
         self.max_phase_current_diff_a = max_phase_current_diff_a
         self.log = log
 
+        # When set, a failure of this energy meter is logged and stepped over instead of reaching the control
+        # loop. Note what that means here: the safety checks are built on the grid measurements this meter
+        # supplies, so without them no power level can be commanded safely and the control loop stops anyway.
+        # Setting this mainly helps across a connection that drops and comes back.
+        # Set from the configuration by create_energy_meter, see subsystems/energy_meters/create.py
+        self.ignore_errors = False
+
     @abstractmethod
     async def connect(self) -> None:
         raise NotImplementedError

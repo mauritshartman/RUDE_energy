@@ -64,23 +64,33 @@ class Mode3Controller(BaseController):
 
         pbsapp = PBSapp(list(self.inverters.values()))
         for inv in self.battery_inverters:
-            pbsapp.set(inv.connected_phase, inv.name, bat_charge_amount)
+            pbsapp.set_power_level(inv.connected_phase, inv.name, bat_charge_amount)
         for inv in self.solar_inverters:
             # solar_amount is per-phase: it is applied to each connected phase (so an ALL-connected
             # inverter's total commanded output is solar_amount * number of phases)
-            pbsapp.set(inv.connected_phase, inv.name, sol_charge_amount)
+            pbsapp.set_power_limit(inv.connected_phase, inv.name, sol_charge_amount)
 
         return pbsapp
 
     async def _try_relinquish_control(self):
+        # Battery inverters:
         results = await asyncio.gather(*[inv.relinquish_control() for inv in self.battery_inverters],
-                                           return_exceptions=True)
+                                            return_exceptions=True)
         for inv, result in zip(self.battery_inverters, results):
             if isinstance(result, Exception):
                 self.log.error(f'error relinquishing control of {inv.name}: {result}')
+
+        # Solar inverters:
         results = await asyncio.gather(*[inv.relinquish_control() for inv in self.solar_inverters],
                                         return_exceptions=True)
         for inv, result in zip(self.solar_inverters, results):
+            if isinstance(result, Exception):
+                self.log.error(f'error relinquishing control of {inv.name}: {result}')
+
+        # EV car chargers:
+        results = await asyncio.gather(*[inv.relinquish_control() for inv in self.ev_chargers],
+                                        return_exceptions=True)
+        for inv, result in zip(self.ev_chargers, results):
             if isinstance(result, Exception):
                 self.log.error(f'error relinquishing control of {inv.name}: {result}')
 
@@ -112,8 +122,7 @@ class Mode3Controller(BaseController):
         # inner, control loop
         while self.running:
             self.log.debug(f'mode 3 control loop started')
-            await asyncio.gather(*[inv.enable_control() for inv in self.battery_inverters])
-            await asyncio.gather(*[inv.enable_control() for inv in self.solar_inverters])
+            await self.enable_control_subsystems()
 
             # get necessary stats and determine PBsent for each phase
             await self.get_stats()

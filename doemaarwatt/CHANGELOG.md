@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-10-26
+
+### Fixed
+
+- Added ENTSOE-E as alternative pricing provider
+- Changed to apparent power registers for the Alfen Pro EV charger
+- Phase mapping config option for EV car chargers ([issue #42](https://github.com/mauritshartman/RUDE_energy/issues/42))
+- Mode 4 (dynamic schedule) checks both the charging status of any EV charger as well as whether an EV charging period applies
+- Restructuring of the safety layer with configurable and ordered safety checks
+- SMA solar inverter: using 30837 and 41251 register pairs for power limiting
+
+### Fixed
+
+- Added an 'ignore errors' config option to each subsystem, to address [issue #44](https://github.com/mauritshartman/RUDE_energy/issues/44)
+- Throttling of price provider API usage ([issue #43](https://github.com/mauritshartman/RUDE_energy/issues/43))
+
 ## [1.1.18] - 2026-10-02
 
 ### Fixed

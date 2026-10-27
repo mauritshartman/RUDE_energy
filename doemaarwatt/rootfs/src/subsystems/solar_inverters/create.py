@@ -20,7 +20,14 @@ SOLAR_INVERTER_DESCRIPTIONS = {
 def create_solar_inverter(cfg: dict[str, Any], log: Logger) -> BaseSolarInverter:
     inverter_type = cfg.get('type', 'sma')
     if inverter_type == 'sma_stp_x25':
-        return SmaSolarInverter.from_config(cfg, log)
+        subsystem = SmaSolarInverter.from_config(cfg, log)
     elif inverter_type == 'sim_solar_inverter':
-        return SimSolarInverter.from_config(cfg, log)
-    raise ConfigException(f'unknown solar inverter type: {inverter_type}', source='solar inverter instantiation')
+        subsystem = SimSolarInverter.from_config(cfg, log)
+    else:
+        raise ConfigException(f'unknown solar inverter type: {inverter_type}', source='solar inverter instantiation')
+
+    # Errors of a subsystem configured this way are logged and stepped over by the controller rather
+    # than stopping the control loop. Set here so no concrete subsystem has to carry it through its
+    # own constructor and from_config
+    subsystem.ignore_errors = bool(cfg.get('ignore_errors', False))
+    return subsystem

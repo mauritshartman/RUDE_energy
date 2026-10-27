@@ -20,8 +20,15 @@ EV_CHARGER_DESCRIPTIONS = {
 def create_ev_charger(cfg: dict[str, Any], log: Logger) -> BaseEVCharger:
     ev_charger_type = cfg.get('type', 'alfen_eve_pro')
     if ev_charger_type == 'alfen_eve_pro':
-        return AlfenEvePro.from_config(cfg, log)
+        subsystem = AlfenEvePro.from_config(cfg, log)
     elif ev_charger_type == 'sim_car_charger':
-        return SimCarCharger.from_config(cfg, log)
+        subsystem = SimCarCharger.from_config(cfg, log)
 
-    raise ConfigException(f'unknown EV charger type: {ev_charger_type}', source='EV charger instantiation')
+    else:
+        raise ConfigException(f'unknown EV charger type: {ev_charger_type}', source='EV charger instantiation')
+
+    # Errors of a subsystem configured this way are logged and stepped over by the controller rather
+    # than stopping the control loop. Set here so no concrete subsystem has to carry it through its
+    # own constructor and from_config
+    subsystem.ignore_errors = bool(cfg.get('ignore_errors', False))
+    return subsystem

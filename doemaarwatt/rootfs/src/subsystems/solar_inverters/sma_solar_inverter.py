@@ -1,6 +1,6 @@
-from typing import Any
+from typing import Any, Optional
 
-from common import Logger, ModbusManager, to_u32_list, ControlStatus, Phase, SPCStats, ProgrammingError, ControlException
+from common import Logger, ModbusManager, to_u32_list, to_s32_list, ControlStatus, Phase, SPCStats, ProgrammingError, ControlException
 from .base import BaseSolarInverter, SolarInverterStats, SolarGenerationStatus
 
 
@@ -25,6 +25,10 @@ REG_33001_TAGLIST = {
     1394: 'Waiting for valid AC grid',
     4570: 'Wait for enable operation',
 }
+
+
+PEAK_POWER_W = 25_000
+PEAK_POWER_W_PHASE = PEAK_POWER_W // 3
 
 
 class SmaSolarInverter(BaseSolarInverter):
@@ -54,6 +58,8 @@ class SmaSolarInverter(BaseSolarInverter):
         self.control_status = ControlStatus.UNCONTROLLED
         self.solar_status = SolarGenerationStatus.UNKNOWN
 
+        self.setpoint_limit: Optional[float] = None
+
     @classmethod
     def from_config(cls, cfg: dict[str, Any], log: Logger) -> 'SmaSolarInverter':
         return cls(
@@ -69,7 +75,7 @@ class SmaSolarInverter(BaseSolarInverter):
     def power_limits_phase(self) -> tuple[float, float]:
         return (
             0.0, # solar inverter can only source power, not sink it
-            25_000 / 3.0,
+            PEAK_POWER_W / 3.0,
         )
 
     def get_solar_status(self) -> SolarGenerationStatus:
@@ -78,10 +84,12 @@ class SmaSolarInverter(BaseSolarInverter):
     async def connect(self) -> None:
         await self._modbus.connect()
         self.is_connected = True
+        self.setpoint_limit = None
 
     def close(self) -> None:
         self.is_controlled = False
         self.is_connected = False
+        self.setpoint_limit = None
 
         self.control_status = ControlStatus.UNCONTROLLED
         self.solar_status = SolarGenerationStatus.UNKNOWN
@@ -116,6 +124,8 @@ class SmaSolarInverter(BaseSolarInverter):
 
         # keep the external-communication channel off as well (defensive; it is not used in the manual scheme)
         await self._modbus.write_register(self.name, 41383, to_u32_list(303), device_id=self._device_id)
+
+        self.setpoint_limit = None
 
     async def _determine_status(self) -> None:
         '''Query the inverter to check whether it is capable of generating solar power. The following checks are made:
@@ -175,7 +185,6 @@ class SmaSolarInverter(BaseSolarInverter):
 
         # nominal operation and sun is shining:
         if self.control_status == ControlStatus.NOMINAL and self.solar_status == SolarGenerationStatus.GENERATING:
-            # setpoint is read back from WCnstCfg.W (30837) - the same manual active-power preset set_power() writes
             total_pow, l1_pow, l2_pow, l3_pow, setpoint_limit = await self._modbus.read_register_seq(self.name, [
                 (30775, 'S32', 'FIX0'), (30777, 'S32', 'FIX0'), (30779, 'S32', 'FIX0'), (30781, 'S32', 'FIX0'), (30837, 'U32', 'FIX0'),
             ], device_id=self._device_id)
@@ -186,6 +195,8 @@ class SmaSolarInverter(BaseSolarInverter):
             else:
                 self.control_status = ControlStatus.NOMINAL
                 self.log.debug(f'solar inverter {self.name}: L1={l1_pow:.0f} W  L2={l2_pow:.0f} W  L3={l3_pow:.0f} W  total={total_pow:.0f} W')
+
+            self.log.info(f'{self.name}: using 30837 to read setpoint register. Read value: {setpoint_limit} W')
 
             return SolarInverterStats(
                 control_status=self.control_status,
@@ -212,19 +223,37 @@ class SmaSolarInverter(BaseSolarInverter):
             },
         )
 
-    async def set_power(self, power_w: float) -> None:
+    def get_control_status(self) -> ControlStatus:
+        return self.control_status
+
+    def get_setpoint_limit(self) -> float | None:
+        return self.setpoint_limit
+
+    async def set_power_limit(self, power_w: Optional[float]) -> None:
         '''Apply an active-power limit capping total output at `power_w` W across all connected phases.
-        `power_w == 0` means full curtailment (a 0 W limit). The value is written to the manual active-power
-        preset register WCnstCfg.W (40212); relinquishing control (WMod 40210=303) removes the limit and lets
+        `power_w == 0` means full curtailment (a 0 W limit). The value is written to the 'Limitation of the
+        active power consumption in W' register Setpoint.PlantControl.Inverter.WModCfg.WCtlComCfg.WMaxIn (41251);
+        relinquishing control (WMod 40210=303) removes the limit and lets
         the inverter run freely again.'''
 
-        if self.solar_status != SolarGenerationStatus.GENERATING:
-            self.log.error(f'solar inverter {self.name} has solar status {self.solar_status}: commanding a power limit {power_w} does not make sense')
+        if power_w is None:
+            self.setpoint_limit = None
             return
 
+        if self.solar_status != SolarGenerationStatus.GENERATING:
+            self.log.error(f'solar inverter {self.name} has solar status {self.solar_status}: commanding for a power limit {power_w} is being ignored')
+            return
+
+        power_w = int(power_w)
         if power_w < 0:
             raise ProgrammingError('solar inverter can only source power, not sink it', source=self.name)
-        elif power_w > 25_000:
+        elif power_w > PEAK_POWER_W_PHASE:
             raise ProgrammingError('exceeds power set point for this solar inverter', source=self.name)
+        power_w_combined_phases = power_w * 3
 
-        await self._modbus.write_register(self.name, 40212, to_u32_list(int(power_w)), device_id=self._device_id)
+        # the docs are vague, no acceptable range is indicated for this register
+        await self._modbus.write_register(self.name, 41251, to_s32_list(power_w_combined_phases), device_id=self._device_id)
+        self.setpoint_limit = power_w
+
+    def is_curtailed(self) -> bool:
+        return not self.setpoint_limit is None

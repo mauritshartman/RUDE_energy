@@ -20,7 +20,14 @@ BATTERY_INVERTER_DESCRIPTIONS = {
 def create_battery_inverter(cfg: dict[str, Any], log: Logger) -> BaseBatteryInverter:
     inverter_type = cfg.get('type', 'sim_battery_inverter')
     if inverter_type == 'sma_sunny_boy_storage':
-        return SmaSunnyBoyStorage.from_config(cfg, log)
+        subsystem = SmaSunnyBoyStorage.from_config(cfg, log)
     elif inverter_type == 'sim_battery_inverter':
-        return SimBatteryInverter.from_config(cfg, log)
-    raise ConfigException(f'unknown battery inverter type: {inverter_type}', source='battery inverter instantiation')
+        subsystem = SimBatteryInverter.from_config(cfg, log)
+    else:
+        raise ConfigException(f'unknown battery inverter type: {inverter_type}', source='battery inverter instantiation')
+
+    # Errors of a subsystem configured this way are logged and stepped over by the controller rather
+    # than stopping the control loop. Set here so no concrete subsystem has to carry it through its
+    # own constructor and from_config
+    subsystem.ignore_errors = bool(cfg.get('ignore_errors', False))
+    return subsystem

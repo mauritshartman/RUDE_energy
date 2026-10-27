@@ -9,10 +9,11 @@ from aiohttp import web
 
 from mode import ControlMode, MIN_MODE_VALUE, MAX_MODE_VALUE
 from common import Logger, LogLevel, Phase, ConfigException
+from safety import SAFETY_CHECK_PRIORITIES, SAFETY_CHECK_DESCRIPTIONS, ALWAYS_ON_SAFETY_CHECKS
 from subsystems.battery_inverters import BATTERY_INVERTER_DESCRIPTIONS
 from subsystems.solar_inverters import SOLAR_INVERTER_DESCRIPTIONS
 from subsystems.energy_meters import ENERGY_METER_DESCRIPTIONS
-from subsystems.ev_chargers import EV_CHARGER_DESCRIPTIONS
+from subsystems.ev_chargers import EV_CHARGER_DESCRIPTIONS, VALID_EV_CHARGER_PHASE_MAPPINGS, EV_CHARGER_STRAIGHT_MAPPING
 
 
 # Local development path:
@@ -28,6 +29,13 @@ NEKOT2 += 'IsImlhdCI6MTc3NTU1NTk2NCwiZXhwIjoyMDkwOTE1OTY0fQ.HY28ijV94VgjQnRFd_fc
 
 
 VALID_PHASES = set(Phase)
+
+# Where the day-ahead prices for mode 4 come from. Enever needs an API token with a monthly request budget,
+# ENTSO-E a (free) security token without one - see price.py and price_entsoe.py
+PRICE_SOURCE_ENEVER = 'enever'
+PRICE_SOURCE_ENTSOE = 'entsoe'
+VALID_PRICE_SOURCES = { PRICE_SOURCE_ENEVER, PRICE_SOURCE_ENTSOE }
+
 DYN_CONFIG_DEFAULT = {
     'general': {
         'mode': ControlMode['IDLE'],
@@ -36,6 +44,7 @@ DYN_CONFIG_DEFAULT = {
         'loop_delay': 5,
         'timezone': 'Europe/Amsterdam',
         'supervisor_token': '',
+        'safety_checks': { c: True for c in SAFETY_CHECK_PRIORITIES.keys() },
     },
     'battery_inverters': [],
     'solar_inverters': [],
@@ -49,7 +58,9 @@ DYN_CONFIG_DEFAULT = {
         'resolution': 15,
         'fallback_mode': 1,
         'efficiency': 0.93,
+        'price_source': PRICE_SOURCE_ENEVER,
         'api_token': '',
+        'entsoe_token': '',
         'ev_charge_start': '',
         'ev_charge_end': '',
     },
@@ -61,6 +72,7 @@ GEN_CONFIG = {
     'loop_delay': int,
     'timezone': str,
     'supervisor_token': str,
+    'safety_checks': dict
 }
 # Default per-inverter state-of-charge limits (%), see issue #7. Keep charging below the max and
 # discharging above the min so the battery never reaches a full/empty state that puts the inverter to sleep.
@@ -83,6 +95,7 @@ BAT_INV_CONFIG = {
     'battery_charge_max_pct': int,  # Upper state-of-charge limit (%): do not charge above this
     'battery_charge_min_pct': int,  # Lower state-of-charge limit (%): do not discharge below this
     'connected_phase': Phase,  # L1 / L2 / L3
+    'ignore_errors': bool,  # log and step over this subsystem's errors instead of stopping the control loop
 }
 VALID_BATTERY_INVERTER_TYPES = set(BATTERY_INVERTER_DESCRIPTIONS.keys())
 EM_CONFIG = {
@@ -91,6 +104,7 @@ EM_CONFIG = {
     'port': int,
     'max_fuse_current': int,
     'max_phase_current_diff': int,
+    'ignore_errors': bool,  # log and step over this subsystem's errors instead of stopping the control loop
 }
 VALID_ENERGY_METER_TYPES = set(ENERGY_METER_DESCRIPTIONS.keys())
 EV_CHARGER_CONFIG = {
@@ -100,6 +114,8 @@ EV_CHARGER_CONFIG = {
     'host': str,
     'port': int,
     'connected_phase': Phase,
+    'phase_mapping': str,
+    'ignore_errors': bool,  # log and step over this subsystem's errors instead of stopping the control loop
 }
 VALID_EV_CHARGER_TYPES = set(EV_CHARGER_DESCRIPTIONS.keys())
 SOL_INV_CONFIG = {
@@ -110,6 +126,7 @@ SOL_INV_CONFIG = {
     'port': int,
     'modbus_device_id': int,
     'connected_phase': Phase,
+    'ignore_errors': bool,  # log and step over this subsystem's errors instead of stopping the control loop
 }
 VALID_SOLAR_INVERTER_TYPES = set(SOLAR_INVERTER_DESCRIPTIONS.keys())
 VALID_DIRECTION = { 'standby', 'charge', 'discharge' }
@@ -133,7 +150,9 @@ MODE_DYNAMIC_CONFIG = {
     'resolution': int,
     'fallback_mode': int,
     'efficiency': float,
-    'api_token': str,
+    'price_source': str,   # where the day-ahead prices come from, see VALID_PRICE_SOURCES
+    'api_token': str,      # Enever API token
+    'entsoe_token': str,   # ENTSO-E security token
     'ev_charge_start': str,
     'ev_charge_end': str,
 }
@@ -157,8 +176,19 @@ class DoeMaarWattConfig:
                     del gen['timezone_offset']
                     self.save_dyn_config()
 
-                # backfill per-inverter state-of-charge limits for configs saved before issue #7
+                # backfill safety_checks
                 migrated = False
+                if 'safety_checks' not in gen:
+                    gen['safety_checks'] = { c: True for c in SAFETY_CHECK_PRIORITIES.keys() }
+                    self.save_dyn_config()
+                else: # 'safety_checks' is there, so check if each safety feature is present
+                    safety_checks: dict[str, bool] = gen['safety_checks']
+                    for check in SAFETY_CHECK_PRIORITIES.keys():
+                        if check not in safety_checks:
+                            safety_checks[check] = True
+                            migrated = True
+
+                # backfill per-inverter state-of-charge limits for configs saved before issue #7
                 for inv in self._dyn_config.get('battery_inverters', []):
                     if 'battery_charge_max_pct' not in inv:
                         inv['battery_charge_max_pct'] = DEFAULT_BATTERY_CHARGE_MAX_PCT
@@ -181,10 +211,39 @@ class DoeMaarWattConfig:
                         mode_4_cfg[k] = ''
                         migrated = True
 
+                # backfill the price source settings for configs saved before ENTSO-E was an alternative to
+                # Enever. An existing installation keeps fetching from Enever until it is pointed elsewhere
+                for k, default in (('price_source', PRICE_SOURCE_ENEVER), ('entsoe_token', '')):
+                    if len(mode_4_cfg) > 0 and k not in mode_4_cfg:
+                        mode_4_cfg[k] = default
+                        migrated = True
+
+                # drop the bidding zone an intermediate version stored: ENTSO-E prices are always fetched for
+                # the Dutch zone now. Left in place it would be refused as an extraneous field on every save
+                if 'bidding_zone' in mode_4_cfg:
+                    del mode_4_cfg['bidding_zone']
+                    migrated = True
+
+                # backfill the error handling flag for every subsystem saved before it existed. False
+                # keeps what the controller did until now: an error from any subsystem stops the control loop
+                for section in ('battery_inverters', 'solar_inverters', 'ev_chargers'):
+                    for subsystem in self._dyn_config.get(section, []):
+                        if 'ignore_errors' not in subsystem:
+                            subsystem['ignore_errors'] = False
+                            migrated = True
+                em_cfg = self._dyn_config.get('energy_meter', {})
+                if len(em_cfg) > 0 and 'ignore_errors' not in em_cfg:
+                    em_cfg['ignore_errors'] = False
+                    migrated = True
+
                 # backfill the EV chargers section
                 if 'ev_chargers' not in self._dyn_config:
                     self._dyn_config['ev_chargers'] = []
                     migrated = True
+                for evse in self._dyn_config['ev_chargers']:
+                    if 'phase_mapping' not in evse:
+                        evse['phase_mapping'] = EV_CHARGER_STRAIGHT_MAPPING
+                        migrated = True
 
                 if migrated:
                     self.save_dyn_config()
@@ -243,6 +302,19 @@ class DoeMaarWattConfig:
         self._dyn_config['general']['timezone'] = str(tz_name)
         self.save_dyn_config()
         self.log.set_timezone(tz_name)
+
+    @property
+    def applicable_safety_checks(self) -> list[str]:
+        '''Return a list of configured safety checks, ordered by priority. Least important check first.
+
+        The checks in ALWAYS_ON_SAFETY_CHECKS are included whether they are enabled in the configuration or
+        not: they protect the installation itself, so they are not left to a setting.
+        '''
+        check_tuples = [(c, p) for c, p in SAFETY_CHECK_PRIORITIES.items()
+                        if c in ALWAYS_ON_SAFETY_CHECKS                                 # always applied
+                        or self._dyn_config['general']['safety_checks'].get(c, False)]  # only configured checks
+        check_tuples.sort(key=lambda t: t[1], reverse=True) # sort by prio - high to low
+        return [t[0] for t in check_tuples] # only the names
 
     def get_general_config(self) -> dict:
         return self._dyn_config['general']
@@ -315,6 +387,11 @@ class DoeMaarWattConfig:
                     ZoneInfo(v)
                 except ZoneInfoNotFoundError:
                     raise ConfigException(f'invalid general config: field {k} has invalid value: {v}', source='config')
+            if k == 'safety_checks': # value must be a dict[str, bool]
+                if len(set(v.keys()) ^ set(SAFETY_CHECK_PRIORITIES.keys())) != 0:
+                    raise ConfigException(f'invalid general config / safety_checks (missing or extraneous fields): {v}', source='config')
+                if not all(isinstance(v_val, bool) for v_val in v.values()): # v must be a dict[str, bool]
+                    raise ConfigException(f'invalid general config / safety_checks (invalid value): {v}', source='config')
 
         self.log.info(f'config: setting general config to {cfg}')
         self._dyn_config['general'] = cfg
@@ -332,6 +409,7 @@ class DoeMaarWattConfig:
             'port': 502,
             'max_fuse_current': 24,
             'max_phase_current_diff': 24,
+            'ignore_errors': False,
         })
         self.set_battery_inverters_config([
             {
@@ -346,6 +424,7 @@ class DoeMaarWattConfig:
                 'battery_charge_max_pct': DEFAULT_BATTERY_CHARGE_MAX_PCT,
                 'battery_charge_min_pct': DEFAULT_BATTERY_CHARGE_MIN_PCT,
                 'connected_phase': Phase.L1,
+                'ignore_errors': False,
             },
             {
                 'name': 'SBS 6.0-10 L2',
@@ -359,6 +438,7 @@ class DoeMaarWattConfig:
                 'battery_charge_max_pct': DEFAULT_BATTERY_CHARGE_MAX_PCT,
                 'battery_charge_min_pct': DEFAULT_BATTERY_CHARGE_MIN_PCT,
                 'connected_phase': Phase.L2,
+                'ignore_errors': False,
             },
             {
                 'name': 'SBS 5.0-10 L3',
@@ -372,6 +452,7 @@ class DoeMaarWattConfig:
                 'battery_charge_max_pct': DEFAULT_BATTERY_CHARGE_MAX_PCT,
                 'battery_charge_min_pct': DEFAULT_BATTERY_CHARGE_MIN_PCT,
                 'connected_phase': Phase.L3,
+                'ignore_errors': False,
             },
         ])
         self.set_solar_inverters_config([{
@@ -382,15 +463,30 @@ class DoeMaarWattConfig:
             'port': 502,
             'modbus_device_id': 3,
             'connected_phase': Phase.ALL,
+            'ignore_errors': False,
         }])
-        self.set_ev_chargers_config([{
-            'name': 'Alfen Eve Pro',
-            'enable': True,
-            'type': 'alfen_eve_pro',
-            'host': '192.168.1.162',
-            'port': 502,
-            'connected_phase': Phase.ALL,
-        }])
+        self.set_ev_chargers_config([
+            {
+                'name': 'Alfen Eve Single Pro - Left (white)',
+                'enable': True,
+                'type': 'alfen_eve_pro',
+                'host': '192.168.1.162',
+                'port': 502,
+                'connected_phase': Phase.ALL,
+                'phase_mapping': 'gridL1:evseL2,gridL2:evseL1,gridL3:evseL3',
+                'ignore_errors': False,
+            },
+            {
+                'name': 'Alfen Eve Single Pro - Right (gray)',
+                'enable': True,
+                'type': 'alfen_eve_pro',
+                'host': '192.168.1.71',
+                'port': 502,
+                'connected_phase': Phase.ALL,
+                'phase_mapping': EV_CHARGER_STRAIGHT_MAPPING,
+                'ignore_errors': False,
+            },
+        ])
         dyn_cfg = self.get_mode_dynamic_config()
         dyn_cfg['api_token'] = NEKOT
         self.set_mode_dynamic_config(dyn_cfg)
@@ -506,6 +602,8 @@ class DoeMaarWattConfig:
                     raise ConfigException(f'invalid EV charger config: field {k} has invalid value: {v}', source='config')
                 if k == 'type' and v not in VALID_EV_CHARGER_TYPES:
                     raise ConfigException(f'invalid EV charger type: field {k} has invalid value: {v}', source='config')
+                if k == 'phase_mapping' and v not in VALID_EV_CHARGER_PHASE_MAPPINGS:
+                    raise ConfigException(f'invalid EV charger phase mapping: field {k} has invalid value: {v}', source='config')
                 if k == 'name' and v in taken_names:
                     raise ConfigException(f'invalid EV charger name: there is another charger named {v}', source='config')
 
@@ -572,6 +670,16 @@ class DoeMaarWattConfig:
         for k, v in cfg.items():
             if not isinstance(v, MODE_DYNAMIC_CONFIG[k]):
                 raise ConfigException(f'invalid mode dynamic config: field {k} has invalid value: {v}', source='config')
+            if k == 'price_source' and v not in VALID_PRICE_SOURCES:
+                raise ConfigException(f'invalid mode dynamic config: price_source must be one of '
+                                      f'{", ".join(sorted(VALID_PRICE_SOURCES))}, passed: {v}', source='config')
+
+        # the token the selected price source needs: without it no prices can be fetched at all, so it is
+        # rejected here rather than at the first fetch, when mode 4 is already running
+        token_field = 'api_token' if cfg['price_source'] == PRICE_SOURCE_ENEVER else 'entsoe_token'
+        if len(cfg[token_field].strip()) == 0:
+            raise ConfigException(f'invalid mode dynamic config: price source {cfg["price_source"]} requires '
+                                  f'{token_field} to be set', source='config')
 
         # EV charge window (issue #36): both times are unset (an empty string), or both are set - check if they parse
         start, end = cfg['ev_charge_start'].strip(), cfg['ev_charge_end'].strip()
@@ -623,6 +731,7 @@ class DoeMaarWattConfig:
         router.add_post('/api/config/mode/dynamic',         self.handle_post_mode_dynamic_config)
         router.add_post('/api/config/bart_setup',           self.handle_post_bart_setup)
         router.add_get('/api/config/subsystem_types',       self.handle_subsystem_types)
+        router.add_get('/api/config/available_safety_checks', self.handle_available_safety_checks)
 
     async def handle_get_config(self, req: web.Request) -> web.Response:
         return web.json_response(self._dyn_config)
@@ -728,4 +837,14 @@ class DoeMaarWattConfig:
             'solar_inverters': SOLAR_INVERTER_DESCRIPTIONS,
             'energy_meters': ENERGY_METER_DESCRIPTIONS,
             'ev_chargers': EV_CHARGER_DESCRIPTIONS,
+        })
+
+    async def handle_available_safety_checks(self, req: web.Request) -> web.Response:
+        return web.json_response({
+            c: {
+                'prio': SAFETY_CHECK_PRIORITIES[c],
+                'description': SAFETY_CHECK_DESCRIPTIONS[c],
+                'always_on': c in ALWAYS_ON_SAFETY_CHECKS,  # applied whether configured or not: not switchable
+            }
+            for c in SAFETY_CHECK_PRIORITIES.keys()
         })

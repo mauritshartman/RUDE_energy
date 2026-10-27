@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, computed } from 'vue'
-import { NDivider, NGrid, NForm, NFormItemGi, NInput, NInputNumber, NButton, NFlex, NIcon } from 'naive-ui'
+import { NDivider, NButton, NFlex, NIcon } from 'naive-ui'
 import { useConfigStore } from '../stores/config.js'
 import { storeToRefs } from 'pinia'
 import { AddCircleOutline } from '@vicons/ionicons5'
@@ -18,7 +18,7 @@ const on_add = async () => {
   console.log(`appending a new config`)
   ev_chargers.value.push({
     name: '', host: '', port: 502,
-    connected_phase: 'ALL', enable: true,
+    connected_phase: 'ALL', enable: true, ignore_errors: false,
   })
 }
 
@@ -42,9 +42,11 @@ onMounted(async () => {
       v-model:name="ev_cfg.name"
       v-model:type="ev_cfg.type"
       v-model:enable="ev_cfg.enable"
+      v-model:ignore_errors="ev_cfg.ignore_errors"
       v-model:host="ev_cfg.host"
       v-model:port="ev_cfg.port"
       v-model:connected_phase="ev_cfg.connected_phase"
+      v-model:phase_mapping="ev_cfg.phase_mapping"
       @removed="on_removed"
     />
   </template>

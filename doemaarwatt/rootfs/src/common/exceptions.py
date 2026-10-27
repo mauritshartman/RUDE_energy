@@ -19,6 +19,13 @@ class ProgrammingError(DMWException):
         super().__init__(message, source, requires_fallback)
 
 
+class SafetyException(DMWException):
+    '''Exception raised when a safety issues occurs that cannot be resolved by the system
+    '''
+    def __init__(self, message: str, source: str, requires_fallback: bool = True) -> None:
+        super().__init__(message, source, requires_fallback)
+
+
 class ConfigException(DMWException):
     '''Exception raised due to misconfiguration, which should be fixed by the user before continuing
     '''

@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, computed } from 'vue'
-import { NDivider, NGrid, NForm, NFormItemGi, NInput, NInputNumber, NButton, NFlex, NSelect, NTag } from 'naive-ui'
+import { NDivider, NGrid, NForm, NFormItemGi, NInput, NInputNumber, NButton, NFlex, NSelect, NTag, NSwitch } from 'naive-ui'
 import { useConfigStore } from '../stores/config'
 import { storeToRefs } from 'pinia'
 
@@ -58,6 +58,13 @@ onMounted(async () => { await config.fetch_config() })
                 <template #suffix>A</template>
             </n-input-number>
             <n-tag v-if="energy_meter.max_phase_current_diff === 0" type="warning" :bordered="false" style="margin: 3px;">(no limit)</n-tag>
+        </n-form-item-gi>
+
+        <n-form-item-gi span="4 m:8 l:16" label="Ignore errors" path="ignore_errors">
+            <n-switch v-model:value="energy_meter.ignore_errors" />
+            <n-tag v-if="energy_meter.ignore_errors" type="warning" :bordered="false" style="margin: 3px;">
+                the safety checks need the grid measurements, so the control loop still stops without them
+            </n-tag>
         </n-form-item-gi>
     </n-grid>
 

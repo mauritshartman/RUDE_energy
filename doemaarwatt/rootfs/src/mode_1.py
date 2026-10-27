@@ -45,6 +45,7 @@ class Mode1Controller(BaseController):
             self.log.info('idle: relinquish control for all inverters')
             await asyncio.gather(*[inv.relinquish_control() for inv in self.battery_inverters])
             await asyncio.gather(*[inv.relinquish_control() for inv in self.solar_inverters])
+            await asyncio.gather(*[inv.relinquish_control() for inv in self.ev_chargers])
 
             await self.get_stats()
 

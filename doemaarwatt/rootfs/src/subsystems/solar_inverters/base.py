@@ -47,3 +47,23 @@ class BaseSolarInverter(BaseInverter):
         '''Return the solar status of this solar inverter
         '''
         raise NotImplementedError
+
+    @abstractmethod
+    def get_setpoint_limit(self) -> Optional[float]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def set_power_limit(self, power_w: Optional[float]) -> None:
+        '''Command a maximum output power level to the solar inverter. If None is passed, then the solar inverter
+        should remove any existing power (curtailment) limitation, so it can (potentially) output full solar power
+        again (if the sun is shining enough). If zero is passed, the solar inverter is instructed to stop solar
+        power generation altogether.
+
+        This value is the limit for a single phase. So for a tri-phase system, internally the limit is three times higher.
+        The power limit level is the same across all three phases.
+        '''
+        raise NotImplementedError
+
+    def is_curtailed(self) -> bool:
+        '''True iff the solar inverter is being actively curtailed'''
+        raise NotImplementedError

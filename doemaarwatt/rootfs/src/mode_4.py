@@ -9,7 +9,8 @@ from aiohttp import web
 from config import DoeMaarWattConfig, ControlMode
 from common import Logger, DMWException, PBSapp
 from base_controller import BaseController
-from price import PriceManager
+from subsystems.ev_chargers import EVChargingStatus
+from pricing import PriceManager
 from dyn_schedule import DynamicScheduler, SchedulePeriodEncoder
 
 
@@ -54,6 +55,13 @@ class Mode4Controller(BaseController):
             self.price_task = None
 
     def _in_ev_charge_period(self, now: dt) -> bool:
+        # check if there is any EV car charger which is charging:
+        for inv in self.ev_chargers:
+            if inv.get_charging_status() == EVChargingStatus.CONNECTED_CHARGING:
+                self.log.info(f'EVSE {inv.name} currently charging an EV: restricting battery inverters to discharging and standby only')
+                return True
+
+        # check if there is an EV charge period defined
         refreshed_dyn_cfg = self.config.get_mode_dynamic_config()
         ev_charge_start = refreshed_dyn_cfg.get('ev_charge_start', '')
         ev_charge_end = refreshed_dyn_cfg.get('ev_charge_end', '')
@@ -79,20 +87,23 @@ class Mode4Controller(BaseController):
         during negative prices (see get_export_limit) (issues #29, #31). Note that this setpoint is a ceiling and
         not a prediction of what the inverter actually generates, so it must not be used to decide how much
         surplus there is to absorb.'''
-        PBapp_inverters = self.scheduler.get_PBapp_inverters(now)  # inv -> PBapp
+        PBSapp_inverters = self.scheduler.get_PBSapp_inverters(now)  # inv -> PBSapp
 
-        # set PBapp to zero for disconnected batteries:
-        PBapp_inverters = { i: p if self.battery_present[i] else 0 for i, p in PBapp_inverters.items() }
+        # set PBSapp to zero for disconnected batteries:
+        PBSapp_inverters = { i: p if self.battery_present[i] else 0 for i, p in PBSapp_inverters.items() }
 
-        # ensure PBapp is never negative (charging) for any battery inverter when we are in a EV charging period
+        # ensure PBSapp is never negative (charging) for any battery inverter when we are in a EV charging period
         if self._in_ev_charge_period(now):
-            PBapp_inverters = { i: max(0, p) if self.battery_present[i] else p for i, p in PBapp_inverters.items() }
+            PBSapp_inverters = { i: max(0, p) if self.battery_present[i] else p for i, p in PBSapp_inverters.items() }
 
         pbsapp = PBSapp(list(self.inverters.values()))
         for inv in self.battery_inverters:
-            pbsapp.set(inv.connected_phase, inv.name, PBapp_inverters[inv.name])
+            pbsapp.set_power_level(inv.connected_phase, inv.name, PBSapp_inverters[inv.name])
         for inv in self.solar_inverters:
-            pbsapp.set(inv.connected_phase, inv.name, inv.power_limits_phase[1])  # per-phase max generation
+            pbsapp.set_power_limit(inv.connected_phase, inv.name, None)  # no limit, so per-phase max generation
+
+        # NOTE: EV car chargers are explicitly left out for now as they are not yet being controlled by DMW
+        # Their power consumption will be part of Pother
 
         return pbsapp
 
@@ -113,19 +124,30 @@ class Mode4Controller(BaseController):
         return None
 
     async def _try_relinquish_control(self):
+        # Battery inverters:
         results = await asyncio.gather(*[inv.relinquish_control() for inv in self.battery_inverters],
                                            return_exceptions=True)
         for inv, result in zip(self.battery_inverters, results):
             if isinstance(result, Exception):
                 self.log.error(f'error relinquishing control of {inv.name}: {result}')
+
+        # Solar inverters:
         results = await asyncio.gather(*[inv.relinquish_control() for inv in self.solar_inverters],
                                         return_exceptions=True)
         for inv, result in zip(self.solar_inverters, results):
             if isinstance(result, Exception):
                 self.log.error(f'error relinquishing control of {inv.name}: {result}')
 
+        # EV car chargers:
+        results = await asyncio.gather(*[inv.relinquish_control() for inv in self.ev_chargers],
+                                        return_exceptions=True)
+        for inv, result in zip(self.ev_chargers, results):
+            if isinstance(result, Exception):
+                self.log.error(f'error relinquishing control of {inv.name}: {result}')
+
     async def loop(self):
         self.log.info(f'Mode 4 (dynamic schedule mode) started')
+        in_startup = True
         await self.send_ha_notification('Mode 4 execution', 'Mode 4 started')
 
         # Fetch initial prices and start the price update loop once, before the reconnect loop.
@@ -140,8 +162,13 @@ class Mode4Controller(BaseController):
             exception_msg = ''
 
             try:
-                # Refresh prices on each (re)connect as a safety net; price_loop handles daily updates.
-                await self.pm.fetch_prices(initial=True)
+                if not in_startup:
+                    # Refresh prices on each (re)connect as a safety net; price_loop handles daily updates.
+                    # This only reaches the price source when the prices held cannot cover what is needed: a
+                    # subsystem that keeps dropping its connection brings us round here every few seconds, and
+                    # that has nothing to do with whether prices are available (issue #43)
+                    await self.pm.ensure_prices(dt.now(self.tz))
+                in_startup = False
 
                 # Restart price_loop if it stopped unexpectedly (e.g. unhandled exception outside its try/except).
                 if self.price_task is None or self.price_task.done():
@@ -187,8 +214,7 @@ class Mode4Controller(BaseController):
             self.log.debug('mode 4 (dynamic schedule mode) control loop iteration started')
 
             # fetch current charge
-            await asyncio.gather(*[inv.enable_control() for inv in self.battery_inverters])
-            await asyncio.gather(*[inv.enable_control() for inv in self.solar_inverters])
+            await self.enable_control_subsystems()
 
             current_charge = await self.get_current_charge()
 
@@ -228,7 +254,7 @@ class Mode4Controller(BaseController):
         self.log.debug(f'gathered stats - determining battery charges')
 
         ret = {}
-        for inv_name, inv_stat in self._stats.battery_inverters.items():
+        for inv_name, inv_stat in self.stats.battery_inverters.items():
             charge_pct = inv_stat.battery.battery_charge_pct
             if charge_pct is None:
                 self.log.error(f'battery for inverter {inv_name} seems disconnected')
@@ -283,14 +309,21 @@ class Mode4Controller(BaseController):
 
     def handle_status(self, request):
         price_info = self.pm.to_dict()
-        price_info['current_price'] = self.pm.get_price()
+        try:
+            price_info['current_price'] = self.pm.get_price()
+        except Exception as e:
+            # No price for right now: the prices have not been fetched yet (the web UI polls from the moment
+            # the add-on starts, before the first fetch lands), or the ones we have do not reach the present.
+            # That is worth reporting as an unknown price, not worth failing the whole status request over
+            self.log.debug(f'no current price to report in the status: {e}')
+            price_info['current_price'] = None
 
         return web.json_response({
             'status': 'ok',
             'running': self.running,
             'mode': self.mode.value,
-            'running_start': self._stats.start_ts,
-            'stats': self._stats.serialize(),
+            'running_start': self.stats.start_ts,
+            'stats': self.stats.serialize(),
             'prices': price_info,
             'schedule': self.scheduler.schedule,
             'schedule_ts': self.scheduler.schedule_ts,

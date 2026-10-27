@@ -42,6 +42,8 @@ class SmaSunnyBoyStorage(BaseBatteryInverter):
             log=log,
         )
 
+        self.control_status = ControlStatus.UNCONTROLLED
+
     @classmethod
     def from_config(cls, cfg: dict[str, Any], log: Logger) -> 'SmaSunnyBoyStorage':
         return cls(
@@ -61,12 +63,15 @@ class SmaSunnyBoyStorage(BaseBatteryInverter):
         await self._modbus.connect()
 
     def close(self) -> None:
+        self.control_status = ControlStatus.UNCONTROLLED
         self._modbus.close()
 
     async def enable_control(self) -> None:
         await self._modbus.write_registers_parallel(40151, [0, 802])
+        self.control_status = ControlStatus.NOMINAL
 
     async def relinquish_control(self) -> None:
+        self.control_status = ControlStatus.UNCONTROLLED
         await self._modbus.write_registers_parallel(40149, [0, 0])
         await self._modbus.write_registers_parallel(40151, [0, 803])
 
@@ -93,7 +98,7 @@ class SmaSunnyBoyStorage(BaseBatteryInverter):
         elif ac_pow is not None and ac_pow > 0:
             bat_status = BatteryStatus.DISCHARGING
 
-        control_status = ControlStatus.DEGRADED if any(
+        self.control_status = ControlStatus.DEGRADED if any(
             v is None for v in [temp_h, temp_l, voltage, current, ac_pow, ac_vol, ac_amp]
         ) else ControlStatus.NOMINAL
 
@@ -109,7 +114,7 @@ class SmaSunnyBoyStorage(BaseBatteryInverter):
             self.log.debug(f'\tAC side:\t{ac_amp:.2f} A\t{ac_vol:.1f} V\t{ac_pow:.0f} W')
 
         return BatteryInverterStats(
-            control_status=control_status,
+            control_status=self.control_status,
             battery=BatteryStats(
                 battery_status=bat_status,
                 battery_current=current,
@@ -121,9 +126,12 @@ class SmaSunnyBoyStorage(BaseBatteryInverter):
             ac_side={ self.connected_phase: SPCStats(current=ac_amp, voltage=ac_vol, power=ac_pow) }
         )
 
+    def get_control_status(self) -> ControlStatus:
+        return self.control_status
+
     async def set_power(self, power_w: float) -> None:
         power_w = int(power_w)
-        if power_w == 0:
+        if abs(power_w) == 0:
             power_w = STANDBY_CHARGE
 
         await self._modbus.write_register(self.name, 40149, to_s32_list(power_w))

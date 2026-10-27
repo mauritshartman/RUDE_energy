@@ -13,9 +13,11 @@ const props = defineProps(['idx'])
 const name = defineModel('name')
 const type = defineModel('type')
 const enable = defineModel('enable')
+const ignore_errors = defineModel('ignore_errors')
 const host = defineModel('host')
 const port = defineModel('port')
 const connected_phase = defineModel('connected_phase')
+const phase_mapping = defineModel('phase_mapping')
 
 const ev_charger_types = computed(() => {
     const types = config.subsystem_types?.ev_chargers
@@ -30,6 +32,15 @@ const phase_options = [
     { label: 'All', value: 'ALL' },
 ]
 
+const phase_mapping_options = [
+    { label: 'straight mapping',    value: 'gridL1:evseL1,gridL2:evseL2,gridL3:evseL3' },
+    { label: 'L1 & L2 swapped',     value: 'gridL1:evseL2,gridL2:evseL1,gridL3:evseL3' },
+    { label: 'L2 & L3 swapped',     value: 'gridL1:evseL1,gridL2:evseL3,gridL3:evseL2' },
+    { label: 'L1 & L3 swapped',     value: 'gridL1:evseL3,gridL2:evseL2,gridL3:evseL1' },
+    { label: 'grid L1 -> EVSE L2, L2 -> L3, L3 -> L1', value: 'gridL1:evseL2,gridL2:evseL3,gridL3:evseL1' },
+    { label: 'grid L1 -> EVSE L3, L2 -> L1, L3 -> L2', value: 'gridL1:evseL3,gridL2:evseL1,gridL3:evseL2' },
+]
+
 </script>
 
 <template>
@@ -38,12 +49,12 @@ const phase_options = [
         size="medium"
         label-placement="top"
     >
-        <n-grid cols="4 s:4 m:8 l:20 xl:20" x-gap="10" responsive="screen">
-            <n-form-item-gi span="4" label="Name" path="name">
+        <n-grid cols="3 s:3 m:6 l:16" x-gap="10" responsive="screen">
+            <n-form-item-gi span="3" label="Name" path="name">
                 <n-input v-model:value="name" placeholder="EV charger name" />
             </n-form-item-gi>
 
-            <n-form-item-gi span="4" label="Type" path="type">
+            <n-form-item-gi span="3" label="Type" path="type">
                 <n-select
                     v-model:value="type"
                     placeholder="Select type"
@@ -51,25 +62,33 @@ const phase_options = [
                 />
             </n-form-item-gi>
 
-            <n-form-item-gi span="3" label="Host" path="host">
+            <n-form-item-gi span="3" label="Host : port">
                 <n-input v-model:value="host" placeholder="192.168..." />
-            </n-form-item-gi>
-
-            <n-form-item-gi span="1" label="Port" path="port">
+                &nbsp;
                 <n-input-number v-model:value="port" min="1" max="65535" :show-button="false" />
             </n-form-item-gi>
 
-
-            <n-form-item-gi span="3" label="Phase" path="connected_phase">
+            <n-form-item-gi label="Phase" path="connected_phase">
                 <n-select
                     v-model:value="connected_phase"
                     placeholder="Select phase"
                     :options="phase_options"
                 />
             </n-form-item-gi>
+            <n-form-item-gi span="3" label="Mapping" path="phase_mapping">
+                <n-select
+                    v-model:value="phase_mapping"
+                    placeholder="Phase mapping"
+                    :options="phase_mapping_options"
+                />
+            </n-form-item-gi>
 
             <n-form-item-gi :label="(enable) ? 'Enabled' : 'Disabled'" path="enable">
                 <n-switch v-model:value="enable" />
+            </n-form-item-gi>
+
+            <n-form-item-gi label="Ignore errors" path="ignore_errors">
+                <n-switch v-model:value="ignore_errors" />
             </n-form-item-gi>
 
             <n-form-item-gi>

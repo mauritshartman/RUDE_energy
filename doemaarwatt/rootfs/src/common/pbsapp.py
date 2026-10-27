@@ -1,5 +1,6 @@
 from collections import Counter
 from dataclasses import dataclass, field
+from typing import Optional
 
 from .definitions import Phase
 from .exceptions import ProgrammingError
@@ -9,7 +10,8 @@ from .base_inverter import BaseInverter
 @dataclass
 class PhasePowerMap:
     '''
-    Mapping of power level for all (B)attery and (S)olar inverters connected to a
+    Mapping of commanded power levels for all battery inverters and
+    power limits for all solar inverters connected to a
     single phase. Can be used for:
         - desired (PBSapp) power level
         - measured (PBSnow) power level
@@ -17,16 +19,23 @@ class PhasePowerMap:
     '''
     phase: Phase
     inv_power: dict[str, float] = field(default_factory=dict)
+    inv_limit: dict[str, Optional[float]] = field(default_factory=dict)
 
     @property
     def net_power(self) -> float:
         return sum(self.inv_power.values())
 
     def __str__(self) -> str:
-        return f'{self.phase}: ' + ', '.join(f'{i}: {p:.0f}W' for i, p in self.inv_power.items())
+        power_str = ', '.join(f'{i}: {p:.0f}W' for i, p in self.inv_power.items())
+        limit_str = ', '.join(f'{i}: {p} W' for i, p in self.inv_limit.items())
+        return f'{self.phase}: ' + power_str + ' limits: ' + limit_str
 
     def copy(self) -> 'PhasePowerMap':
-        return PhasePowerMap(phase=self.phase, inv_power={ n: p for n, p in self.inv_power.items() })
+        return PhasePowerMap(
+            phase=self.phase,
+            inv_power={ n: p for n, p in self.inv_power.items() },
+            inv_limit={ n: p for n, p in self.inv_limit.items() },
+        )
 
 
 class PBSapp:
@@ -90,10 +99,10 @@ class PBSapp:
         new.L3 = self.L3.copy()
         return new
 
-    def set(self, phase: Phase, inverter: str, power: float):
+    def set_power_level(self, phase: Phase, inverter: str, power: float):
         '''
         Set the desired power level for a given inverter connected to the given phase.
-        If ALL is passed as phase, then the same power level is applied to each of the three phases
+        If ALL is passed as phase, then the same power level is applied to each of the three phases.
         '''
         if inverter not in self.inverters:
             raise ProgrammingError(f'unable to set power level for inverter {inverter}, not set in constructor', source='PBSapp')
@@ -114,16 +123,44 @@ class PBSapp:
         else: # L3
             self.L3.inv_power[inverter] = safe_power
 
-    def get(self, phase: Phase, inverter: str) -> float:
+    def set_power_limit(self, phase: Phase, inverter: str, limit: Optional[float]):
+        '''
+        Set the desired power limit for a given inverter connected to the given phase. If None is passed, this
+        signifies that no limit should be applied
+        If ALL is passed as phase, then the same power level is applied to each of the three phases.
+        '''
+        if inverter not in self.inverters:
+            raise ProgrammingError(f'unable to set power level for inverter {inverter}, not set in constructor', source='PBSapp')
+
+        if limit is None:
+            safe_power = None
+        else: # ensure when a real limit is passed, that it is within the power limits
+            safe_power = self.inverters[inverter].apply_power_limits(limit)
+
+        if phase == Phase.ALL:
+            self.L1.inv_limit[inverter] = safe_power
+            self.L2.inv_limit[inverter] = safe_power
+            self.L3.inv_limit[inverter] = safe_power
+
+        elif phase == Phase.L1:
+            self.L1.inv_limit[inverter] = safe_power
+
+        elif phase == Phase.L2:
+            self.L2.inv_limit[inverter] = safe_power
+
+        else: # L3
+            self.L3.inv_limit[inverter] = safe_power
+
+    def get_power_level(self, phase: Phase, inverter: str) -> float:
         '''
         Get the desired power level for a given inverter connected to the given phase.
         '''
         if inverter not in self.inverters:
             raise ProgrammingError(f'unable to get power level for inverter {inverter}, not set in constructor', source='PBSapp')
-        if not isinstance(phase, Phase) or phase == Phase.ALL:
+        if not isinstance(phase, Phase):
             raise ProgrammingError(f'unable to get power level for inverter, invalid phase {phase}', source='PBSapp')
 
-        if phase == Phase.L1:
+        if phase == Phase.L1 or phase == Phase.ALL: # in case of ALL: inv_power has the same power for all phases, see set_power_level()
             if inverter not in self.L1.inv_power:
                 raise ProgrammingError(f'unable to get power level for inverter {inverter}, not yet set', source='PBSapp')
             return self.L1.inv_power[inverter]
@@ -136,6 +173,28 @@ class PBSapp:
                 raise ProgrammingError(f'unable to get power level for inverter {inverter}, not yet set', source='PBSapp')
             return self.L3.inv_power[inverter]
 
+    def get_power_limit(self, phase: Phase, inverter: str) -> Optional[float]:
+        '''
+        Get the desired power limit for a given inverter connected to the given phase.
+        '''
+        if inverter not in self.inverters:
+            raise ProgrammingError(f'unable to get power limit for inverter {inverter}, not set in constructor', source='PBSapp')
+        if not isinstance(phase, Phase):
+            raise ProgrammingError(f'unable to get power limit for inverter, invalid phase {phase}', source='PBSapp')
+
+        if phase == Phase.L1 or phase == Phase.ALL:
+            if inverter not in self.L1.inv_limit:
+                raise ProgrammingError(f'unable to get power limit for inverter {inverter}, not yet set', source='PBSapp')
+            return self.L1.inv_limit[inverter]
+        if phase == Phase.L2:
+            if inverter not in self.L2.inv_limit:
+                raise ProgrammingError(f'unable to get power limit for inverter {inverter}, not yet set', source='PBSapp')
+            return self.L2.inv_limit[inverter]
+        else: # L3
+            if inverter not in self.L3.inv_limit:
+                raise ProgrammingError(f'unable to get power limit for inverter {inverter}, not yet set', source='PBSapp')
+            return self.L3.inv_limit[inverter]
+
     def get_inverter_phases(self, inverter: str) -> list[Phase]:
         ret = []
 
@@ -144,6 +203,13 @@ class PBSapp:
         if inverter in self.L2.inv_power:
             ret.append(Phase.L2)
         if inverter in self.L3.inv_power:
+            ret.append(Phase.L3)
+
+        if inverter in self.L1.inv_limit and inverter not in self.L1.inv_power:
+            ret.append(Phase.L1)
+        if inverter in self.L2.inv_limit and inverter not in self.L2.inv_power:
+            ret.append(Phase.L2)
+        if inverter in self.L3.inv_limit and inverter not in self.L3.inv_power:
             ret.append(Phase.L3)
 
         return ret
@@ -155,4 +221,6 @@ class PBSapp:
         counts = Counter()
         for ppm in (self.L1, self.L2, self.L3):
             counts.update(ppm.inv_power.keys())
+        for ppm in (self.L1, self.L2, self.L3):
+            counts.update(ppm.inv_limit.keys())
         return [name for name, count in counts.items() if count >= 2]

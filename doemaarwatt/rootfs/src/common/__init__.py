@@ -1,5 +1,5 @@
 from .definitions import Phase, SPCStats, ControlStatus, SINGLE_PHASES
-from .exceptions import DMWException, ConfigException, ProgrammingError
+from .exceptions import DMWException, ConfigException, ProgrammingError, SafetyException
 from .base_inverter import BaseInverter, ControlException
 from .pbsapp import PhasePowerMap, PBSapp
 from .logger import Logger, LogLevel
@@ -13,6 +13,7 @@ __all__ = [
     'SPCStats',
     'ControlStatus',
     'DMWException',
+    'SafetyException',
     'ConfigException',
     'ProgrammingError',
     'BaseInverter',

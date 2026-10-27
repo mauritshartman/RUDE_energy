@@ -20,7 +20,14 @@ ENERGY_METER_DESCRIPTIONS = {
 def create_energy_meter(cfg: dict[str, Any], log: Logger) -> BaseEnergyMeter:
     meter_type = cfg.get('type', 'sma_data_manager')
     if meter_type == 'sma_data_manager':
-        return SmaDataManager.from_config(cfg, log)
+        subsystem = SmaDataManager.from_config(cfg, log)
     elif meter_type == 'sim_energy_meter':
-        return SimEnergyMeter.from_config(cfg, log)
-    raise ConfigException(f'unknown energy meter type: {meter_type}', source='energy meter instantiation')
+        subsystem = SimEnergyMeter.from_config(cfg, log)
+    else:
+        raise ConfigException(f'unknown energy meter type: {meter_type}', source='energy meter instantiation')
+
+    # Errors of a subsystem configured this way are logged and stepped over by the controller rather
+    # than stopping the control loop. Set here so no concrete subsystem has to carry it through its
+    # own constructor and from_config
+    subsystem.ignore_errors = bool(cfg.get('ignore_errors', False))
+    return subsystem

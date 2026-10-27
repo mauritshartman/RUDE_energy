@@ -10,6 +10,12 @@ function fmtKW(watts) {
   return `${Math.round(watts / 100) / 10} kW`;
 }
 
+// Format a voltage value in volts as integer V; null/undefined -> em dash.
+function fmtV(volts) {
+  if (volts === null || volts === undefined) return "—";
+  return `${Math.round(volts)} V`;
+}
+
 // Round a value for display, tolerating null/undefined.
 function r(v) {
   return v === null || v === undefined ? "—" : Math.round(v);
@@ -156,9 +162,9 @@ function r(v) {
             </tr>
             <tr>
               <td>Voltage</td>
-              <td>{{ evse.ac_side?.L1?.V }} V</td>
-              <td>{{ evse.ac_side?.L2?.V }} V</td>
-              <td>{{ evse.ac_side?.L3?.V }} V</td>
+              <td>{{ fmtV(evse.ac_side?.L1?.V) }}</td>
+              <td>{{ fmtV(evse.ac_side?.L2?.V) }}</td>
+              <td>{{ fmtV(evse.ac_side?.L3?.V) }}</td>
               <td></td>
             </tr>
             <tr>
