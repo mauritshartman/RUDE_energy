@@ -43,9 +43,9 @@ class Mode1Controller(BaseController):
 
             # defensive re-assertion against state drift:
             self.log.info('idle: relinquish control for all inverters')
-            await asyncio.gather(*[inv.relinquish_control() for inv in self.battery_inverters])
-            await asyncio.gather(*[inv.relinquish_control() for inv in self.solar_inverters])
-            await asyncio.gather(*[inv.relinquish_control() for inv in self.ev_chargers])
+            subsystems = list(self.inverters.values())
+            await self.gather_subsystems(subsystems, 'relinquishing control',
+                [inv.relinquish_control() for inv in subsystems], best_effort=True)
 
             await self.get_stats()
 

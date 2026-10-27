@@ -73,26 +73,9 @@ class Mode3Controller(BaseController):
         return pbsapp
 
     async def _try_relinquish_control(self):
-        # Battery inverters:
-        results = await asyncio.gather(*[inv.relinquish_control() for inv in self.battery_inverters],
-                                            return_exceptions=True)
-        for inv, result in zip(self.battery_inverters, results):
-            if isinstance(result, Exception):
-                self.log.error(f'error relinquishing control of {inv.name}: {result}')
-
-        # Solar inverters:
-        results = await asyncio.gather(*[inv.relinquish_control() for inv in self.solar_inverters],
-                                        return_exceptions=True)
-        for inv, result in zip(self.solar_inverters, results):
-            if isinstance(result, Exception):
-                self.log.error(f'error relinquishing control of {inv.name}: {result}')
-
-        # EV car chargers:
-        results = await asyncio.gather(*[inv.relinquish_control() for inv in self.ev_chargers],
-                                        return_exceptions=True)
-        for inv, result in zip(self.ev_chargers, results):
-            if isinstance(result, Exception):
-                self.log.error(f'error relinquishing control of {inv.name}: {result}')
+        subsystems = list(self.inverters.values())
+        await self.gather_subsystems(subsystems, 'relinquishing control',
+            [inv.relinquish_control() for inv in subsystems], best_effort=True)
 
     async def loop(self):
         self.log.info(f'Mode 3 (static schedule mode) started')

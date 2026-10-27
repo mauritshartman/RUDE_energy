@@ -153,7 +153,7 @@ class SmaSolarInverter(BaseSolarInverter):
             return
 
         # check general operating status
-        gen_op_status = await self._modbus.read_register(self.name, 30201, 'U32-STATUS', device_id=self._device_id, sma_format=REG_40029_TAGLIST)
+        gen_op_status = await self._modbus.read_register(self.name, 40029, 'U32-STATUS', device_id=self._device_id, sma_format=REG_40029_TAGLIST)
         if gen_op_status is None or gen_op_status == 'Off' or gen_op_status == 'Bolted':
             gen_op_status_str = 'information not available' if gen_op_status is None else gen_op_status
             self.log.error(f'solar inverter {self.name}: general operating status not nominal: {gen_op_status_str}')

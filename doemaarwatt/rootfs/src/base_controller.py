@@ -141,16 +141,27 @@ class BaseController(
         self.log.error(f'{subsystem.name}: error while {action} is ignored, as ignore_errors is set for this '
                        f'subsystem - it is left uncontrolled: {type(error).__name__}: {error}')
 
-    async def gather_subsystems(self, subsystems: list, action: str, coros: list) -> list:
+    async def gather_subsystems(self, subsystems: list, action: str, coros: list,
+        best_effort: bool = False,
+    ) -> list:
         '''Await one operation per subsystem and apply handle_subsystem_error to each failure. Returns a
         result per subsystem, None where it failed and the failure was ignored.
+
+        best_effort logs every failure and never re-raises, whatever ignore_errors says. It is for tearing
+        down - relinquishing control, closing connections - where there is nothing left to protect by
+        stopping, and where giving up halfway would leave the remaining subsystems untouched. Losing the
+        connection is exactly when relinquishing fails, and it is exactly then that the rest of the
+        installation still has to be released and closed.
         '''
         results = await asyncio.gather(*coros, return_exceptions=True)
 
         ret = []
         for subsystem, result in zip(subsystems, results):
             if isinstance(result, BaseException):
-                self.handle_subsystem_error(subsystem, action, result)
+                if best_effort and not isinstance(result, asyncio.CancelledError):
+                    self.log.error(f'{subsystem.name}: error while {action}: {type(result).__name__}: {result}')
+                else:
+                    self.handle_subsystem_error(subsystem, action, result)
                 ret.append(None)
             else:
                 ret.append(result)
@@ -178,11 +189,13 @@ class BaseController(
         if self.energy_meter:
             subsystems.append(self.energy_meter)
 
+        # best effort, like relinquishing control: one subsystem that cannot be closed must not keep the
+        # others from being closed, whatever its ignore_errors says
         for subsystem in subsystems:
             try:
                 subsystem.close()
             except Exception as e:
-                self.handle_subsystem_error(subsystem, 'disconnecting', e)
+                self.log.error(f'{subsystem.name}: error while disconnecting: {type(e).__name__}: {e}')
 
         self.log.info('disconnected from all subsystems')
 

@@ -72,23 +72,9 @@ class Mode2Controller(BaseController):
                 self.stop()
 
             # an error or cancellation occurred: make sure to relinquish control:
-            results = await asyncio.gather(*[inv.relinquish_control() for inv in self.battery_inverters],
-                                           return_exceptions=True)
-            for inv, result in zip(self.battery_inverters, results):
-                if isinstance(result, Exception):
-                    self.log.error(f'error relinquishing control of {inv.name}: {result}')
-
-            results = await asyncio.gather(*[inv.relinquish_control() for inv in self.solar_inverters],
-                                           return_exceptions=True)
-            for inv, result in zip(self.solar_inverters, results):
-                if isinstance(result, Exception):
-                    self.log.error(f'error relinquishing control of {inv.name}: {result}')
-
-            results = await asyncio.gather(*[inv.relinquish_control() for inv in self.ev_chargers],
-                                           return_exceptions=True)
-            for inv, result in zip(self.ev_chargers, results):
-                if isinstance(result, Exception):
-                    self.log.error(f'error relinquishing control of {inv.name}: {result}')
+            subsystems = list(self.inverters.values())
+            await self.gather_subsystems(subsystems, 'relinquishing control',
+                [inv.relinquish_control() for inv in subsystems], best_effort=True)
 
             self.close_subsystems()
 

@@ -11,7 +11,7 @@ import aiohttp_cors
 
 from config import DoeMaarWattConfig, ControlMode
 from common import Logger, LogLevel
-from base_controller import BaseController
+from base_controller import BaseController, RECONNECT_DELAY
 from mode_1 import Mode1Controller
 from mode_2 import Mode2Controller
 from mode_3 import Mode3Controller
@@ -130,6 +130,8 @@ class DoeMaarWattServer:
         self.controller = None
 
     async def main_loop(self) -> None:
+        first_run = True
+
         runner = web.AppRunner(self.app)
         await runner.setup()
         site = web.TCPSite(runner, host=None, port=API_SERVER_PORT)  # None for all interfaces (see https://docs.aiohttp.org/en/stable/web_reference.html#aiohttp.web.TCPSite)
@@ -142,6 +144,10 @@ class DoeMaarWattServer:
                 self.log.debug(f'waiting for running to become true')
                 while not self.sub_running:  # busy waiting until sub_task can start running
                     await asyncio.sleep(0.25)
+
+                if not first_run: # when not in the first run (eg. after fallback) do a sleep to prevent excessive restarts
+                    await asyncio.sleep(RECONNECT_DELAY)
+                first_run = False
 
                 self.mode = self.config.mode  # use configured startup mode
                 self.controller = get_controller_class(self.mode)(self.config, self.log)
