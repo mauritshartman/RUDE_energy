@@ -21,8 +21,8 @@ DYN_CONFIG_PATH = Path.home() / Path('dyn_config.json')
 # Production build version:
 # DYN_CONFIG_PATH = Path('/data/dyn_config.json')
 
-NEKOT = '2d0eecc332c75ab92'  # owned by Bart
-NEKOT += 'e5e507ee1664fa1'
+NEKOT = '0866fde5-06ac-43c9-'  # owned by Bart
+NEKOT += 'a871-6b35858ea032'
 
 NEKOT2 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJiOGMzMzlkMjI2MjM0MGIwOGNhM2VkZDY1OTVhNDA4My' # created by Bart's home instance
 NEKOT2 += 'IsImlhdCI6MTc3NTU1NTk2NCwiZXhwIjoyMDkwOTE1OTY0fQ.HY28ijV94VgjQnRFd_fcpJ086J-5Lhm9OzJeGLVnPRk'
@@ -58,7 +58,7 @@ DYN_CONFIG_DEFAULT = {
         'resolution': 15,
         'fallback_mode': 1,
         'efficiency': 0.93,
-        'price_source': PRICE_SOURCE_ENEVER,
+        'price_source': PRICE_SOURCE_ENTSOE,
         'api_token': '',
         'entsoe_token': '',
         'ev_charge_start': '',
@@ -488,7 +488,7 @@ class DoeMaarWattConfig:
             },
         ])
         dyn_cfg = self.get_mode_dynamic_config()
-        dyn_cfg['api_token'] = NEKOT
+        dyn_cfg['entsoe_token'] = NEKOT
         self.set_mode_dynamic_config(dyn_cfg)
 
         gen_cfg = self.get_general_config()

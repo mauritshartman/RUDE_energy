@@ -2,7 +2,7 @@ from datetime import datetime as dt
 import math
 from typing import Optional
 
-from common import PBSapp, ProgrammingError, Logger, SINGLE_PHASES, PhasePowerMap, Phase, BaseInverter, ControlStatus, SafetyException
+from common import PBSapp, ProgrammingError, Logger, SINGLE_PHASES, PhasePowerMap, Phase, BaseInverter, ControlStatus
 from subsystems.battery_inverters import BaseBatteryInverter
 from subsystems.solar_inverters import BaseSolarInverter
 from stats import ControllerStats
@@ -14,6 +14,14 @@ for each phase L1, L2 and L3. In case of too much current, power to devices is r
 in order of inverter category: battery inverters first, then solar inverters and EV chargers
 last.
 '''
+
+# Tolerance (W) on the grid limits. PGnow comes from the energy meter and the inverter power levels from the
+# inverters themselves, read a moment apart, and Pother is what remains after subtracting the one from the
+# other - so the projection carries the error of every reading that went into it. A limit missed by less than
+# this is measurement noise rather than a fuse about to go: correcting for it achieves nothing, and stopping
+# the control loop over it costs far more than it protects. On a 25 A phase 50 W is about 0.2 A.
+POWER_TOLERANCE_W = 50.0
+
 
 class MainFuseProtectionMixin:
 
@@ -190,10 +198,12 @@ class MainFuseProtectionMixin:
             self._MainFuseProtectionMixin_expected_solar_power(pbs_now, inverters_phase, log)
         )
 
-        if pbs_projected < pbs_lim_min: # too much grid import
-            self._MainFuseProtectionMixin_reduce_grid_import(pbs_projected, pbs_lim_min, pbs_app, inverters_phase, log)
-        elif pbs_projected > pbs_lim_max: # too much grid export
-            self._MainFuseProtectionMixin_reduce_grid_export(pbs_projected, pbs_lim_max, pbs_app, pbs_now, inverters_phase, log)
+        if pbs_projected < pbs_lim_min - POWER_TOLERANCE_W: # too much grid import
+            self._MainFuseProtectionMixin_reduce_grid_import(phase, pbs_projected, pbs_lim_min, pg_min, p_other,
+                                                             pbs_app, inverters_phase, log)
+        elif pbs_projected > pbs_lim_max + POWER_TOLERANCE_W: # too much grid export
+            self._MainFuseProtectionMixin_reduce_grid_export(phase, pbs_projected, pbs_lim_max, pg_max_export, p_other,
+                                                             pbs_app, pbs_now, inverters_phase, log)
 
     def _MainFuseProtectionMixin_expected_solar_power(self,
         pbs_now: PhasePowerMap,
@@ -238,9 +248,29 @@ class MainFuseProtectionMixin:
 
         return ret
 
+    def _MainFuseProtectionMixin_headroom(self,
+        phase: Phase,
+        limit_w: float,
+        fuse_limit_w: float,
+        p_other: float,
+        verb: str,
+    ) -> str:
+        '''Describe a limit in the terms it is built from: the main fuse of this phase, and everything else
+        already drawing from or supplying to it.
+
+        Worth spelling out, because the limit is on the controlled inverters and not on the grid connection.
+        A line reading 'reduce grid import to a safe 758W' invites the reading that the grid connection may
+        only carry 758W, when the fuse allows 5750W and the other 4992W are simply spoken for already.
+        '''
+        return (f'{phase}: the controlled inverters may {verb} at most {abs(limit_w):.0f}W '
+                f'(main fuse {abs(fuse_limit_w):.0f}W, rest of this phase {p_other:+.0f}W)')
+
     def _MainFuseProtectionMixin_reduce_grid_import(self,
+        phase: Phase,
         pbs_projected: float,
         pbs_lim_min: float,
+        pg_min: float,
+        p_other: float,
         pbs_app: PhasePowerMap,
         inverters: dict[str, BaseInverter],
         log: Logger,
@@ -257,8 +287,9 @@ class MainFuseProtectionMixin:
         if power_exceeded <= tot_charge_power:
             # Solution 1: modify PBSapp by distributing power_exceeded over the charging inverters,
             # weighted on their original PBSapp charging level
-            log.info(f'ensure_main_fuse_protection: reducing battery charging to reduce grid import by {power_exceeded:.0f}W'
-                     f' to a safe {abs(pbs_lim_min):.0f}W (solution 1)')
+            headroom = self._MainFuseProtectionMixin_headroom(phase, pbs_lim_min, pg_min, p_other, 'draw')
+            log.info(f'ensure_main_fuse_protection: {headroom}, exceeded by {power_exceeded:.0f}W: '
+                     f'reducing battery charging (solution 1)')
             for inv_name, inv_pbs_app in charging_inverters.items():
                 power_reduction = abs(inv_pbs_app) / tot_charge_power * power_exceeded # strictly positive
                 log.info(f'ensure_main_fuse_protection: battery inverter {inv_name} charging levels reduced from '
@@ -271,8 +302,9 @@ class MainFuseProtectionMixin:
         # can carry, so the controlled inverters have to deliver the difference to keep the grid current within
         # its rating. Stop all charging first, then discharge as far as the batteries allow
         remaining = power_exceeded
-        log.info(f'ensure_main_fuse_protection: need to reduce grid import to a safe {abs(pbs_lim_min):.0f}W by '
-                 f'{power_exceeded:.0f}W, applying solution 2')
+        headroom = self._MainFuseProtectionMixin_headroom(phase, pbs_lim_min, pg_min, p_other, 'draw')
+        log.info(f'ensure_main_fuse_protection: {headroom}, exceeded by {power_exceeded:.0f}W: '
+                 f'not charging is not enough, applying solution 2')
         for inv_name, inv_pbs_app in charging_inverters.items():
             log.info(f'ensure_main_fuse_protection: stop battery inverter {inv_name} charging of {abs(inv_pbs_app):.0f}W (solution 2)')
             pbs_app.inv_power[inv_name] = 0.0
@@ -281,6 +313,20 @@ class MainFuseProtectionMixin:
         bat_inverters = { n: i for n, i in inverters.items() if isinstance(i, BaseBatteryInverter) }
         additional_discharge_potential = { n: self._MainFuseProtectionMixin_battery_suppliable_power(i, pbs_app)
                                            for n, i in bat_inverters.items() }
+        # Worth saying plainly when nothing on this phase can supply anything: the fuse protection then has no
+        # actuator here at all, which is a different situation from 'tried and fell short'. It happens when the
+        # phase holds no battery inverter, or when the one it holds is not under control - eg. because it is
+        # unreachable and configured with ignore_errors
+        if not any(potential > 0 for potential in additional_discharge_potential.values()):
+            if len(bat_inverters) == 0:
+                log.error(f'ensure_main_fuse_protection: {phase} has no battery inverter, so nothing on this '
+                          f'phase can be commanded to bring its grid import down')
+            else:
+                not_supplying = ', '.join(sorted(bat_inverters))
+                log.error(f'ensure_main_fuse_protection: no battery inverter on {phase} can supply power '
+                          f'({not_supplying}): not under control, or at its state-of-charge limit - the main '
+                          f'fuse of this phase cannot be protected by this controller')
+
         # command each battery to discharge until no remaining needs to be supplied, starting with the inverter
         # that can supply the most: it is the one that can best afford it
         log.info(f'ensure_main_fuse_protection: attempt additional battery discharging to reduce grid import by '
@@ -295,17 +341,26 @@ class MainFuseProtectionMixin:
                 pbs_app.inv_power[inv_name] += inv_potential # more positive -> more discharging
                 remaining -= inv_potential
 
-        if remaining > 0:
+        if remaining > POWER_TOLERANCE_W:
             # Everything that could be done has been applied to PBSapp above, so what is commanded is as safe as
-            # this installation can make it. Report what is left: the remaining import is beyond our control
-            raise SafetyException(f'safe grid import limit ({abs(pbs_lim_min):.0f}W) still exceeded by {remaining:.0f}W '
-                                  f'after stopping all battery charging ({tot_charge_power:.0f}W) and discharging every '
-                                  f'battery inverter that can supply power',
-                                  source='MainFuseProtectionMixin')
+            # this installation can make it, and what is left is beyond our control: the import is drawn by
+            # something we do not command. Report it and carry on, the way the export side does.
+            #
+            # Deliberately not an exception. A controller that stops here (or falls back to another mode) does
+            # not reduce the import by a single watt - the load is the load - and it gives up the next cycle's
+            # chance to react, along with everything else it was doing. See the 14:40 log of 2026-10-27, where
+            # a 102W overshoot on a phase whose only battery was unreachable ended dynamic scheduling for the day
+            log.error(f'ensure_main_fuse_protection: {phase}: the controlled inverters may draw at most '
+                      f'{abs(pbs_lim_min):.0f}W (main fuse {abs(pg_min):.0f}W, rest of this phase {p_other:+.0f}W), '
+                      f'still exceeded by {remaining:.0f}W after stopping all battery charging '
+                      f'({tot_charge_power:.0f}W) and discharging every battery inverter that can supply power')
 
     def _MainFuseProtectionMixin_reduce_grid_export(self,
+        phase: Phase,
         pbs_projected: float,
         pbs_lim_max: float,
+        pg_max_export: float,
+        p_other: float,
         pbs_app: PhasePowerMap,
         pbs_now: PhasePowerMap,
         inverters: dict[str, BaseInverter],
@@ -323,8 +378,9 @@ class MainFuseProtectionMixin:
         if power_exceeded <= tot_discharge_power:
             # Solution 1: we reduce discharging batteries by distributing power_exceeded over the
             # discharging inverters, weighted on their original PBSapp discharging level
-            log.info(f'ensure_main_fuse_protection: reducing battery discharging to reduce grid export by {power_exceeded}W'
-                        f' to a safe {abs(pbs_lim_max)}W (solution 1)')
+            headroom = self._MainFuseProtectionMixin_headroom(phase, pbs_lim_max, pg_max_export, p_other, 'supply')
+            log.info(f'ensure_main_fuse_protection: {headroom}, exceeded by {power_exceeded:.0f}W: '
+                     f'reducing battery discharging (solution 1)')
             for inv_name, inv_pbs_app in discharging_bat_inverters.items():
                 power_reduction = abs(inv_pbs_app) / tot_discharge_power * power_exceeded # strictly positive
                 log.info(f'ensure_main_fuse_protection: battery inverter {inv_name} discharging levels reduced from '
@@ -334,7 +390,9 @@ class MainFuseProtectionMixin:
 
         # power exceeded > tot_discharge_power: try solution 2
         remaining = power_exceeded
-        log.info(f'ensure_main_fuse_protection: need to reduce grid export to a safe {pbs_lim_max}W by {power_exceeded}W, applying solution 2')
+        headroom = self._MainFuseProtectionMixin_headroom(phase, pbs_lim_max, pg_max_export, p_other, 'supply')
+        log.info(f'ensure_main_fuse_protection: {headroom}, exceeded by {power_exceeded:.0f}W: '
+                 f'reducing discharging is not enough, applying solution 2')
         for inv_name, p in discharging_bat_inverters.items(): # first set each discharging inverter to standby
             log.info(f'ensure_main_fuse_protection: stop battery inverter {inv_name} discharging of {p}W (solution 2)')
             pbs_app.inv_power[inv_name] = 0.0

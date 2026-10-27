@@ -204,12 +204,6 @@ class AlfenEvePro(BaseEVCharger):
         powers[self.evse_to_grid_phase(Phase.L2)] = await self._read(348, 'FLOAT32', SOCKET_DEVICE_ID) # L2 apparent power
         powers[self.evse_to_grid_phase(Phase.L3)] = await self._read(350, 'FLOAT32', SOCKET_DEVICE_ID) # L3 apparent power
 
-        self.log.info(
-            f'{self.name}: voltages: {voltages[Phase.L1]}, {voltages[Phase.L2]}, {voltages[Phase.L3]} V (grid L1-3) '
-            f'currents: {currents[Phase.L1]}, {currents[Phase.L2]}, {currents[Phase.L3]} A '
-            f'power: {powers[Phase.L1]}, {powers[Phase.L2]}, {powers[Phase.L3]} W'
-        )
-
         unreadable = [name for name, value in (
             ('L1 voltage (306)', voltages[self.evse_to_grid_phase(Phase.L1)]),
             ('L2 voltage (308)', voltages[self.evse_to_grid_phase(Phase.L2)]),

@@ -28,9 +28,9 @@ class EnergyMeterStats:
         for phi, s in self.grid.items():
             ret[str(phi)] = {
                 'Amax': self.max_fuse_a,
-                'A': s.current,
-                'V': s.voltage,
-                'P': s.power,
+                'A': None if s.current is None else round(s.current, 1),
+                'V': None if s.voltage is None else round(s.voltage),
+                'P': None if s.power is None else round(s.power),
                 'status': _phase_status(s.power),
             }
 

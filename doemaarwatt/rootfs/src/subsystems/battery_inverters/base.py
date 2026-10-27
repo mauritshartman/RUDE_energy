@@ -25,8 +25,8 @@ class BatteryStats:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            'A': self.battery_current,
-            'V': self.battery_voltage,
+            'A': None if self.battery_current is None else round(self.battery_current, 1),
+            'V': None if self.battery_voltage is None else round(self.battery_voltage),
             'status': self.battery_status,
             'charge': self.battery_charge_pct,
             'temp_l': self.battery_temp_low_c,

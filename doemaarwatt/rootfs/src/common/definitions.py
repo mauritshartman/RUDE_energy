@@ -34,9 +34,9 @@ class SPCStats:
 
     def to_dict(self) -> dict:
         return {
-            'A': self.current,
-            'V': self.voltage,
-            'P': self.power,
+            'A': None if self.current is None else round(self.current, 1),
+            'V': None if self.voltage is None else round(self.voltage),
+            'P': None if self.power is None else round(self.power),
         }
 
     def status(self) -> str:
