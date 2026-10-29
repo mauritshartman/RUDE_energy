@@ -77,18 +77,25 @@ class SmaSunnyBoyStorage(BaseBatteryInverter):
 
     async def read_stats(self) -> BatteryInverterStats:
 
-        temp_h = await self._modbus.read_register(self.name, 32221, 'S32', device_id=3, sma_format='TEMP')
-        temp_l = await self._modbus.read_register(self.name, 32227, 'S32', device_id=3, sma_format='TEMP')
-        charge = await self._modbus.read_register(self.name, 32233, 'U32', device_id=3, sma_format='FIX2')
-        voltage = await self._modbus.read_register(self.name, 30851, 'U32', device_id=3, sma_format='FIX2')
-        current = await self._modbus.read_register(self.name, 30843, 'S32', device_id=3, sma_format='FIX3')
+        registers = _AC_REG_MAP[self.connected_phase]
+
+        # The eight values lie too far apart for a single request, so the batch splits them where the gaps
+        # are: the DC side and the AC power and voltage fall inside 30777..30852, the AC current sits at
+        # 30977, and the temperatures and charge at 32221..32234. Three round trips instead of eight
+        temp_h, temp_l, charge, voltage, current, ac_pow, ac_vol, ac_amp = await self._modbus.read_register_batch(
+            self.name, [
+                (32221, 'S32', 'TEMP'),           # battery temperature, high
+                (32227, 'S32', 'TEMP'),           # battery temperature, low
+                (32233, 'U32', 'FIX2'),           # battery charge
+                (30851, 'U32', 'FIX2'),           # battery voltage
+                (30843, 'S32', 'FIX3'),           # battery current
+                (registers['p'], 'S32', 'FIX0'),  # AC power on the connected phase
+                (registers['v'], 'U32', 'FIX2'),  # AC voltage on the connected phase
+                (registers['a'], 'S32', 'FIX3'),  # AC current on the connected phase
+            ], device_id=3)
+
         if charge is not None:
             charge *= 10  # fix for now
-
-        registers = _AC_REG_MAP[self.connected_phase]
-        ac_pow = await self._modbus.read_register(self.name, registers['p'], 'S32', device_id=3, sma_format='FIX0')
-        ac_vol = await self._modbus.read_register(self.name, registers['v'], 'U32', device_id=3, sma_format='FIX2')
-        ac_amp = await self._modbus.read_register(self.name, registers['a'], 'S32', device_id=3, sma_format='FIX3')
 
         bat_status = BatteryStatus.STANDBY
         if charge is None:

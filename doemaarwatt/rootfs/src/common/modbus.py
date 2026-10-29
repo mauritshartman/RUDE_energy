@@ -1,13 +1,35 @@
 import asyncio
 import math
 import struct
-from typing import Any, Optional
+from typing import Any, NamedTuple, Optional
 from pymodbus.client import AsyncModbusTcpClient as MBClient
 from pymodbus import ModbusException as PymodbusException
 from pymodbus.pdu.pdu import ModbusPDU
 
 from .logger import Logger
 from .exceptions import DMWException, ConfigException, ProgrammingError
+
+
+class _BatchField(NamedTuple):
+    '''One value requested from a batch read: where it lives, how to decode it, and where it belongs in the
+    list the caller gets back (which follows the order it asked in, not the order of the addresses).
+    '''
+    result_index: int   # not 'index': a NamedTuple field of that name would replace tuple.index()
+    address: int
+    dtype: str
+    sma_format: Any
+    words: int
+    holding: bool
+
+
+class _RegisterSlice(NamedTuple):
+    '''The registers of one value, cut out of the response of the grouped read it arrived in. Carries the one
+    attribute _decode_response reads, so a batched value is decoded exactly like a singly read one.
+    '''
+    registers: list[int]
+
+    def isError(self) -> bool:
+        return False
 
 
 class ModbusException(DMWException):
@@ -246,6 +268,173 @@ class ModbusManager():
                 ))
 
         return ret
+
+    def _parse_batch_fields(self,
+        addr: list[tuple[int, str, str]],
+        force_holding_register: bool,
+        client_name: str,
+    ) -> list[_BatchField]:
+        '''Work out, per requested value, how many registers it occupies and whether it lives in a holding or
+        an input register - the same rules read_register applies, applied up front so the addresses can be
+        grouped before anything is sent.
+        '''
+        fields = []
+        for result_index, (address, dtype, sma_format) in enumerate(addr):
+            words = 0
+            if ':' in dtype:
+                dtype, word_count_str = dtype.split(':', maxsplit=1)
+                words = int(word_count_str)
+            if words <= 0:
+                words = self._dtype_to_word_count(dtype)
+
+            if str(address)[0] == '4' or force_holding_register:
+                holding = True
+            elif str(address)[0] == '3':
+                holding = False
+            else:
+                raise ProgrammingError(f'this method only supports reading input and holding registers',
+                                       source=f'modbus:{client_name}')
+
+            fields.append(_BatchField(result_index, address, dtype, sma_format, words, holding))
+
+        return fields
+
+    def _group_batch_fields(self,
+        fields: list[_BatchField],
+        max_registers: int,
+        max_gap: int,
+        client_name: str,
+    ) -> list[list[_BatchField]]:
+        '''Divide the requested values into the groups that can each be fetched in one request: holding and
+        input registers never share a request, a group spans at most max_registers, and - when max_gap is set
+        - it does not bridge a hole bigger than that. The gap limit is there for devices that answer a span
+        covering registers they do not map with an error rather than with padding.
+        '''
+        groups: list[list[_BatchField]] = []
+
+        for holding in (True, False):
+            subset = sorted((f for f in fields if f.holding == holding), key=lambda f: f.address)
+            current: list[_BatchField] = []
+
+            for field in subset:
+                if field.words > max_registers:
+                    raise ProgrammingError(f'register {field.address} needs {field.words} registers, more than '
+                                           f'the {max_registers} a single request may hold',
+                                           source=f'modbus:{client_name}')
+
+                if current:
+                    start = current[0].address
+                    end = max(f.address + f.words for f in current)  # one past the last register held so far
+                    fits = field.address + field.words - start <= max_registers
+                    close_enough = max_gap <= 0 or field.address - end <= max_gap
+                    if fits and close_enough:
+                        current.append(field)
+                        continue
+
+                    groups.append(current)
+                    current = []
+
+                current.append(field)
+
+            if current:
+                groups.append(current)
+
+        return groups
+
+    async def read_register_batch(self,
+        client_name: str,
+        addr: list[tuple[int, str, str]],
+        device_id: int = 3,
+        force_holding_register: bool = False,
+        max_registers: int = 125,
+        max_gap: int = 0,
+        fallback_to_single: bool = True,
+    ) -> list[Any]:
+        '''Read several registers in as few Modbus requests as their addresses allow.
+
+        Takes and returns what read_register_seq does: the same list of (address, dtype, sma_format) 3-tuples,
+        with an optional word count after a colon ('STRING:5'), and the values in the order they were asked
+        for. The difference is underneath - rather than one request per address, addresses close together are
+        fetched in one request and each value is decoded out of the part of the response it landed in. Reading
+        a register nobody asked for costs nothing; it is the round trip that costs, and an SMA device has only
+        so many of those to give.
+
+        max_registers caps how wide one request may be (the Modbus limit is 125). max_gap caps the hole it may
+        bridge, 0 meaning the span is the only limit: raise it off 0 for a device that refuses a span covering
+        registers it does not map. With fallback_to_single a group that fails is retried one address at a
+        time, so a device that turns out to be fussy still gets read - the log then says which group it was.
+        '''
+        assert isinstance(addr, list)
+        if len(addr) == 0:
+            return []
+
+        client = self._clients.get(client_name)
+        if client is None:  # dummy client
+            return ['dummy' if dtype.split(':')[0] == 'STRING' else 1.2345 for _, dtype, _ in addr]
+
+        fields = self._parse_batch_fields(addr, force_holding_register, client_name)
+        ret: list[Any] = [None] * len(addr)
+
+        for group in self._group_batch_fields(fields, max_registers, max_gap, client_name):
+            start = group[0].address
+            count = max(f.address + f.words for f in group) - start
+            self.log.debug(f'[modbus:{client_name}]: reading {len(group)} value(s) from '
+                           f'{start}..{start + count - 1} ({count} registers) in one request')
+
+            try:
+                await self._read_batch_group(client_name, client, group, start, count, device_id, ret)
+
+            except Exception as e:
+                if not fallback_to_single:
+                    raise
+
+                # the device would not serve this span in one go: fall back to what always worked, and say so,
+                # since a max_gap on this driver would avoid paying for the failed request every cycle
+                self.log.error(f'[modbus:{client_name}]: reading {start}..{start + count - 1} in one request '
+                               f'failed ({type(e).__name__}: {e}), falling back to one request per register')
+                for field in group:
+                    ret[field.result_index] = await self.read_register(
+                        client_name, field.address, field.dtype,
+                        device_id=device_id,
+                        sma_format=field.sma_format,
+                        force_holding_register=force_holding_register,
+                        word_count=field.words,
+                    )
+
+        return ret
+
+    async def _read_batch_group(self,
+        client_name: str,
+        client: MBClient,
+        group: list[_BatchField],
+        start: int,
+        count: int,
+        device_id: int,
+        ret: list[Any],
+    ) -> None:
+        '''Fetch one group in a single request and decode every value out of the response.'''
+        if group[0].holding:
+            resp = await client.read_holding_registers(start, count=count, device_id=device_id)
+        else:
+            resp = await client.read_input_registers(start, count=count, device_id=device_id)
+
+        if resp.isError():
+            code = getattr(resp, 'exception_code', None)
+            exc_descr = _modbus_exception_codes.get(code, '<unknown exception>') if code else '<no exception code>'
+            raise ModbusException(f'error while reading registers {start}..{start + count - 1}: ({code}) {exc_descr}',
+                                  source=f'modbus:{client_name}')
+
+        registers = list(resp.registers)
+        if len(registers) < count:
+            raise ModbusException(f'asked for {count} registers from {start} but got {len(registers)}',
+                                  source=f'modbus:{client_name}')
+
+        for field in group:
+            offset = field.address - start
+            value_slice = _RegisterSlice(registers[offset:offset + field.words])
+            ret[field.result_index] = self._decode_response(client_name, field.address, field.dtype,
+                                                            value_slice, sma_format=field.sma_format)  # type: ignore
+            self.log.debug(f'[modbus:{client_name}]: read register {field.address} -> {ret[field.result_index]}')
 
     async def _read_registers(self,
         client_name: str,

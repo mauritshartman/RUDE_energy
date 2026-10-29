@@ -38,17 +38,18 @@ class SmaDataManager(BaseEnergyMeter):
     async def read_stats(self) -> EnergyMeterStats:
         self.log.debug('reading data manager properties:')
 
-        l1_current = await self._modbus.read_register(self.name, 31535, 'S32', device_id=DEVICE_ID, sma_format='FIX3')
-        l2_current = await self._modbus.read_register(self.name, 31537, 'S32', device_id=DEVICE_ID, sma_format='FIX3')
-        l3_current = await self._modbus.read_register(self.name, 31539, 'S32', device_id=DEVICE_ID, sma_format='FIX3')
-
-        l1_voltage = await self._modbus.read_register(self.name, 31529, 'U32', device_id=DEVICE_ID, sma_format='FIX2')
-        l2_voltage = await self._modbus.read_register(self.name, 31531, 'U32', device_id=DEVICE_ID, sma_format='FIX2')
-        l3_voltage = await self._modbus.read_register(self.name, 31533, 'U32', device_id=DEVICE_ID, sma_format='FIX2')
-
-        l1_power = await self._modbus.read_register(self.name, 31503, 'S32', device_id=DEVICE_ID, sma_format='FIX0')
-        l2_power = await self._modbus.read_register(self.name, 31505, 'S32', device_id=DEVICE_ID, sma_format='FIX0')
-        l3_power = await self._modbus.read_register(self.name, 31507, 'S32', device_id=DEVICE_ID, sma_format='FIX0')
+        # All nine values sit between 31503 and 31540, so one request of 38 registers fetches the lot where
+        # nine used to be needed. Reading the registers in between that nobody asked for costs nothing: it is
+        # the round trip that costs, and these are read on every control loop iteration
+        (
+            l1_current, l2_current, l3_current,
+            l1_voltage, l2_voltage, l3_voltage,
+            l1_power, l2_power, l3_power,
+        ) = await self._modbus.read_register_batch(self.name, [
+            (31535, 'S32', 'FIX3'), (31537, 'S32', 'FIX3'), (31539, 'S32', 'FIX3'),  # current L1 - L3
+            (31529, 'U32', 'FIX2'), (31531, 'U32', 'FIX2'), (31533, 'U32', 'FIX2'),  # voltage L1 - L3
+            (31503, 'S32', 'FIX0'), (31505, 'S32', 'FIX0'), (31507, 'S32', 'FIX0'),  # power L1 - L3
+        ], device_id=DEVICE_ID)
 
         mf = self.max_fuse_a
         table = PrettyTable()

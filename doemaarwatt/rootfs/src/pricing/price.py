@@ -175,14 +175,19 @@ class PriceManager:
 
         self.log.info(f'prices do not reach {horizon}, fetching from {self.price_source}')
         self._last_fetch_attempt = now
-        await self.fetch_prices(initial=True)
+        await self.fetch_prices()
 
-    async def fetch_prices(self, initial=False) -> None:
+    async def fetch_prices(self) -> bool:
         '''Fetch the day-ahead prices from the configured source and store them.
 
         What happens around the fetch is the same whichever source supplies the prices: the coming night is
-        predicted from what came back, the result is stored and cached, and a set that does not yet hold
-        tomorrow is run on while another attempt is made to complete it.
+        predicted from what came back, the result is stored and cached.
+
+        Returns True when the prices now held reach into tomorrow, and False when the source had only today
+        to give. That is not a failure: before the day-ahead auction is published, today is all there is, and
+        the hour at which it lands varies. The caller decides what to do about it - the daily update in mode 4
+        comes back in a quarter of an hour, rather than waiting until its next scheduled run tomorrow and
+        scheduling on predicted night prices in the meantime.
         '''
         attempt_no = 1
         while attempt_no <= MAX_ATTEMPTS:
@@ -207,14 +212,14 @@ class PriceManager:
 
                 if has_tomorrow:
                     self.log.info(f'fetched and stored prices for [{min(self.prices)} - {max(self.prices)}]')
-                    return
+                    return True
 
-                # no data for tomorrow yet: run on what we have while we attempt to grab tomorrow's prices
-                self.log.info(f'fetched and stored limited price set for [{min(self.prices)} - {max(self.prices)}]')
-                if initial:
-                    # the initial startup time might be in the morning, so a retry for tomorrow makes no sense
-                    return
-                raise Exception('tomorrow\'s prices unavailable')
+                # Tomorrow is not published yet. Run on what we have, which the night prediction has extended
+                # into the small hours, and leave it to the caller to decide when to ask again. Retrying here
+                # would spend a request per attempt on a day that simply does not exist yet
+                self.log.info(f'fetched and stored limited price set for [{min(self.prices)} - '
+                              f'{max(self.prices)}]: tomorrow is not published yet')
+                return False
 
             except PriceSourceAuthError as e:
                 # a missing, wrong or not yet activated credential: no number of retries makes that succeed,

@@ -18,6 +18,14 @@ from dyn_schedule import DynamicScheduler, SchedulePeriodEncoder
 # so there is no economic reason to generate. (TODO: promote to a mode-dynamic config setting.)
 SOLAR_CURTAIL_PRICE = 0.0
 
+# How the daily price update waits for a day-ahead auction that has not been published yet. The hour it lands
+# varies, so price_update_time can easily fall before it: on 2026-10-29 the 14:00 update found only today,
+# gave up, and scheduled the next attempt for the following day - leaving the schedule running on predicted
+# night prices in between. Coming back every quarter of an hour for a few hours costs a handful of requests
+# and keeps that from happening
+PRICE_RETRY_DELAY = 15 * 60  # seconds between attempts while tomorrow is still missing
+PRICE_RETRY_ATTEMPTS = 16    # ... for at most four hours, after which the next daily update takes over
+
 
 class Mode4Controller(BaseController):
     def __init__(self,
@@ -128,7 +136,7 @@ class Mode4Controller(BaseController):
         await self.gather_subsystems(subsystems, 'relinquishing control',
             [inv.relinquish_control() for inv in subsystems], best_effort=True)
 
-    async def loop(self):
+    async def loop(self) -> None:
         self.log.info(f'Mode 4 (dynamic schedule mode) started')
         in_startup = True
         await self.send_ha_notification('Mode 4 execution', 'Mode 4 started')
@@ -136,7 +144,7 @@ class Mode4Controller(BaseController):
         # Fetch initial prices and start the price update loop once, before the reconnect loop.
         # price_loop runs independently and must not be cancelled on control_loop errors,
         # otherwise a reconnect after price_update_time would push the next fetch to tomorrow.
-        await self.pm.fetch_prices(initial=True)
+        await self.pm.fetch_prices()
         self.price_task = asyncio.create_task(self.price_loop())
         self.log.info('fetched initial prices and started price update loop')
 
@@ -282,7 +290,27 @@ class Mode4Controller(BaseController):
                     return
 
                 self.log.info(f'price_loop [{loop_id}]: fetching updated prices')
-                await self.pm.fetch_prices()
+                complete = await self.pm.fetch_prices()
+
+                # 'tomorrow is not published yet' is a state rather than a failure, so it is not left to the
+                # next daily run: ask again in a while, until it appears or the retries run out
+                attempt = 0
+                while not complete and self.running and attempt < PRICE_RETRY_ATTEMPTS:
+                    attempt += 1
+                    self.log.info(f'price_loop [{loop_id}]: tomorrow\'s prices are not published yet, asking '
+                                  f'again in {PRICE_RETRY_DELAY // 60} minutes ({attempt}/{PRICE_RETRY_ATTEMPTS})')
+                    await asyncio.sleep(PRICE_RETRY_DELAY)
+                    if not self.running:
+                        return
+                    complete = await self.pm.fetch_prices()
+
+                if not complete:
+                    hours = PRICE_RETRY_ATTEMPTS * PRICE_RETRY_DELAY // 3600
+                    self.log.error(f'price_loop [{loop_id}]: tomorrow\'s prices have not appeared within '
+                                   f'{hours} hours, leaving it to the next daily update')
+                    await self.send_ha_notification('Mode 4 price warning',
+                                                    f'tomorrow\'s prices were still unavailable {hours} hours '
+                                                    f'after the scheduled price update')
             except asyncio.CancelledError:
                 self.log.info(f'price_loop [{loop_id}]: cancelled')
                 return

@@ -141,8 +141,31 @@ class AlfenEvePro(BaseEVCharger):
             word_count=word_count,
         )
 
+    async def _read_batch(self,
+        fields: list[tuple[int, str, Any]],
+        device_id: int = SOCKET_DEVICE_ID,
+    ) -> list[Any]:
+        '''Read several registers in as few Modbus requests as their addresses allow, by the numbers the Alfen
+        documentation gives them. The addressing rules are the ones _read explains; the only difference is
+        that registers close together are fetched in a single request. The configuration guide supports this
+        directly: 'Multiple registers can be requested within one Modbus request, as long as they are
+        contiguous', and a 32-bit value has to be read in one query in any case.
+        '''
+        return await self._modbus.read_register_batch(
+            self.name, fields,
+            device_id=device_id,
+            force_holding_register=True,
+        )
+
     async def _set_ev_charging_state(self):
-        availability = await self._read(1200, 'U16', SOCKET_DEVICE_ID) # 1 operative, 0 inoperative
+        # 1200 and 1201..1205 are adjacent, so both come back in one request. The mode 3 state is read even
+        # when the charger turns out to be inoperative and it is then discarded: one request that fetches six
+        # registers still costs less than two that fetch one and five
+        availability, mode_3_state = await self._read_batch([
+            (1200, 'U16', None),       # 1 operative, 0 inoperative
+            (1201, 'STRING:5', None),  # IEC 61851 mode 3 status
+        ])
+
         if availability is None:
             self.log.error(f'{self.name}: unable to read availability - setting EV charging status to ERROR')
             self.ev_charging_status = EVChargingStatus.ERROR
@@ -151,8 +174,7 @@ class AlfenEvePro(BaseEVCharger):
             self.ev_charging_status = EVChargingStatus.INOPERATIVE
             return
 
-        # EVSE is operative so check mode 3 status:
-        mode_3_state = await self._read(1201, 'STRING', SOCKET_DEVICE_ID, word_count=5) # IEC 61851 mode 3 status
+        # EVSE is operative, so the mode 3 status read above decides what it is doing
         if mode_3_state is None:
             self.log.error(f'{self.name}: unable to read mode 3 state - setting EV charging status to ERROR')
             self.ev_charging_status = EVChargingStatus.ERROR
@@ -192,17 +214,26 @@ class AlfenEvePro(BaseEVCharger):
         currents: dict[Phase, float | None] = {}
         powers: dict[Phase, float | None] = {}
 
-        voltages[self.evse_to_grid_phase(Phase.L1)] = await self._read(306, 'FLOAT32', SOCKET_DEVICE_ID) # L1-N voltage
-        voltages[self.evse_to_grid_phase(Phase.L2)] = await self._read(308, 'FLOAT32', SOCKET_DEVICE_ID) # L2-N voltage
-        voltages[self.evse_to_grid_phase(Phase.L3)] = await self._read(310, 'FLOAT32', SOCKET_DEVICE_ID) # L3-N voltage
+        # All nine live between 306 and 351, so one request of 46 registers fetches what took nine
+        evse_l1_v, evse_l2_v, evse_l3_v, evse_l1_a, evse_l2_a, evse_l3_a, evse_l1_p, evse_l2_p, evse_l3_p = \
+            await self._read_batch([
+                (306, 'FLOAT32', None), (308, 'FLOAT32', None), (310, 'FLOAT32', None),  # voltage L1 - L3 (-N)
+                (320, 'FLOAT32', None), (322, 'FLOAT32', None), (324, 'FLOAT32', None),  # current L1 - L3
+                (346, 'FLOAT32', None), (348, 'FLOAT32', None), (350, 'FLOAT32', None),  # apparent power L1 - L3
+            ])
 
-        currents[self.evse_to_grid_phase(Phase.L1)] = await self._read(320, 'FLOAT32', SOCKET_DEVICE_ID) # L1 current
-        currents[self.evse_to_grid_phase(Phase.L2)] = await self._read(322, 'FLOAT32', SOCKET_DEVICE_ID) # L2 current
-        currents[self.evse_to_grid_phase(Phase.L3)] = await self._read(324, 'FLOAT32', SOCKET_DEVICE_ID) # L3 current
+        # the registers are the EVSE's own phases, which the phase mapping turns into grid phases
+        voltages[self.evse_to_grid_phase(Phase.L1)] = evse_l1_v
+        voltages[self.evse_to_grid_phase(Phase.L2)] = evse_l2_v
+        voltages[self.evse_to_grid_phase(Phase.L3)] = evse_l3_v
 
-        powers[self.evse_to_grid_phase(Phase.L1)] = await self._read(346, 'FLOAT32', SOCKET_DEVICE_ID) # L1 apparent power
-        powers[self.evse_to_grid_phase(Phase.L2)] = await self._read(348, 'FLOAT32', SOCKET_DEVICE_ID) # L2 apparent power
-        powers[self.evse_to_grid_phase(Phase.L3)] = await self._read(350, 'FLOAT32', SOCKET_DEVICE_ID) # L3 apparent power
+        currents[self.evse_to_grid_phase(Phase.L1)] = evse_l1_a
+        currents[self.evse_to_grid_phase(Phase.L2)] = evse_l2_a
+        currents[self.evse_to_grid_phase(Phase.L3)] = evse_l3_a
+
+        powers[self.evse_to_grid_phase(Phase.L1)] = evse_l1_p
+        powers[self.evse_to_grid_phase(Phase.L2)] = evse_l2_p
+        powers[self.evse_to_grid_phase(Phase.L3)] = evse_l3_p
 
         unreadable = [name for name, value in (
             ('L1 voltage (306)', voltages[self.evse_to_grid_phase(Phase.L1)]),
