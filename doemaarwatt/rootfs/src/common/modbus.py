@@ -33,8 +33,19 @@ class _RegisterSlice(NamedTuple):
 
 
 class ModbusException(DMWException):
-    def __init__(self, message: str, source: str, requires_fallback: bool = False) -> None:
+    def __init__(self,
+        message: str,
+        source: str,
+        requires_fallback: bool = False,
+        exception_code: Optional[int] = None,
+    ) -> None:
         super().__init__(message, source, requires_fallback)
+
+        # The code the device answered with, when the failure was a Modbus exception response rather than a
+        # transport problem - None for anything that never reached the device. read_register_batch reads it
+        # to tell a span the device refused (Illegal Data Address) from a connection that is simply down,
+        # which no amount of reading one register at a time will fix
+        self.exception_code = exception_code
 
 
 _modbus_exception_codes = {
@@ -48,6 +59,11 @@ _modbus_exception_codes = {
     0x0A: "Gateway Path Unavailable - Gateway error",
     0x0B: "Gateway Target Failed - Target not responding"
 }
+
+# Modbus exception codes that say the address range of the request was what the device objected to, so asking
+# for the same values one at a time may well work. Any other failure - above all a connection that is down -
+# fails just as surely per register, and retrying then only spends another request and fills the log
+_FALLBACK_EXCEPTION_CODES = { 0x02, 0x03 }  # Illegal Data Address, Illegal Data Value
 
 # For each data type, SMA Modbus defines specific NaN values. Taken from 'SMAModbus-ennexOS-TI-en-13.pdf'
 _modbus_nan_values = {
@@ -222,7 +238,7 @@ class ModbusManager():
                 if code:
                     exc_descr = _modbus_exception_codes.get(resp.exception_code, '<unknown exception>')
                     raise ModbusException(f'error while reading register {address}: ({code}) {exc_descr}',
-                                          source=f'modbus:{client_name}')
+                                          source=f'modbus:{client_name}', exception_code=code)
 
             value = self._decode_response(client_name, address, dtype, resp, sma_format=sma_format)
             self.log.debug(f'[modbus:{client_name}]: read register {address} -> {value}')
@@ -385,11 +401,16 @@ class ModbusManager():
                 await self._read_batch_group(client_name, client, group, start, count, device_id, ret)
 
             except Exception as e:
-                if not fallback_to_single:
+                # Fall back only when the device objected to this particular span: an Illegal Data Address
+                # says the addresses were the problem, which reading them one at a time may get past. A
+                # connection that is down (or a timeout) fails per register just the same, so retrying buys
+                # nothing - in the 2026-11-02 run an offline inverter paid for a failed batch plus a failed
+                # single read on every one of 4419 cycles, and wrote five log lines each time
+                refused_span = getattr(e, 'exception_code', None) in _FALLBACK_EXCEPTION_CODES
+                if not fallback_to_single or not refused_span:
                     raise
 
-                # the device would not serve this span in one go: fall back to what always worked, and say so,
-                # since a max_gap on this driver would avoid paying for the failed request every cycle
+                # say so, since a max_gap on this driver would avoid paying for the failed request every cycle
                 self.log.error(f'[modbus:{client_name}]: reading {start}..{start + count - 1} in one request '
                                f'failed ({type(e).__name__}: {e}), falling back to one request per register')
                 for field in group:
@@ -422,7 +443,7 @@ class ModbusManager():
             code = getattr(resp, 'exception_code', None)
             exc_descr = _modbus_exception_codes.get(code, '<unknown exception>') if code else '<no exception code>'
             raise ModbusException(f'error while reading registers {start}..{start + count - 1}: ({code}) {exc_descr}',
-                                  source=f'modbus:{client_name}')
+                                  source=f'modbus:{client_name}', exception_code=code)
 
         registers = list(resp.registers)
         if len(registers) < count:
@@ -474,7 +495,8 @@ class ModbusManager():
                 code = getattr(resp, 'exception_code', None)
                 if code:
                     exc_descr = _modbus_exception_codes.get(resp.exception_code, '<unknown exception>')
-                    raise ModbusException(f'error while reading register {address}: ({code}) {exc_descr}', source=f'modbus:{client_name}')
+                    raise ModbusException(f'error while reading register {address}: ({code}) {exc_descr}',
+                                          source=f'modbus:{client_name}', exception_code=code)
                 else:
                     raise ModbusException(f'error while reading register {address}: (code absent) {resp}', source=f'modbus:{client_name}')
 

@@ -83,6 +83,27 @@ class AlfenEvePro(BaseEVCharger):
         await self._modbus.connect()
         self.is_connected = True
 
+        await self._verify_identity()
+
+    async def _verify_identity(self) -> None:
+        '''Read the manufacturer register (117..121) and check it reads what every Alfen charging station
+        reads. It is the one register whose content is known in advance, which makes it a check on three
+        things at once: that the Modbus server address is right, that the register numbering is right (see
+        _read on the offset the documentation claims), and that strings are decoded correctly.
+
+        Done on connect rather than on every read_stats: it is an identity register that cannot change while
+        the station is running, and polling it cost a request per cycle per charger - 4419 of them in the
+        2026-11-02 run. A connection that drops and comes back passes through here again, which is when the
+        answer could actually differ.
+        '''
+        manufacturer: str | None = await self._read(117, 'STRING', device_id=STATION_DEVICE_ID, word_count=5)
+        if manufacturer is None or not manufacturer.startswith(EXPECTED_MANUFACTURER):
+            self.log.error(f'{self.name}: expected the manufacturer register to read {EXPECTED_MANUFACTURER!r}, '
+                           f'but it reads {manufacturer!r}: check the Modbus server address and the decoding '
+                           f'of strings and register addresses before trusting any other reading')
+        else:
+            self.log.info(f'{self.name}: identified as {manufacturer!r}')
+
     def close(self) -> None:
         self.is_controlled = False
         self.is_connected = False
@@ -198,14 +219,7 @@ class AlfenEvePro(BaseEVCharger):
     async def read_stats(self) -> EVChargerStats:
         self.log.debug('reading EV charger properties:')
 
-        # safety check for STRING datatype: read register 117-121 (manufacturer) which should yield 'Alfen B.V.'
-        manufacturer: str | None = await self._read(117, 'STRING', device_id=STATION_DEVICE_ID, word_count=5)
-        if manufacturer is None or not manufacturer.startswith(EXPECTED_MANUFACTURER):
-            self.log.error(f'{self.name}: expected the manufacturer register to read {EXPECTED_MANUFACTURER!r}, '
-                           f'but it reads {manufacturer!r}: check the Modbus server address and the decoding '
-                           f'of strings and register addresses before trusting any other reading')
-        else:
-            self.log.debug(f'{self.name}: manufacturer register reads {manufacturer!r} as expected')
+        # NOTE: the manufacturer register is checked once per connection, in _verify_identity, rather than here
 
         await self._set_ev_charging_state()
 
