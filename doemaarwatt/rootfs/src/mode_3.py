@@ -105,6 +105,7 @@ class Mode3Controller(BaseController):
         # inner, control loop
         while self.running:
             self.log.debug(f'mode 3 control loop started')
+            await self.reconnect_ignored_subsystems()
             await self.enable_control_subsystems()
 
             # get necessary stats and determine PBsent for each phase

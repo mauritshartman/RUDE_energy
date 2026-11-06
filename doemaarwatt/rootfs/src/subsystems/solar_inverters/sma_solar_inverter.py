@@ -1,6 +1,7 @@
+import math
 from typing import Any, Optional
 
-from common import Logger, ModbusManager, to_u32_list, to_s32_list, ControlStatus, Phase, SPCStats, ProgrammingError, ControlException
+from common import Logger, ModbusManager, to_u32_list, ControlStatus, Phase, SPCStats, ProgrammingError, ControlException
 from .base import BaseSolarInverter, SolarInverterStats, SolarGenerationStatus
 
 
@@ -27,8 +28,27 @@ REG_33001_TAGLIST = {
 }
 
 
+N_PHASES = 3  # this inverter is three phase, as the constructor asserts
+
+# Fallback for WMax, which is read from the inverter on connect. Only used when that read fails
 PEAK_POWER_W = 25_000
-PEAK_POWER_W_PHASE = PEAK_POWER_W // 3
+PEAK_POWER_W_PHASE = PEAK_POWER_W // N_PHASES
+
+# Active power limitation over the 'External active power setpoint' channel (WModCfg.WCtlComCfg). The limit
+# itself is a percentage of WMax written to 40016, which the parameter list marks as a Device Control Object
+# and so is meant to be written cyclically - unlike the manual-preset registers (40212 / 40214), which are
+# flash-stored parameters carrying the list's 'warning against cyclical writing'.
+REG_WMOD = 40210          # Parameter.Inverter.WModCfg.WMod - operating mode of the active power setting
+REG_WCTLCOM_ENA = 41383   # Parameter.Inverter.WModCfg.WCtlComCfg.Ena - external setpoint channel on/off
+REG_WNOM_PCT = 40016      # Setpoint..WModCfg.WCtlComCfg.WNom - S16 / FIX0, 0 .. 100 % of WMax, write-only
+REG_WMAX = 30233          # Parameter.Inverter.WMax - the 'set active power limit' the percentage is of
+
+WMOD_OFF = 303
+WMOD_EXTERNAL_SETPOINT = 1079  # follow the WNom percentage written over the external setpoint channel
+ENA_OFF = 303
+ENA_ON = 308
+
+NO_LIMIT_PCT = 100  # a setpoint of 100 % of WMax is the inverter's full range, i.e. no limitation
 
 
 class SmaSolarInverter(BaseSolarInverter):
@@ -60,6 +80,9 @@ class SmaSolarInverter(BaseSolarInverter):
 
         self.setpoint_limit: Optional[float] = None
 
+        # WMax, read from the inverter on connect: the reference the normalized setpoint is a percentage of
+        self._wmax_w: Optional[int] = None
+
     @classmethod
     def from_config(cls, cfg: dict[str, Any], log: Logger) -> 'SmaSolarInverter':
         return cls(
@@ -85,6 +108,25 @@ class SmaSolarInverter(BaseSolarInverter):
         await self._modbus.connect()
         self.is_connected = True
         self.setpoint_limit = None
+        self._wmax_w = await self._read_wmax()
+
+    async def _read_wmax(self) -> int:
+        '''Read WMax, the active power limit that the normalized setpoint of REG_WNOM_PCT is a percentage
+        of. Read from the inverter rather than assumed, because it is itself a configurable limit and may
+        well sit below what the hardware could deliver (a grid code cap, say). A percentage taken against
+        the wrong reference quietly commands the wrong number of Watts, with nothing to read back that
+        would show it: the setpoint register is write-only.
+        '''
+        wmax = await self._modbus.read_register(self.name, REG_WMAX, 'U32', device_id=self._device_id,
+                                                sma_format='FIX0')
+        if wmax is None or wmax <= 0:
+            self.log.error(f'{self.name}: unable to read WMax ({REG_WMAX}), got {wmax}: falling back to '
+                           f'{PEAK_POWER_W} W as the reference for the normalized power setpoint')
+            return PEAK_POWER_W
+
+        self.log.info(f'{self.name}: WMax is {wmax:.0f} W, so one percent of the normalized power '
+                      f'setpoint is {wmax / 100:.0f} W')
+        return int(wmax)
 
     def close(self) -> None:
         self.is_controlled = False
@@ -96,17 +138,37 @@ class SmaSolarInverter(BaseSolarInverter):
 
         self._modbus.close()
 
+    def has_live_connection(self) -> bool:
+        # deliberately not self.is_connected: that only records that connect() was once called and says
+        # nothing about whether the transport underneath is still there
+        return self._modbus.connected
+
+    async def _ensure_parameter(self, address: int, value: int, description: str) -> None:
+        '''Write one of the flash-stored mode parameters, but only when it does not already hold `value`.
+
+        The parameter list marks these with a warning against writing them cyclically, and both
+        enable_control and relinquish_control are called on every control loop iteration. Writing them
+        unconditionally would be thousands of writes a day to non-volatile memory for a value that changes
+        twice a day at most. Reading first costs one request and makes the write happen only on a change.
+        '''
+        current = await self._modbus.read_register(self.name, address, 'U32', device_id=self._device_id)
+        if current == value:
+            return
+
+        self.log.info(f'{self.name}: setting {description} ({address}) from {current} to {value}')
+        await self._modbus.write_register(self.name, address, to_u32_list(value), device_id=self._device_id)
+
     async def enable_control(self) -> None:
         if not self.is_connected:
             raise ControlException(f'unable to assert control, not connected', source=self.name)
 
-        # Use the "manual active-power preset in Watts" scheme: WMod (40210) = 1077. The setpoint is then a W
-        # value written to WCnstCfg.W (40212) and read back from 30837 (all in W). This replaces the previous
-        # "External setting" (1079) approach, which expects a normalized-% setpoint over the WCtlComCfg channel
-        # and left the W read-back (31405) at NaN ('not set' in the UI).
-        # First make sure the external-communication setpoint channel is off so only the manual preset is active.
-        await self._modbus.write_register(self.name, 41383, to_u32_list(303), device_id=self._device_id)  # WCtlComCfg.Ena = Off
-        await self._modbus.write_register(self.name, 40210, to_u32_list(1077), device_id=self._device_id)  # WMod = manual W preset
+        # Use the external active power setpoint channel: WMod (40210) = 1079, with the channel itself
+        # enabled (41383 = On, which is not its default). The limit is then a percentage of WMax written to
+        # WCtlComCfg.WNom (40016). This replaces the manual preset in Watts (WMod = 1077, setpoint in
+        # WCnstCfg.W 40212), whose setpoint register is a flash-stored parameter and so cannot be written
+        # once per control loop the way a limit that tracks the main fuse has to be.
+        await self._ensure_parameter(REG_WCTLCOM_ENA, ENA_ON, 'external active power setpoint channel')
+        await self._ensure_parameter(REG_WMOD, WMOD_EXTERNAL_SETPOINT, 'active power operating mode')
 
         self.is_controlled = True
         self.control_status = ControlStatus.NOMINAL
@@ -119,11 +181,12 @@ class SmaSolarInverter(BaseSolarInverter):
         self.control_status = ControlStatus.DEGRADED
         self.solar_status = SolarGenerationStatus.UNKNOWN
 
-        # WMod = 303 (Off): stop the active-power preset so the inverter runs unlimited again
-        await self._modbus.write_register(self.name, 40210, to_u32_list(303), device_id=self._device_id)
+        # Hand the full range back before switching the channel off, so the inverter is left running freely
+        # rather than holding whatever percentage was commanded last
+        await self._modbus.write_register(self.name, REG_WNOM_PCT, [NO_LIMIT_PCT], device_id=self._device_id)
 
-        # keep the external-communication channel off as well (defensive; it is not used in the manual scheme)
-        await self._modbus.write_register(self.name, 41383, to_u32_list(303), device_id=self._device_id)
+        await self._ensure_parameter(REG_WMOD, WMOD_OFF, 'active power operating mode')
+        await self._ensure_parameter(REG_WCTLCOM_ENA, ENA_OFF, 'external active power setpoint channel')
 
         self.setpoint_limit = None
 
@@ -135,7 +198,15 @@ class SmaSolarInverter(BaseSolarInverter):
 
         Based on these, self.solar_status is updated
         '''
-        overall_cond = await self._modbus.read_register(self.name, 30201, 'U32', device_id=self._device_id, sma_format=REG_30201_TAGLIST)
+        # The condition and the contactor lie 16 registers apart, so one request of 18 fetches both. Reading
+        # the contactor before knowing the condition is Ok costs nothing - it is the round trip that costs,
+        # and this runs on every control loop iteration. The operating status below stays a request of its
+        # own: it is a holding register, which can never share a request with these two input registers
+        overall_cond, grid_contactor = await self._modbus.read_register_batch(self.name, [
+            (30201, 'U32', REG_30201_TAGLIST),  # overall condition
+            (30217, 'U32', REG_30217_TAGLIST),  # grid relay / contactor
+        ], device_id=self._device_id)
+
         if overall_cond is None or overall_cond != 'Ok': # Fault / Off / Warning
             self.log.error(f'solar inverter {self.name}: overall condition not OK: {overall_cond}')
             self.control_status = ControlStatus.DEGRADED
@@ -145,7 +216,6 @@ class SmaSolarInverter(BaseSolarInverter):
         # overall condition is Ok, so continue checking status:
 
         # check contactor status
-        grid_contactor = await self._modbus.read_register(self.name, 30217, 'U32', device_id=self._device_id, sma_format=REG_30217_TAGLIST)
         if grid_contactor is None:
             self.log.error(f'solar inverter {self.name}: unable to determine grid contactor status')
             self.control_status = ControlStatus.DEGRADED
@@ -185,8 +255,13 @@ class SmaSolarInverter(BaseSolarInverter):
 
         # nominal operation and sun is shining:
         if self.control_status == ControlStatus.NOMINAL and self.solar_status == SolarGenerationStatus.GENERATING:
-            total_pow, l1_pow, l2_pow, l3_pow, setpoint_limit = await self._modbus.read_register_seq(self.name, [
-                (30775, 'S32', 'FIX0'), (30777, 'S32', 'FIX0'), (30779, 'S32', 'FIX0'), (30781, 'S32', 'FIX0'), (30837, 'U32', 'FIX0'),
+            # The four power values sit back to back in 30775..30782, so one request of 8 registers fetches
+            # all of them where four used to be needed.
+            # No read-back of the limit: every WCtlComCfg register is write-only, and 30837 - which the
+            # previous scheme read - mirrors WCnstCfg.W, the manual preset, which nothing writes any more.
+            # What was commanded is held in self.setpoint_limit; whether it binds shows in the power read here
+            total_pow, l1_pow, l2_pow, l3_pow = await self._modbus.read_register_batch(self.name, [
+                (30775, 'S32', 'FIX0'), (30777, 'S32', 'FIX0'), (30779, 'S32', 'FIX0'), (30781, 'S32', 'FIX0'),
             ], device_id=self._device_id)
 
             if l1_pow is None or l2_pow is None or l3_pow is None or total_pow is None:
@@ -196,12 +271,11 @@ class SmaSolarInverter(BaseSolarInverter):
                 self.control_status = ControlStatus.NOMINAL
                 self.log.debug(f'solar inverter {self.name}: L1={l1_pow:.0f} W  L2={l2_pow:.0f} W  L3={l3_pow:.0f} W  total={total_pow:.0f} W')
 
-            self.log.info(f'{self.name}: using 30837 to read setpoint register. Read value: {setpoint_limit} W')
-
             return SolarInverterStats(
                 control_status=self.control_status,
                 solar_status=self.solar_status,
-                setpoint_limit_w=setpoint_limit,
+                # a total, which is what this field is elsewhere, where get_setpoint_limit() is per phase
+                setpoint_limit_w=None if self.setpoint_limit is None else self.setpoint_limit * N_PHASES,
                 total_power_w=total_pow,
                 ac_side={
                     Phase.L1: SPCStats(power=l1_pow),
@@ -230,14 +304,26 @@ class SmaSolarInverter(BaseSolarInverter):
         return self.setpoint_limit
 
     async def set_power_limit(self, power_w: Optional[float]) -> None:
-        '''Apply an active-power limit capping total output at `power_w` W across all connected phases.
-        `power_w == 0` means full curtailment (a 0 W limit). The value is written to the 'Limitation of the
-        active power consumption in W' register Setpoint.PlantControl.Inverter.WModCfg.WCtlComCfg.WMaxIn (41251);
-        relinquishing control (WMod 40210=303) removes the limit and lets
-        the inverter run freely again.'''
+        '''Cap total active power output at `power_w` W across all connected phases. `power_w == 0` means
+        full curtailment, None removes the limit and hands the inverter its full range back.
 
+        `power_w` is the total, not a per-phase figure: that is what BaseController.command_PBSsent passes
+        (it multiplies the per-phase limit by the number of phases first). Watts is the unit the rest of
+        the application reasons in; converting to the percentage of WMax that REG_WNOM_PCT wants is this
+        driver's business.
+
+        Mind the resolution that percentage brings: REG_WNOM_PCT is FIX0 over a range of 0 .. 100, so one
+        step is a whole percent of WMax - 250 W where WMax is 25 kW. The limit is rounded down to the next
+        whole percent, so the figure asked for is never overshot, and what the inverter was actually told
+        is what gets recorded for the safety checks to reason about.
+        '''
         if power_w is None:
             self.setpoint_limit = None
+            # without this the inverter holds the last percentage commanded, so releasing the limit in the
+            # controller would not actually release it on the inverter
+            if self.is_controlled:
+                await self._modbus.write_register(self.name, REG_WNOM_PCT, [NO_LIMIT_PCT],
+                                                  device_id=self._device_id)
             return
 
         if self.solar_status != SolarGenerationStatus.GENERATING:
@@ -247,13 +333,21 @@ class SmaSolarInverter(BaseSolarInverter):
         power_w = int(power_w)
         if power_w < 0:
             raise ProgrammingError('solar inverter can only source power, not sink it', source=self.name)
-        elif power_w > PEAK_POWER_W_PHASE:
-            raise ProgrammingError('exceeds power set point for this solar inverter', source=self.name)
-        power_w_combined_phases = power_w * 3
+        elif power_w > PEAK_POWER_W:
+            raise ProgrammingError(f'power limit of {power_w} W exceeds the peak power of this solar '
+                                   f'inverter ({PEAK_POWER_W} W)', source=self.name)
 
-        # the docs are vague, no acceptable range is indicated for this register
-        await self._modbus.write_register(self.name, 41251, to_s32_list(power_w_combined_phases), device_id=self._device_id)
-        self.setpoint_limit = power_w
+        wmax = self._wmax_w or PEAK_POWER_W
+        pct = min(NO_LIMIT_PCT, max(0, math.floor(power_w * 100 / wmax)))
+
+        await self._modbus.write_register(self.name, REG_WNOM_PCT, [pct], device_id=self._device_id)
+
+        # Record what the inverter was told, not what was asked for, and per phase: that is the contract
+        # get_setpoint_limit has with its callers (see MainFuseProtectionMixin)
+        effective_total_w = pct * wmax / 100.0
+        self.setpoint_limit = effective_total_w / N_PHASES
+        self.log.debug(f'{self.name}: power limit {power_w} W of {wmax} W WMax -> {pct} % '
+                       f'(= {effective_total_w:.0f} W total, {self.setpoint_limit:.0f} W per phase)')
 
     def is_curtailed(self) -> bool:
         return not self.setpoint_limit is None

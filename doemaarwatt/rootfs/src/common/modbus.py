@@ -1,4 +1,5 @@
 import asyncio
+import time
 import math
 import struct
 from typing import Any, NamedTuple, Optional
@@ -8,6 +9,13 @@ from pymodbus.pdu.pdu import ModbusPDU
 
 from .logger import Logger
 from .exceptions import DMWException, ConfigException, ProgrammingError
+
+
+# One value requested from a multi-register read: its address, its data type (with an optional ':<words>'
+# suffix, as the STRING type needs) and its SMA format - a scale name such as 'FIX2', a taglist mapping from
+# register value to label, or None to take the value as it comes. Mirrors what read_register takes for a
+# single value, and is handed to _decode_response in exactly the same way
+_RegisterSpec = tuple[int, str, str | dict[int, str] | None]
 
 
 class _BatchField(NamedTuple):
@@ -102,6 +110,9 @@ def to_u32_list(v: int) -> list[int]:
     return list(struct.unpack('>HH', r))
 
 
+CONNECTION_MAX_AGE = 3600.0 # one hour
+
+
 class ModbusManager():
 
     def __init__(self,
@@ -111,6 +122,7 @@ class ModbusManager():
         self.log = log
 
         self._clients: dict[str, Optional[MBClient]] = {}
+        self._client_ts: dict[str, Optional[float]] = {}
 
         for cfg in client_configs:
             if len(cfg) == 0:
@@ -119,6 +131,7 @@ class ModbusManager():
                 continue
 
             name = cfg['name']
+            self._client_ts[name] = None # no active connection yet
             if cfg['host'].lower() in ['test', 'debug', 'none']:
                 self.log.debug(f'modbus[{name}]: creating dummy client')
                 self._clients[name] = None
@@ -128,31 +141,85 @@ class ModbusManager():
                     cfg['host'],
                     port=int(cfg.get('port', 502)),
                     name=f'Modbus[{name}]',
-                    reconnect_delay=10.0,  # TODO: make config setting
-                    timeout=5,
+                    reconnect_delay=0,  # Handle reconnects ourselves
+                    retries=1,
+                    timeout=3,
                 )
 
     async def connect(self):
         for name, client in self._clients.items():
-            if client is None:
+
+            if client is None: # skip dummy clients
+                self._client_ts[name] = time.monotonic() # actual timestamp signifies an active connection
                 continue
+
+            if client.connected:
+                client.close() # ensure no stale transport remains
+
             await client.connect()
             if not client.connected:
                 raise ModbusException(f'unable to connect', source=f'modbus:{name}')
+
+            self._client_ts[name] = time.monotonic() # actual timestamp signifies an active connection
             self.log.debug(f'[modbus:{name}]: connected')
 
     def close(self):
         for name, client in self._clients.items():
+            self._client_ts[name] = None
             if client is None:
                 continue
             client.close()
             self.log.debug(f'[modbus:{name}]: closed connection')
+
+    @property
+    def connected(self) -> bool:
+        '''Whether every real client still holds a live transport, as opposed to whether one was ever
+        opened. A connection the device dropped, or that pymodbus closed itself after too many requests
+        went unanswered, reads as False here while nothing in this application has been told about it.
+        Dummy clients are left out: there is nothing there to reconnect.
+        '''
+        return all(client.connected for client in self._clients.values() if client is not None)
+
+    async def ensure_fresh_connection(self):
+        '''In case there is an active connection AND the connection is older than CONNECTION_MAX_AGE, then
+        the connection is closed and a fresh connection is opened.
+        In all other cases (no active connection, younger than CONNECTION_MAX_AGE) this is a NOP
+
+        Whether a connection is there is asked of the client, and only how old it is of _client_ts. Reading
+        both from the timestamp would make this switch itself off: a refresh that fires while the device is
+        down closes every connection (clearing all timestamps) and then raises out of connect() before it
+        can set a new one, leaving a timestamp of None that no longer satisfies the age test. Repairing a
+        connection that is down is not this method's job in any case - that belongs to the control loop,
+        which reconnects an individual subsystem whose error was ignored, or to the outer reconnect loop.
+        '''
+        need_reconnect = False
+        now = time.monotonic()
+        for name, client in self._clients.items():
+            if client is None: # dummy connection
+                continue
+
+            if not client.connected: # nothing to recycle, and nothing this method should fix
+                continue
+
+            ts = self._client_ts[name]
+            if ts is None or now - ts >= CONNECTION_MAX_AGE:
+                # a live connection of unknown age is recycled too: erring towards honouring the limit
+                age = 'unknown' if ts is None else f'{now - ts} seconds'
+                need_reconnect = True
+                self.log.debug(f'[modbus:{name}]: connection reached maximum age: {age}. Reconnecting')
+                break
+
+        if need_reconnect:
+            self.close()
+            await self.connect()
 
     async def write_registers_parallel(self,
         address: int,
         values: list[int],
         no_response_expected: bool = False,
     ):
+        await self.ensure_fresh_connection()
+
         for name, client in self._clients.items():
             self.log.debug(f'[modbus:{name}]: write register {address} <- {values}')
 
@@ -188,8 +255,10 @@ class ModbusManager():
             return
 
         val_str = '[' + ','.join(str(v) for v in values) + ']'
+        await self.ensure_fresh_connection()
 
         try:
+
             await client.write_registers(address, values, device_id=device_id, no_response_expected=no_response_expected)
             self.log.debug(f'[modbus:{client_name}]: write register {address} <- {val_str}')
         except PymodbusException as e:
@@ -219,6 +288,8 @@ class ModbusManager():
         client = self._clients.get(client_name)
         if client is None:
             return 'dummy' if dtype == 'STRING' else 1.2345  # dummy value
+
+        await self.ensure_fresh_connection()
 
         try:
             cnt = word_count if word_count > 0 else self._dtype_to_word_count(dtype)
@@ -250,7 +321,7 @@ class ModbusManager():
 
     async def read_register_seq(self,
         client_name: str,
-        addr: list[tuple[int, str, str]],
+        addr: list[_RegisterSpec],
         device_id: int = 3,
         force_holding_register: bool = False,
     ) -> list[Any]:
@@ -286,7 +357,7 @@ class ModbusManager():
         return ret
 
     def _parse_batch_fields(self,
-        addr: list[tuple[int, str, str]],
+        addr: list[_RegisterSpec],
         force_holding_register: bool,
         client_name: str,
     ) -> list[_BatchField]:
@@ -359,7 +430,7 @@ class ModbusManager():
 
     async def read_register_batch(self,
         client_name: str,
-        addr: list[tuple[int, str, str]],
+        addr: list[_RegisterSpec],
         device_id: int = 3,
         force_holding_register: bool = False,
         max_registers: int = 125,
@@ -387,6 +458,8 @@ class ModbusManager():
         client = self._clients.get(client_name)
         if client is None:  # dummy client
             return ['dummy' if dtype.split(':')[0] == 'STRING' else 1.2345 for _, dtype, _ in addr]
+
+        await self.ensure_fresh_connection()
 
         fields = self._parse_batch_fields(addr, force_holding_register, client_name)
         ret: list[Any] = [None] * len(addr)
@@ -517,6 +590,8 @@ class ModbusManager():
         word_count: int = 0
     ) -> dict[str, Any]:
         '''Perform a parallel register read operation across all clients'''
+        await self.ensure_fresh_connection()
+
         ret = {}  # collect results here
 
         tasks = []

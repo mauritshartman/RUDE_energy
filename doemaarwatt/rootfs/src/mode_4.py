@@ -204,9 +204,13 @@ class Mode4Controller(BaseController):
         while self.running:
             self.log.debug('mode 4 (dynamic schedule mode) control loop iteration started')
 
-            # fetch current charge
+            await self.reconnect_ignored_subsystems()
             await self.enable_control_subsystems()
 
+            await self.get_stats()
+
+            # fetch current charge
+            self.log.debug(f'gathered stats - determining battery charges')
             current_charge = await self.get_current_charge()
 
             # determine if a schedule update is in order, and compute it if necessary based on currently available prices:
@@ -241,9 +245,6 @@ class Mode4Controller(BaseController):
 
         inv_name -> charge_in_Wh
         '''
-        await self.get_stats()
-        self.log.debug(f'gathered stats - determining battery charges')
-
         ret = {}
         for inv_name, inv_stat in self.stats.battery_inverters.items():
             charge_pct = inv_stat.battery.battery_charge_pct

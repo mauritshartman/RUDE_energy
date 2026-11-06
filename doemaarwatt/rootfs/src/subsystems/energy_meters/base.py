@@ -65,6 +65,12 @@ class BaseEnergyMeter(ABC):
     def close(self) -> None:
         raise NotImplementedError
 
+    def has_live_connection(self) -> bool:
+        '''Whether the connection to this meter is still usable - not whether this application believes it
+        opened one. See BaseInverter.has_live_connection.
+        '''
+        return True
+
     @abstractmethod
     async def read_stats(self) -> EnergyMeterStats:
         raise NotImplementedError

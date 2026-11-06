@@ -474,7 +474,7 @@ class DoeMaarWattConfig:
                 'port': 502,
                 'connected_phase': Phase.ALL,
                 'phase_mapping': 'gridL1:evseL2,gridL2:evseL1,gridL3:evseL3',
-                'ignore_errors': False,
+                'ignore_errors': True,
             },
             {
                 'name': 'Alfen Eve Single Pro - Right (gray)',
@@ -484,7 +484,7 @@ class DoeMaarWattConfig:
                 'port': 502,
                 'connected_phase': Phase.ALL,
                 'phase_mapping': EV_CHARGER_STRAIGHT_MAPPING,
-                'ignore_errors': False,
+                'ignore_errors': True,
             },
         ])
         dyn_cfg = self.get_mode_dynamic_config()

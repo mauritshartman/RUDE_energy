@@ -37,6 +37,14 @@ class BaseInverter(ABC):
         '''
         raise NotImplementedError
 
+    def has_live_connection(self) -> bool:
+        '''Whether the connection to this inverter is still usable - not whether this application believes
+        it opened one. An inverter that talks over Modbus overrides this with the state of the transport
+        itself, so a connection that has gone down without anything noticing is reported as such. One that
+        needs no connection at all (a simulated inverter) has nothing that can go down.
+        '''
+        return True
+
     @abstractmethod
     async def enable_control(self) -> None:
         '''Put the inverter in a state where it can be directly controlled by this application.

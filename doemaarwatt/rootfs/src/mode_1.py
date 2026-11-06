@@ -40,6 +40,7 @@ class Mode1Controller(BaseController):
 
     async def control_loop(self):
         while self.running:  # inner, control loop
+            await self.reconnect_ignored_subsystems()
 
             # defensive re-assertion against state drift:
             self.log.info('idle: relinquish control for all inverters')

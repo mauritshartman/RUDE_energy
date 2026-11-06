@@ -112,6 +112,11 @@ class AlfenEvePro(BaseEVCharger):
 
         self._modbus.close()
 
+    def has_live_connection(self) -> bool:
+        # deliberately not self.is_connected: that only records that connect() was once called and says
+        # nothing about whether the transport underneath is still there
+        return self._modbus.connected
+
     async def enable_control(self) -> None:
         if not self.is_connected:
             raise ControlException(f'unable to assert control, not connected', source=self.name)

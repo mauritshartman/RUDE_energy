@@ -66,6 +66,9 @@ class SmaSunnyBoyStorage(BaseBatteryInverter):
         self.control_status = ControlStatus.UNCONTROLLED
         self._modbus.close()
 
+    def has_live_connection(self) -> bool:
+        return self._modbus.connected
+
     async def enable_control(self) -> None:
         await self._modbus.write_registers_parallel(40151, [0, 802])
         self.control_status = ControlStatus.NOMINAL

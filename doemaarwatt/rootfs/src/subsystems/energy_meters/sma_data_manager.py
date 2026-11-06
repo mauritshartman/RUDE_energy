@@ -35,6 +35,9 @@ class SmaDataManager(BaseEnergyMeter):
     def close(self) -> None:
         self._modbus.close()
 
+    def has_live_connection(self) -> bool:
+        return self._modbus.connected
+
     async def read_stats(self) -> EnergyMeterStats:
         self.log.debug('reading data manager properties:')
 

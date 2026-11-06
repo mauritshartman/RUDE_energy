@@ -23,6 +23,12 @@ from subsystems.ev_chargers import BaseEVCharger, create_ev_charger, EVChargerSt
 RECONNECT_DELAY = 10 # seconds before attempting a reconnect
 LOOP_DELAY = 10 # control loop delay
 
+# A subsystem with ignore_errors never reaches the outer reconnect loop, so the control loop reconnects it
+# itself (see reconnect_ignored_subsystems). The first attempt is made on the next iteration; this is how
+# long to wait before trying again after one fails, so a device that is simply gone is not dialled every
+# few seconds for as long as it stays gone.
+SUBSYSTEM_RECONNECT_DELAY = 60 # seconds between reconnect attempts for one subsystem
+
 # Phase current difference handling (issue #18): too large a current difference between two phases at the
 # grid connection trips the main circuit breaker. This typically happens when one inverter falls back to its
 # own charge/discharge behaviour while the others are still controlled in the opposite direction.
@@ -32,12 +38,21 @@ NOMINAL_PHASE_VOLTAGE = 230.0    # fallback when the energy meter reports no vol
 
 # Solar curtailment (issues #29, #31): a solar inverter generating within this margin of the output cap in force
 # is taken to be held back by that cap, so its measured generation says nothing about what the sun delivers.
+#
+# The floor in Watts has to clear the granularity of the cap itself. The SMA solar inverter is commanded with
+# a normalized setpoint of whole percents of WMax (see sma_solar_inverter), so the finest step it can take is
+# WMax / 100 across all three phases - about 83 W per phase on a 25 kW inverter. It also reaches a new
+# setpoint over a ramp rather than at once (WCtlComCfg.Dyn, 20 %/s by default), so for a cycle or two its
+# generation sits somewhere between the old cap and the new one. A floor of twice the step leaves room for
+# both without the margin growing so wide that an inverter well below its cap is read as pinned to it.
 SOLAR_AT_CAP_MARGIN_PCT = 3.0    # margin as a percentage of the cap ...
-SOLAR_AT_CAP_MARGIN_W = 100.0    # ... but at least this many Watts (per phase)
+SOLAR_AT_CAP_MARGIN_W = 200.0    # ... but at least this many Watts (per phase): > 2 setpoint steps
 # Room (per phase) a solar inverter is given above its present generation whenever its cap binds, so it is
-# not mistaken for being held back when it is not: must stay well clear of the at-cap margin above.
+# not mistaken for being held back when it is not: must stay well clear of the at-cap margin above. Raised
+# with that margin to keep the ratio between the two - room below the margin would put an inverter straight
+# back inside the at-cap band after being given room, which is the oscillation of issue #31.
 SOLAR_ROOM_PCT = 6.0             # room as a percentage of the present generation ...
-SOLAR_ROOM_W = 250.0             # ... but at least this many Watts
+SOLAR_ROOM_W = 500.0             # ... but at least this many Watts
 
 
 class BaseController(
@@ -63,6 +78,10 @@ class BaseController(
         self.ev_chargers: list[BaseEVCharger] = []
         self.inverters: dict[str, BaseInverter] = {} # inverter name -> BaseInverter
         self.energy_meter: Optional[BaseEnergyMeter] = None
+
+        # Subsystems whose error was ignored, mapped to the monotonic time from which they may be
+        # reconnected. Filled by handle_subsystem_error, acted on by reconnect_ignored_subsystems.
+        self._reconnect_after: dict[BaseInverter|BaseEnergyMeter, float] = {}
 
         # mapping of each phase to all connected and enabled inverters (battery and solar) to it
         self.inv_phase_map: dict[Phase, list[str]] = None  # type: ignore
@@ -134,12 +153,20 @@ class BaseController(
         than something that is behaving.
 
         A cancellation is never ignored: that is the add-on shutting down, not a subsystem misbehaving.
+
+        Stepping over the error also means stepping over the reconnect the control loop would have done,
+        so the subsystem is noted for reconnect_ignored_subsystems to look at on the next iteration. Only
+        noted, not reconnected: most ignored errors leave the connection perfectly usable and reconnecting
+        would be pure churn. That call decides, by looking at the connection rather than at the error.
         '''
         if isinstance(error, asyncio.CancelledError) or not getattr(subsystem, 'ignore_errors', False):
             raise error
 
         self.log.error(f'{subsystem.name}: error while {action} is ignored, as ignore_errors is set for this '
                        f'subsystem - it is left uncontrolled: {type(error).__name__}: {error}')
+
+        # setdefault, so a subsystem that keeps failing does not keep pushing its own retry further away
+        self._reconnect_after.setdefault(subsystem, time.monotonic())
 
     async def gather_subsystems(self, subsystems: list, action: str, coros: list,
         best_effort: bool = False,
@@ -175,7 +202,58 @@ class BaseController(
         if self.energy_meter:
             await self.gather_subsystems([self.energy_meter], 'connecting', [self.energy_meter.connect()])
 
+        # everything has just been reconnected, so whatever was noted for an individual reconnect is moot.
+        # Anything still broken will be noted again by the first error it causes
+        self._reconnect_after.clear()
+
         self.log.info(f'(re)connected to all subsystems')
+
+    async def reconnect_ignored_subsystems(self):
+        '''Reopen the connection of a subsystem whose error was ignored and whose connection has since gone
+        down. Called at the top of every control loop iteration.
+
+        This exists because ignore_errors removes the only thing that used to reconnect a subsystem. An
+        error that reaches the control loop relinquishes control and reconnects everything; an ignored one
+        does neither, and nothing underneath will step in either - pymodbus is configured not to reconnect
+        by itself, since its doing so behind our back orphaned sockets on the inverter. So without this, a
+        subsystem that loses its connection stays dark: every later read fails with 'not connected', is
+        ignored in turn, and it reports UNCONTROLLED until something unrelated tears the controller down.
+
+        Only a subsystem whose connection is actually down is reconnected. An ignored error on a live
+        connection - a register the device will not produce, say - is not repaired by reconnecting, and
+        reconnecting regardless would add exactly the churn this is meant to avoid.
+
+        Control is deliberately not re-asserted here: each mode does that at the top of its own loop, which
+        is the next thing to run, and only the mode knows which way round it wants the subsystem (mode 1
+        relinquishes control where modes 2 - 4 enable it).
+        '''
+        if not self._reconnect_after:
+            return
+
+        now = time.monotonic()
+        for subsystem, retry_from in list(self._reconnect_after.items()):
+            if subsystem.has_live_connection():
+                del self._reconnect_after[subsystem]  # nothing wrong with the connection, so nothing to do
+                continue
+
+            if now < retry_from:
+                continue
+
+            self.log.info(f'{subsystem.name}: connection is down after an ignored error, reconnecting it')
+            try:
+                subsystem.close()  # dispose of the dead transport before opening another one
+                await subsystem.connect()
+            except asyncio.CancelledError:
+                raise
+            except Exception as e:
+                # most likely the device is still gone: keep it noted and come back to it later
+                self._reconnect_after[subsystem] = time.monotonic() + SUBSYSTEM_RECONNECT_DELAY
+                self.log.error(f'{subsystem.name}: reconnect failed, next attempt in '
+                               f'{SUBSYSTEM_RECONNECT_DELAY} seconds: {type(e).__name__}: {e}')
+                continue
+
+            del self._reconnect_after[subsystem]
+            self.log.info(f'{subsystem.name}: reconnected')
 
     async def enable_control_subsystems(self):
         '''Put every subsystem in a state where it can be controlled. One that fails and has ignore_errors
