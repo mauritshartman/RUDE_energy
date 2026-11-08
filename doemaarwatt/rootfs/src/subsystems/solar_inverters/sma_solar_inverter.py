@@ -167,8 +167,9 @@ class SmaSolarInverter(BaseSolarInverter):
         # WCtlComCfg.WNom (40016). This replaces the manual preset in Watts (WMod = 1077, setpoint in
         # WCnstCfg.W 40212), whose setpoint register is a flash-stored parameter and so cannot be written
         # once per control loop the way a limit that tracks the main fuse has to be.
-        await self._ensure_parameter(REG_WCTLCOM_ENA, ENA_ON, 'external active power setpoint channel')
-        await self._ensure_parameter(REG_WMOD, WMOD_EXTERNAL_SETPOINT, 'active power operating mode')
+        # Register settings controlled elsewhere
+        # await self._ensure_parameter(REG_WCTLCOM_ENA, ENA_ON, 'external active power setpoint channel')
+        # await self._ensure_parameter(REG_WMOD, WMOD_EXTERNAL_SETPOINT, 'active power operating mode')
 
         self.is_controlled = True
         self.control_status = ControlStatus.NOMINAL
@@ -183,10 +184,10 @@ class SmaSolarInverter(BaseSolarInverter):
 
         # Hand the full range back before switching the channel off, so the inverter is left running freely
         # rather than holding whatever percentage was commanded last
-        await self._modbus.write_register(self.name, REG_WNOM_PCT, [NO_LIMIT_PCT], device_id=self._device_id)
+        # await self._modbus.write_register(self.name, REG_WNOM_PCT, [NO_LIMIT_PCT], device_id=self._device_id)
 
-        await self._ensure_parameter(REG_WMOD, WMOD_OFF, 'active power operating mode')
-        await self._ensure_parameter(REG_WCTLCOM_ENA, ENA_OFF, 'external active power setpoint channel')
+        # await self._ensure_parameter(REG_WMOD, WMOD_OFF, 'active power operating mode')
+        # await self._ensure_parameter(REG_WCTLCOM_ENA, ENA_OFF, 'external active power setpoint channel')
 
         self.setpoint_limit = None
 
