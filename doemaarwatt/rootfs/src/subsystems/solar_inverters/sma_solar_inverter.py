@@ -22,9 +22,10 @@ REG_30217_TAGLIST = {
     311: 'Open', # default value
 }
 REG_33001_TAGLIST = {
+    302: 'Undocumented 33001 response',  # not listed for this register, but what the hardware answers with while in standby
     1393: 'Waiting for PV voltage',
     1394: 'Waiting for valid AC grid',
-    4570: 'Wait for enable operation',
+    4570: 'Wait for enable operation', # default value
 }
 
 

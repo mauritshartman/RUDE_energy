@@ -507,10 +507,21 @@ class ModbusManager():
         ret: list[Any],
     ) -> None:
         '''Fetch one group in a single request and decode every value out of the response.'''
-        if group[0].holding:
-            resp = await client.read_holding_registers(start, count=count, device_id=device_id)
-        else:
-            resp = await client.read_input_registers(start, count=count, device_id=device_id)
+        # Wrapped the way read_register wraps its own read. Without this the library's own exceptions - a
+        # timeout raising ModbusIOException above all - travel up as they are, and a pymodbus exception is
+        # not a DMWException: the control loop takes it for an unforeseen failure, logs it as fatal and
+        # stops, where a wrapped one is handled as what it is and costs a reconnect. A Modbus timeout is
+        # ordinary, and in the 2026-11-08 run one of them took the add-on down
+        try:
+            if group[0].holding:
+                resp = await client.read_holding_registers(start, count=count, device_id=device_id)
+            else:
+                resp = await client.read_input_registers(start, count=count, device_id=device_id)
+        except PymodbusException as e:
+            # no exception_code: nothing reached the device, so read_register_batch must not spend another
+            # request per value trying the same span one register at a time
+            raise ModbusException(f'exception in Pymodbus library while reading registers '
+                                  f'{start}..{start + count - 1}: {e}', source=f'modbus:{client_name}')
 
         if resp.isError():
             code = getattr(resp, 'exception_code', None)
@@ -719,7 +730,7 @@ class ModbusManager():
                 except KeyError:
                     raise ProgrammingError(f'no taglist mapping for value {value}', source='modbus')
 
-        self.log.debug(f"[modbus:{client_name}]: decoded response '{resp}' into {value} for register {address}")
+        self.log.debug(f"[modbus:{client_name}]: decoded response '{resp.registers}' into {value} for register {address}")
         return value
 
     def _decode_string(self, registers: list[int]) -> Optional[str]:
